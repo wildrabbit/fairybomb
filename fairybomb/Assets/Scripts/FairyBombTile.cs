@@ -13,6 +13,10 @@ public enum TileType: int
 
 public class FairyBombTile : Tile
 {
+    public TileType TileType => _tile;
+    public bool Destructible => _destructible;
+    public bool Walkable => _walkable;
+
     [SerializeField] TileType _tile;
     [SerializeField] bool _destructible;
     [SerializeField] bool _walkable;
