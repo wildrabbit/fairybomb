@@ -157,6 +157,7 @@ public class FairyBombMap : MonoBehaviour
         {
             return explodingTiles;
         }
+        explodingTiles.Add(refCoords);
 
         int numRays = 6;
         for (int i = 0; i < numRays; ++i)

@@ -17,10 +17,13 @@ public class GameController : MonoBehaviour
 
     [SerializeField] FairyBombMap _mapPrefab;
     [SerializeField] Player _playerPrefab;
+    [SerializeField] GameObject _explosionPrefab;
     [SerializeField] float _inputDelay = 0.25f;
     [SerializeField] float _defaultTimeScale = 1.0f;
 
     IEntityController _entityController;
+
+    List<GameObject> _explosionItems;
 
 
     // Time control / contexts
@@ -50,6 +53,7 @@ public class GameController : MonoBehaviour
         _input = new GameInput(_inputDelay);
         _entityController = new EntityController();
 
+        _explosionItems = new List<GameObject>();
         _scheduledEntities = new List<IScheduledEntity>();
         _scheduledToAdd = new List<IScheduledEntity>();
         _result = GameResult.None;
@@ -94,10 +98,17 @@ public class GameController : MonoBehaviour
     {
         _entityController.OnEntitiesAdded -= RegisterScheduledEntities;
         _entityController.OnEntitiesRemoved -= UnregisterScheduledEntities;
+        _entityController.OnBombExploded -= BombExploded;
         _entityController.OnBombExploded -= _map.BombExploded;
         _entityController.OnPlayerKilled -= PlayerKilled;
 
         _cameraController.Cleanup();
+
+        foreach(var explosion in _explosionItems)
+        {
+            Destroy(explosion);
+        }
+        _explosionItems.Clear();
 
         _map.Cleanup();
         GameObject.Destroy(_map.gameObject);
@@ -107,6 +118,24 @@ public class GameController : MonoBehaviour
 
         _scheduledEntities.Clear();
         _scheduledToAdd.Clear();
+    }
+
+    private void BombExploded(Bomb bomb, List<Vector2Int> coords)
+    {
+        foreach(var coord in coords)
+        {
+            var explosion = Instantiate(_explosionPrefab);
+            explosion.transform.position = _map.WorldFromCoords(coord);
+            _explosionItems.Add(explosion);
+            StartCoroutine(DelayedKillExplosion(explosion, 0.25f));
+        }
+    }
+
+    private IEnumerator DelayedKillExplosion(GameObject explosion, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        _explosionItems.Remove(explosion);
+        Destroy(explosion);
     }
 
     private void PlayerKilled()
@@ -126,7 +155,7 @@ public class GameController : MonoBehaviour
         _entityController.OnEntitiesRemoved += UnregisterScheduledEntities;
         _entityController.CreatePlayer(_playerPrefab, _map.PlayerStart);
         _entityController.OnPlayerKilled += PlayerKilled;
-
+        _entityController.OnBombExploded += BombExploded;
         _entityController.OnBombExploded += _map.BombExploded;
 
         Rect mapBounds = _map.GetBounds();
