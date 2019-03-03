@@ -36,4 +36,7 @@ MonoBehaviour:
   m_ColliderType: 1
   _tile: 2
   _destructible: 1
+  _hp: 1
   _walkable: 0
+  _destructionReplacement: {fileID: 11400000, guid: 6551d8a0e663e4b40b9da0bfa53a2a9c,
+    type: 2}

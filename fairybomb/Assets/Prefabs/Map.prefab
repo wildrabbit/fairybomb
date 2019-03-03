@@ -48,6 +48,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 71911584c95f4064abe3726311193db4, type: 2}
   - {fileID: 11400000, guid: 6551d8a0e663e4b40b9da0bfa53a2a9c, type: 2}
   - {fileID: 11400000, guid: 67c09b9a5230d98428c44935baeae51d, type: 2}
+  - {fileID: 11400000, guid: fe9ffc623419f254f9fdb58585b9cf59, type: 2}
+  _goalTile: {fileID: 11400000, guid: fe9ffc623419f254f9fdb58585b9cf59, type: 2}
   _map: {fileID: 2278358202886014313}
   PlayerStart: {x: 0, y: 0}
   Dimensions: {x: 0, y: 0}
@@ -2609,8 +2611,8 @@ TilemapRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 907864671
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}

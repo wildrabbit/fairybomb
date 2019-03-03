@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -8,7 +6,8 @@ public enum TileType: int
 {
     Block = 0,
     Grass,
-    Wood
+    Wood,
+    Goal
 }
 
 public class FairyBombTile : Tile
@@ -19,8 +18,9 @@ public class FairyBombTile : Tile
 
     [SerializeField] TileType _tile;
     [SerializeField] bool _destructible;
+    [SerializeField] int _hp = 1;
     [SerializeField] bool _walkable;
-
+    [SerializeField] FairyBombTile _destructionReplacement;
 
 #if UNITY_EDITOR
     // The following is a helper that adds a menu item to create a RoadTile Asset

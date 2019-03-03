@@ -50,6 +50,9 @@ public class GameInput
     public bool IdleTurn => idle.Value;
     public bool BombPlaced => placeBomb.Value;
     public bool BombDetonated => detonateBomb.Value;
+
+    public bool Any => Input.anyKeyDown;
+
     public MoveDirection MoveDir;
 
    public bool[] numbersPressed;

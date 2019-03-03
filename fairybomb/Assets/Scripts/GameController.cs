@@ -1,5 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+
+public enum GameResult
+{
+    None,
+    Running,
+    Won,
+    Lost
+}
 
 public class GameController : MonoBehaviour
 {
@@ -24,7 +34,7 @@ public class GameController : MonoBehaviour
     Dictionary<PlayContext, BaseContextData> _playContextData;
 
     GameInput _input;
-
+    GameResult _result;
     int[] _sampleMap;
 
     //----------------------- Shortcuts --------------------/
@@ -37,6 +47,7 @@ public class GameController : MonoBehaviour
         _input = new GameInput(_inputDelay);
         _scheduledEntities = new List<IScheduledEntity>();
         _scheduledToAdd = new List<IScheduledEntity>();
+        _result = GameResult.None;
         InitializePlayContexts();
         InitializePlayContextsData();
     }
@@ -62,9 +73,9 @@ public class GameController : MonoBehaviour
         _sampleMap = new int[]
         {
             0,0,0,0,0,0,0,0,0,0,
+            0,1,1,1,1,0,1,1,3,0,
             0,1,1,1,1,0,1,1,1,0,
-            0,1,1,1,1,0,1,1,1,0,
-            0,1,1,1,1,2,1,1,1,0,
+            0,1,1,1,1,1,1,1,1,0,
             0,0,1,0,0,2,0,2,0,0,
             0,1,1,1,1,2,1,1,1,0,
             0,1,1,1,1,0,1,1,1,0,
@@ -105,6 +116,8 @@ public class GameController : MonoBehaviour
         _elapsedUnits = 0;
         _turns = 0;
 
+        _result = GameResult.Running;
+
         var contextData = ((ActionPhaseData)_playContextData[PlayContext.Action]);
         contextData.Player = _player;
         contextData.Map = _map;
@@ -113,6 +126,15 @@ public class GameController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (_result != GameResult.Running)
+        {
+            if (_input.Any)
+            {
+                StartCoroutine(RestartGame());
+            }
+            return;
+        }
+
         _input.Read();
         bool timeWillPass;
         _playContext = _playContexts[_playContext].Update(_playContextData[_playContext], out timeWillPass);
@@ -143,6 +165,17 @@ public class GameController : MonoBehaviour
         //    _scheduledToAdd.Clear();
         }
 
+        _result = EvaluateGameResult();
+    }
+
+    GameResult EvaluateGameResult()
+    {
+        Vector2Int playerCoords = _map.CoordsFromWorld(_player.transform.position);
+        if (_map.IsGoal(playerCoords))
+        {
+            Debug.Log($"YAY WON");
+            return GameResult.Won;
+        }
         //if (Mathf.Approximately(_player.HP, 0.0f))
         //{
         //    Destroy(_player.gameObject);
@@ -151,5 +184,13 @@ public class GameController : MonoBehaviour
         //    _gameResult = GameResult.Lost;
         //    GameFinished?.Invoke(_gameResult);
         //}
+        return GameResult.Running;
+    }
+
+    private IEnumerator RestartGame()
+    {
+        ResetGame();
+        yield return new WaitForSeconds(0.1f);
+        StartGame(); // TODO: Change level or smthing.
     }
 }

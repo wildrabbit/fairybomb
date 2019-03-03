@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class FairyBombMap : MonoBehaviour
 {
     [SerializeField] List<FairyBombTile> _lesTiles;
+    [SerializeField] FairyBombTile _goalTile;
 
     [SerializeField] Tilemap _map;
     public Vector2Int PlayerStart;
@@ -88,6 +87,12 @@ public class FairyBombMap : MonoBehaviour
         Vector2 max = _map.CellToWorld(new Vector3Int(cellBounds.yMax, cellBounds.xMax, 0));
         return new Rect(min.y, min.x, (max.y - min.y), (max.x - min.x));
 
+    }
+
+    public bool IsGoal(Vector2Int coords)
+    {
+        var tile = (FairyBombTile)_map.GetTile((Vector3Int)coords);
+        return tile != null ? (tile.TileType == _goalTile.TileType) : false;
     }
 
     public void Cleanup()

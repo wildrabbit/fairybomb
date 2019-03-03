@@ -160,6 +160,8 @@ MonoBehaviour:
     type: 3}
   _playerPrefab: {fileID: 5073076910135972578, guid: a87ab9ea031c5ad44b5ae21dfd0f4aa9,
     type: 3}
+  _inputDelay: 0.25
+  _defaultTimeScale: 1
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -199,6 +201,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac71fe87b69b6b04cb43ef759a961c5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  EaseCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.19141033
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  _type: 0
 --- !u!20 &519420031
 Camera:
   m_ObjectHideFlags: 0

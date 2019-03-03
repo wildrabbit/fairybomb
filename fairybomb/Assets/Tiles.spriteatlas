@@ -31,18 +31,22 @@ SpriteAtlas:
     variantMultiplier: 1
     packables:
     - {fileID: 102900000, guid: 424cb692922da6e4f8b8433e89fa00b2, type: 3}
-    totalSpriteSurfaceArea: 16384
+    totalSpriteSurfaceArea: 147456
     bindAsDefault: 1
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
   - {fileID: 21300000, guid: 65b7ba758be9b9e409909e6682ad67a3, type: 3}
+  - {fileID: 21300000, guid: 6c637de50d40ae4449d408257ed2643e, type: 3}
   - {fileID: 21300000, guid: 20229206bdd26634f8cb5968e1f0500d, type: 3}
   - {fileID: 21300000, guid: 03b98128cbb3bdb4fb9eb8f91c28b382, type: 3}
+  - {fileID: 21300000, guid: 7845f078cd2cdee47837bf3b8b00ebba, type: 3}
   - {fileID: 21300000, guid: da49345dfad9cce46bff1270791b6718, type: 3}
   m_PackedSpriteNamesToIndex:
   - tile-unblockable
+  - basic-bomb
   - chara
   - tile-wood
+  - tile-goal
   - tile-grass
   m_Tag: Tiles
   m_IsVariant: 0
