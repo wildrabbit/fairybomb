@@ -8,6 +8,7 @@ public class ActionPhaseContext : IPlayContext
         GameInput input = actionData.input;
         Player player = actionData.Player;
         FairyBombMap map = actionData.Map;
+        EntityController entityController = actionData.EntityController as EntityController;
 
 
         timeWillPass = false;
@@ -19,56 +20,28 @@ public class ActionPhaseContext : IPlayContext
         }
 
         Vector2Int playerCoords = map.CoordsFromWorld(player.transform.position);
-        Vector2Int offset = Vector2Int.zero;
-        bool evenColumn = playerCoords.y % 2 == 0;
-        MoveDirection moveDir = input.MoveDir;
-        switch (moveDir)
+
+        if (input.BombPlaced)
         {
-            case MoveDirection.None:
-                {
-                    break;
-                }
-            case MoveDirection.NW:
-                {
-                    offset.Set(evenColumn ? 0 : 1, -1);
-                    break;
-                }
-            case MoveDirection.N:
-                {
-                    offset.Set(1, 0);
-                    break;
-                }
-            case MoveDirection.NE:
-                {
-                    offset.Set(evenColumn ? 0 : 1, 1);
-                    break;
-                }
-            case MoveDirection.SW:
-                {
-                    offset.Set(evenColumn ? -1 : 0, -1);
-                    break;
-                }
-            case MoveDirection.SE:
-                {
-                    offset.Set(evenColumn ? -1 : 0, 1);
-                    break;
-                }
-            case MoveDirection.S:
-                {
-                    offset.Set(-1, 0);
-                    break;
-                }
+            BaseEntity[] blackList = new BaseEntity[] { player };
+            if(map.TileAt(playerCoords).Walkable && !entityController.ExistsEntitiesAt(playerCoords, blackList) && player.HasBombAvailable())
+            {
+                Bomb bomb = entityController.CreateBomb(player.SelectedBomb, player, playerCoords);
+            }
+            timeWillPass = true;
+            return PlayContext.Action;
         }
 
-        if(offset != Vector2Int.zero)
+        bool evenColumn = playerCoords.y % 2 == 0;
+        MoveDirection moveDir = input.MoveDir;
+        Vector2Int offset = map.GetOffset(moveDir, evenColumn);
+        if (offset != Vector2Int.zero)
         {
             playerCoords += offset;
-            map.ConstrainCoords(ref playerCoords);
-            Vector2 playerTargetPos = map.WorldFromCoords(playerCoords);
-
+            
             if (map.IsWalkableTile(playerCoords))
             {
-                player.transform.position = playerTargetPos;
+                player.Coords = playerCoords;
                 timeWillPass = true;
             }
             else

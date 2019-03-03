@@ -10,6 +10,7 @@ public class BaseContextData
 
 public class ActionPhaseData: BaseContextData
 {
+    public IEntityController EntityController;
     public Player Player;
     public FairyBombMap Map;
     public bool BumpingWallsWillSpendMoves;

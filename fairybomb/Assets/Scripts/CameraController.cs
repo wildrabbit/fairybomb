@@ -31,36 +31,42 @@ public class CameraController : MonoBehaviour
     {
         float halfHeight = _camera.orthographicSize;
         float halfWidth = _camera.aspect * _camera.orthographicSize;
-        Vector3 camPos = _camera.transform.position;
+        Vector2 camPos = _camera.transform.position;
         camPos.x = Mathf.Clamp(camPos.x, _worldSize.xMin + halfWidth, _worldSize.xMax - halfWidth);
         camPos.y = Mathf.Clamp(camPos.y, _worldSize.yMin + halfHeight, _worldSize.yMax - halfHeight);
-        _camera.transform.position = camPos;
+        SetCamPos2D(camPos);
     }
 
     public void SetTarget(Transform target)
     {
         _type = CameraType.Tracking;
         _target = target;
-        _camera.transform.position = new Vector3(_target.position.x, _target.position.y, _camera.transform.position.z);
-        //FitToBounds();
+        SetCamPos2D(_target.position);
     }
 
     IEnumerator MoveCamera(float time)
     {
         float elapsed = 0;
-        Vector3 startPos = _camera.transform.position;
-        Vector3 targetPos = new Vector3(_target.position.x, _target.position.y, _camera.transform.position.z);
+        Vector2 startPos = _camera.transform.position;
+        Vector2 targetPos = new Vector2(_target.position.x, _target.position.y);
         while (elapsed < time)
         {
-            _camera.transform.position = Vector3.Lerp(startPos, targetPos, EaseCurve.Evaluate(elapsed));
+            SetCamPos2D(Vector2.Lerp(startPos, targetPos, EaseCurve.Evaluate(elapsed)));
             yield return null;
             elapsed += Time.deltaTime;
         }
     }
 
-    public void SetFixed(Vector3 cameraCenter)
+    public void SetCamPos2D(Vector2 position)
+    {
+        Vector3 newPos = new Vector3(position.x, position.y, _camera.transform.position.z);
+        _camera.transform.position = newPos;
+    }
+
+    public void SetFixed(Vector2 cameraCenter)
     {
         _type = CameraType.Fixed;
+        SetCamPos2D(cameraCenter);
         _target = null;
     }
 

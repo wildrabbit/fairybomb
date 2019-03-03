@@ -20,6 +20,9 @@ public class GameController : MonoBehaviour
     [SerializeField] float _inputDelay = 0.25f;
     [SerializeField] float _defaultTimeScale = 1.0f;
 
+    IEntityController _entityController;
+
+
     // Time control / contexts
     float _timeScale;
     float _elapsedUnits;
@@ -29,7 +32,8 @@ public class GameController : MonoBehaviour
     List<IScheduledEntity> _scheduledToAdd;
 
     PlayContext _playContext;
-
+    
+    // :thinking: Does the behaviour/data make sense for this? Should context also include the data?
     Dictionary<PlayContext, IPlayContext> _playContexts;
     Dictionary<PlayContext, BaseContextData> _playContextData;
 
@@ -39,12 +43,13 @@ public class GameController : MonoBehaviour
 
     //----------------------- Shortcuts --------------------/
 
-    Player _player;
     FairyBombMap _map;
 
     void Awake()
     {
         _input = new GameInput(_inputDelay);
+        _entityController = new EntityController();
+
         _scheduledEntities = new List<IScheduledEntity>();
         _scheduledToAdd = new List<IScheduledEntity>();
         _result = GameResult.None;
@@ -86,19 +91,29 @@ public class GameController : MonoBehaviour
     }
 
     void ResetGame()
-    {        
+    {
+        _entityController.OnEntitiesAdded -= RegisterScheduledEntities;
+        _entityController.OnEntitiesRemoved -= UnregisterScheduledEntities;
+        _entityController.OnBombExploded -= _map.BombExploded;
+        _entityController.OnPlayerKilled -= PlayerKilled;
+
         _cameraController.Cleanup();
 
         _map.Cleanup();
         GameObject.Destroy(_map.gameObject);
         _map = null;
 
-        _player.Cleanup();
-        GameObject.Destroy(_player.gameObject);
-        _player = null;
+        _entityController.Cleanup();
 
         _scheduledEntities.Clear();
         _scheduledToAdd.Clear();
+    }
+
+    private void PlayerKilled()
+    {
+        _result = GameResult.Lost;
+        // TODO: Lost event
+        Debug.Log("Booo, Lost");
     }
 
     void StartGame()
@@ -106,12 +121,17 @@ public class GameController : MonoBehaviour
         _map = Instantiate<FairyBombMap>(_mapPrefab);
         _map.InitFromArray(new Vector2Int(10, 8), System.Array.ConvertAll(_sampleMap, (value) => (TileType)value), new Vector2Int(2, 2));
 
-        _player = Instantiate<Player>(_playerPrefab);
-        _player.transform.position = _map.WorldFromCoords(_map.PlayerStart);
-        _scheduledEntities.Add(_player);
+        _entityController.Init(_map);
+        _entityController.OnEntitiesAdded += RegisterScheduledEntities;
+        _entityController.OnEntitiesRemoved += UnregisterScheduledEntities;
+        _entityController.CreatePlayer(_playerPrefab, _map.PlayerStart);
+        _entityController.OnPlayerKilled += PlayerKilled;
 
-        _cameraController.SetBounds(_map.GetBounds());
-        _cameraController.SetTarget(_player.transform);
+        _entityController.OnBombExploded += _map.BombExploded;
+
+        Rect mapBounds = _map.GetBounds();
+        _cameraController.SetBounds(mapBounds);
+        _cameraController.SetFixed(new Vector3(mapBounds.width/2, mapBounds.height/2, _cameraController.transform.position.z));
 
         _elapsedUnits = 0;
         _turns = 0;
@@ -119,8 +139,27 @@ public class GameController : MonoBehaviour
         _result = GameResult.Running;
 
         var contextData = ((ActionPhaseData)_playContextData[PlayContext.Action]);
-        contextData.Player = _player;
+        contextData.EntityController = _entityController;
+        contextData.Player = _entityController.Player;
         contextData.Map = _map;
+
+        _entityController.AddNewEntities();
+    }
+
+    void RegisterScheduledEntities(List<BaseEntity> entities)
+    {
+        foreach(var e in entities)
+        {
+            _scheduledEntities.Add(e);
+        }
+    }
+
+    void UnregisterScheduledEntities(List<BaseEntity> entities)
+    {
+        foreach(var e in entities)
+        {
+            _scheduledEntities.Remove(e);
+        }
     }
 
     // Update is called once per frame
@@ -141,7 +180,7 @@ public class GameController : MonoBehaviour
 
         if (timeWillPass)
         {
-            float units = _defaultTimeScale * (1 / _player.Speed);
+            float units = _defaultTimeScale * (1 / _entityController.Player.Speed);
             foreach (var scheduled in _scheduledEntities)
             {
                 scheduled.AddTime(units, ref _playContext);
@@ -149,41 +188,25 @@ public class GameController : MonoBehaviour
             _elapsedUnits += units;
             _turns++;
             Debug.Log($"Game time: {_elapsedUnits}, turns: {_turns}");
-
-        //    foreach (var toRemove in _monstersToRemove)
-        //    {
-        //        _scheduledEntities.Remove(toRemove);
-        //        Destroy(toRemove.gameObject);
-        //        _monsters.Remove(toRemove);
-        //    }
-        //    _monstersToRemove.Clear();
-
-        //    foreach (var toAdd in _scheduledToAdd)
-        //    {
-        //        _scheduledEntities.Add(toAdd);
-        //    }
-        //    _scheduledToAdd.Clear();
         }
 
-        _result = EvaluateGameResult();
+        _entityController.RemovePendingEntities();
+        _entityController.AddNewEntities();
+
+        if(_result == GameResult.Running)
+        {
+            _result = EvaluateVictory();
+        }
     }
 
-    GameResult EvaluateGameResult()
+    GameResult EvaluateVictory()
     {
-        Vector2Int playerCoords = _map.CoordsFromWorld(_player.transform.position);
-        if (_map.IsGoal(playerCoords))
+        if (_map.IsGoal(_entityController.Player.Coords))
         {
             Debug.Log($"YAY WON");
+            // TODO: Won event
             return GameResult.Won;
         }
-        //if (Mathf.Approximately(_player.HP, 0.0f))
-        //{
-        //    Destroy(_player.gameObject);
-        //    _player = null;
-        //    _scheduledEntities.Remove(_player);
-        //    _gameResult = GameResult.Lost;
-        //    GameFinished?.Invoke(_gameResult);
-        //}
         return GameResult.Running;
     }
 

@@ -34,12 +34,12 @@ public class InputEntry
 public enum MoveDirection
 {
     None = 0,
-    NW,
     N,
     NE,
-    SW,
+    SE,
     S,
-    SE
+    SW,
+    NW
 }
 
 public class GameInput

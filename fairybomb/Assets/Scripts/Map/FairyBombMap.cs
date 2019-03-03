@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -10,6 +11,13 @@ public class FairyBombMap : MonoBehaviour
     [SerializeField] Tilemap _map;
     public Vector2Int PlayerStart;
     public Vector2Int Dimensions;
+
+    // We'll start with neutral, then N and then clockwise
+    Vector2Int[][] _neighbourOffsets = new Vector2Int[][]
+    { 
+        new Vector2Int[]{ new Vector2Int(0, 0), new Vector2Int(1, 0), new Vector2Int(0, 1), new Vector2Int(-1,1), new Vector2Int(-1, 0), new Vector2Int(-1, -1), new Vector2Int(0, -1)},
+        new Vector2Int[]{ new Vector2Int(0, 0), new Vector2Int(1, 0), new Vector2Int(1, 1),new Vector2Int(0, 1), new Vector2Int(-1, 0), new Vector2Int(0, -1),new Vector2Int(1, -1)}
+    };
 
     public int Height => _map.size.x;
     public int Width => _map.size.y;
@@ -95,8 +103,57 @@ public class FairyBombMap : MonoBehaviour
         return tile != null ? (tile.TileType == _goalTile.TileType) : false;
     }
 
+    internal void BombExploded(Bomb bomb)
+    {
+        // Check for tile destruction!
+    }
+
     public void Cleanup()
     {
         _map.ClearAllTiles();
+    }
+
+    public FairyBombTile TileAt(Vector2Int coords)
+    {
+        return _map.GetTile((Vector3Int)coords) as FairyBombTile;
+    }
+
+    // Redblobgames <3
+    public Vector3Int CubeFromCoords(Vector2Int coords)
+    {
+        Vector3Int cube = new Vector3Int();
+        int row = coords.x;
+        int col = coords.y;
+
+        int x = col;
+        int z = row + (col + (col & 1)) / 2;
+        int y = x-z;
+        cube.Set(x, y, z);
+        return cube;
+    }
+
+    public Vector2Int CoordsFromCube(Vector3Int cube)
+    {
+        int row = cube.z - (cube.x + (cube.x & 1)) / 2; // &1: even check
+        int col = cube.x;
+        return new Vector2Int(row, col);
+    }
+
+    public Vector2Int GetOffset(MoveDirection dir, bool isEven)
+    {
+        Vector2Int[] offsets = isEven ? _neighbourOffsets[0] : _neighbourOffsets[1];
+        return offsets[(int)dir];
+    }
+
+    public int CubeDistance(Vector3Int cube1, Vector3Int cube2)
+    {
+        return (Mathf.Abs(cube1.x - cube2.x) + Mathf.Abs(cube1.y - cube2.y) + Mathf.Abs(cube1.z - cube2.z)) / 2;
+    }
+
+    public int Distance(Vector2Int coords1, Vector2Int coords2)
+    {
+        Vector3Int cube1 = CubeFromCoords(coords1);
+        Vector3Int cube2 = CubeFromCoords(coords2);
+        return CubeDistance(cube1, cube2);
     }
 }
