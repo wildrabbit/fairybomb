@@ -1,9 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Player : MonoBehaviour
+public class Player : MonoBehaviour, IScheduledEntity
 {
     [SerializeField] SpriteRenderer _view;
+    public float Speed = 1.0f;
     //...whatever
 
     void Start()
@@ -15,5 +16,14 @@ public class Player : MonoBehaviour
     void Update()
     {
 
+    }
+
+    public void Cleanup()
+    {
+
+    }
+
+    public void AddTime(float timeUnits, ref PlayContext playContext)
+    {
     }
 }

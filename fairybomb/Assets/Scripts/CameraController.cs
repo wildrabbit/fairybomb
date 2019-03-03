@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public enum CameraType
@@ -77,5 +76,10 @@ public class CameraController : MonoBehaviour
             //_camera.transform.position = new Vector3(_target.position.x, _target.position.y, _camera.transform.position.z);
             //FitToBounds();
         }
+    }
+
+    internal void Cleanup()
+    {
+        _target = null;
     }
 }

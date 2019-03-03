@@ -74,6 +74,12 @@ public class FairyBombMap : MonoBehaviour
         playerCoords.y = Mathf.Clamp(playerCoords.y, 0, _map.size.y - 1);
     }
 
+    internal bool IsWalkableTile(Vector2Int playerTargetPos)
+    {
+        FairyBombTile fairyTile = (FairyBombTile)_map.GetTile((Vector3Int)playerTargetPos);
+        return (fairyTile == null) ? false: fairyTile.Walkable;
+    }
+
     public Rect GetBounds()
     {
         // Tilemap uses x: row, y: col. I'm using the opposite.
@@ -82,5 +88,10 @@ public class FairyBombMap : MonoBehaviour
         Vector2 max = _map.CellToWorld(new Vector3Int(cellBounds.yMax, cellBounds.xMax, 0));
         return new Rect(min.y, min.x, (max.y - min.y), (max.x - min.x));
 
+    }
+
+    public void Cleanup()
+    {
+        _map.ClearAllTiles();
     }
 }
