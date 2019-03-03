@@ -255,8 +255,10 @@ MonoBehaviour:
   _view: {fileID: 1187561253836321365}
   _countdown: {fileID: 4608596439909594746}
   _unitsPerBombTick: 1
-  _baseRadius: 1
-  _explosionTimeoutTicks: 3
+  _baseRadius: 2
+  _explosionTimeoutTicks: 4
+  _baseDamage: 1
+  _ignoreBlocks: 0
 --- !u!1 &7529590355296687775
 GameObject:
   m_ObjectHideFlags: 0

@@ -16,7 +16,7 @@ public class EntityController: IEntityController
     public event EntitiesAddedDelegate OnEntitiesAdded;
     public event EntitiesRemovedDelegate OnEntitiesRemoved;
     public event BombDelegate OnBombSpawned;
-    public event BombDelegate OnBombExploded;
+    public event BombDestroyedDelegate OnBombExploded;
     public event PlayerDestroyedDelegate OnPlayerKilled;
 
     public void Init(FairyBombMap map)
@@ -167,9 +167,9 @@ public class EntityController: IEntityController
         return false;
     }
 
-    public void BombExploded(Bomb b)
+    public void BombExploded(Bomb b, List<Vector2Int> coords)
     {
-        OnBombExploded?.Invoke(b);
+        OnBombExploded?.Invoke(b, coords);
     }
 
     public void BombSpawned(Bomb b)

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
-
+using System.Collections.Generic;
 
 public enum BombWalkabilityType
 {
@@ -27,6 +27,8 @@ public class Player : BaseEntity, IBomberEntity
     public int HP => _hpTrait.HP;
     public int MaxHP => _hpTrait.MaxHP;
 
+    public int BombCount { get; set; }
+
     [SerializeField] SpriteRenderer _view;
     [Header("Config")]
     [SerializeField] int DeployedBombLimit = 1;
@@ -44,6 +46,8 @@ public class Player : BaseEntity, IBomberEntity
     public override void Init(IEntityController entityController, FairyBombMap map)
     {
         base.Init(entityController, map);
+        name = "Player";
+        BombCount = 0;
         _hpTrait = new HPTrait();
         _hpTrait.Init(this, StartHP, false);
         _deployedBombs = 0;
@@ -65,9 +69,10 @@ public class Player : BaseEntity, IBomberEntity
     public void AddedBomb(Bomb bomb)
     {
         _deployedBombs++;
+        BombCount++;
     }
 
-    public void OnBombExploded(Bomb bomb)
+    public void OnBombExploded(Bomb bomb, List<Vector2Int> coords)
     {
 #pragma warning disable CS0252 // Involuntary reference comparison (What I DO want)
         bool isOwnBomb = (bomb.Owner == this);
@@ -77,8 +82,7 @@ public class Player : BaseEntity, IBomberEntity
         {
             _deployedBombs--;
         }
-        int explosionDistance = _map.Distance(Coords, bomb.Coords);
-        if(explosionDistance <= bomb.Radius)
+        if(coords.Contains(Coords))
         {
             if(BombImmunity == BombImmunityType.AnyBombs || (BombImmunity == BombImmunityType.EnemyBombs && !isOwnBomb))
             {

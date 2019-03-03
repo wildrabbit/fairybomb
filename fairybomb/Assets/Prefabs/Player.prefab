@@ -124,6 +124,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _view: {fileID: 7795972599103231680}
+  DeployedBombLimit: 3
+  BombWalkability: 0
+  BombImmunity: 0
+  Speed: 1
+  StartHP: 3
   _bombPrefab: {fileID: 315620243872586645, guid: cf91220acdee95341bd6106587dab540,
     type: 3}
-  Speed: 1

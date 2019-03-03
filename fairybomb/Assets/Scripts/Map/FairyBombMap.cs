@@ -10,8 +10,7 @@ public class FairyBombMap : MonoBehaviour
 
     [SerializeField] Tilemap _map;
     public Vector2Int PlayerStart;
-    public Vector2Int Dimensions;
-
+    
     // We'll start with neutral, then N and then clockwise
     Vector2Int[][] _neighbourOffsets = new Vector2Int[][]
     { 
@@ -29,25 +28,26 @@ public class FairyBombMap : MonoBehaviour
 
     public void InitFromMap()
     {
-        Dimensions = new Vector2Int(_map.size.x, _map.size.y);
     }
 
-    public void InitFromArray(Vector2Int dimensions, TileType[] typeArray, Vector2Int playerStart)
+    public void InitFromArray(Vector2Int dimensions, TileType[] typeArray, Vector2Int playerStart, bool arrayOriginTopLeft)
     {
         _map.ClearAllTiles();
-        if(typeArray.Length != dimensions.x * dimensions.y)
+        int width = dimensions.y;
+        int height = dimensions.x;
+        if(typeArray.Length != width * height)
         {
             Debug.LogError("Array dimensions not matching provided size");
             return;
         }
 
-        Dimensions = dimensions;
         PlayerStart = playerStart;
-        for(int y = 0; y < Dimensions.y; ++y)
+        for(int row = 0; row < height; ++row)
         {
-            for(int x = 0; x < Dimensions.x; ++x)
+            for(int col = 0; col < width; ++col)
             {
-                _map.SetTile(new Vector3Int(dimensions.y - (y + 1), x, 0), GetTileByType(typeArray[dimensions.x * y + x]));
+                int rowCoord = (arrayOriginTopLeft) ? height - (row + 1) : row;
+                _map.SetTile(new Vector3Int(rowCoord, col, 0), GetTileByType(typeArray[width * row + col]));
             }
         }
     }
@@ -57,7 +57,7 @@ public class FairyBombMap : MonoBehaviour
         Vector2Int dimensions = Vector2Int.zero;
         TileType[] array = new TileType[] { };
         Vector2Int playerStart = Vector2Int.zero;
-        InitFromArray(dimensions, array, playerStart);
+        InitFromArray(dimensions, array, playerStart, arrayOriginTopLeft: false);
     }
 
     public FairyBombTile GetTileByType(TileType type)
@@ -103,9 +103,105 @@ public class FairyBombMap : MonoBehaviour
         return tile != null ? (tile.TileType == _goalTile.TileType) : false;
     }
 
-    internal void BombExploded(Bomb bomb)
+    public bool InBounds(Vector2Int coords)
     {
-        // Check for tile destruction!
+        return coords.x >= 0 && coords.x < _map.size.x && coords.y >= 0 && coords.y < _map.size.y;
+    }
+
+    List<Vector2Int> GetNearbyCoords(Vector2Int reference, int radius)
+    {
+        List<Vector2Int> pending = new List<Vector2Int>();
+        List<Vector2Int> pendingNextDepth = new List<Vector2Int>();
+        HashSet<Vector2Int> candidates = new HashSet<Vector2Int>();
+
+        pending.Add(reference);
+        int depth = 0;
+        while (depth <= radius)
+        {
+            pendingNextDepth.Clear();
+            foreach (var curReference in pending)
+            {
+                candidates.Add(curReference);
+                bool isEven = curReference.y % 2 == 0;
+                Vector2Int[] offsets = _neighbourOffsets[isEven ? 0 : 1];
+                // TODO: OPTIMIZATION: Make offsets dependent on the lookup direction
+                foreach (var offset in offsets)
+                {
+                    Vector2Int neighbourCoords = curReference + offset;
+                    if (!InBounds(neighbourCoords)) continue;
+                    if (pending.Contains(neighbourCoords) || pendingNextDepth.Contains(neighbourCoords) || candidates.Contains(neighbourCoords)) continue;
+                    pendingNextDepth.Add(neighbourCoords);
+                }
+            }
+            depth++;
+        }
+        return new List<Vector2Int>(candidates);
+    }
+
+    bool IsDestructibleTile(Vector2Int coords, out FairyBombTile replacement)
+    {
+        var refTile = TileAt(coords);
+        replacement = refTile.ReplacementTile;
+        return refTile.Destructible;
+    }
+
+    public List<Vector2Int> GetExplodingCoords(Bomb bomb)
+    {
+        List<Vector2Int> explodingTiles = new List<Vector2Int>();
+        bool ignoreBlocks = bomb.IgnoreBlocks;
+        int radius = bomb.Radius;
+        Vector2Int refCoords = bomb.Coords;
+     
+        var tile = TileAt(refCoords);
+        if (!ignoreBlocks && tile.BlocksExplosions)
+        {
+            return explodingTiles;
+        }
+
+        int numRays = 6;
+        for (int i = 0; i < numRays; ++i)
+        {
+            MoveDirection rayDir = (MoveDirection)(i + 1);
+            Vector2Int rayCurrentCoords = refCoords;
+            int evenOffsetIdx = rayCurrentCoords.y & 1;
+            for (int depth = 0; depth < radius; ++depth)
+            {
+                Vector2Int offset = _neighbourOffsets[evenOffsetIdx][(int)rayDir];
+                rayCurrentCoords += offset;
+                evenOffsetIdx = rayCurrentCoords.y & 1;
+
+                tile = TileAt(rayCurrentCoords);
+
+                if (!ignoreBlocks && tile.BlocksExplosions)
+                {
+                    break;
+                }
+                explodingTiles.Add(rayCurrentCoords);
+            }
+        }
+        return explodingTiles;
+    }
+
+    public void BombExploded(Bomb bomb, List<Vector2Int> explodingCoordsList)
+    {
+        List<Vector2Int> coords = explodingCoordsList.FindAll((x) =>
+        {
+            var t = TileAt(x);
+            return t.Destructible && t.ReplacementTile != null;
+        });
+
+        FairyBombTile[] tiles = new FairyBombTile[coords.Count];
+        Vector3Int[] coords3D = new Vector3Int[coords.Count];
+
+        int i = 0;
+        foreach(var coord in coords)
+        {
+            tiles[i] = TileAt(coord).ReplacementTile;
+            coords3D[i] = (Vector3Int)coord;
+            i++;
+        }
+
+        _map.SetTiles(coords3D, tiles);
     }
 
     public void Cleanup()

@@ -12,6 +12,7 @@ public class Bomb : BaseEntity
     [SerializeField] int _baseRadius = 1;
     [SerializeField] int _explosionTimeoutTicks = 3;
     [SerializeField] int _baseDamage = 1;
+    [SerializeField] bool _ignoreBlocks = true;
 
     int _radius;
 
@@ -20,10 +21,17 @@ public class Bomb : BaseEntity
     IBomberEntity _owner;
     int _damage;
 
-    public IBomberEntity Owner { get { return _owner; } set { _owner = value; } }
+    public IBomberEntity Owner { get { return _owner; }
+        set
+        {
+            _owner = value;
+            name = $"{((BaseEntity)_owner).name}'s Bomb {_owner.BombCount}";
+
+        }
+    }
 
     public int Radius => _radius;
-
+    public bool IgnoreBlocks => _ignoreBlocks;
     public int Damage => _damage;
 
     public override void Init(IEntityController entityController, FairyBombMap map)
@@ -38,9 +46,11 @@ public class Bomb : BaseEntity
     
     IEnumerator Explode()
     {
-        Debug.Log("BOOM");
+        Debug.Log($"{name} goes BOOM!");
         yield return new WaitForSeconds(0.5f);
-        _entityController.BombExploded(this);
+        List<Vector2Int> affectedTiles = _map.GetExplodingCoords(this);
+        _entityController.BombExploded(this, affectedTiles);
+
         _entityController.DestroyEntity(this);
     }
 
@@ -57,19 +67,17 @@ public class Bomb : BaseEntity
         _entityController.OnBombExploded -= BombExploded;
     }
 
-    private void BombExploded(Bomb bomb)
+    private void BombExploded(Bomb bomb, List<Vector2Int> affectedCoords)
     {
         if(bomb == this)
         {
             return;
         }
 
-        int distance = _map.Distance(Coords, bomb.Coords);
-        if(distance <= _radius)
+        if (affectedCoords.Contains(Coords))
         {
             _elapsedSinceLastTick = 0;
-            _ticksLeft = 0;
-            StartCoroutine(Explode());
+           StartCoroutine(Explode());
         }
     }
 

@@ -119,7 +119,7 @@ public class GameController : MonoBehaviour
     void StartGame()
     {
         _map = Instantiate<FairyBombMap>(_mapPrefab);
-        _map.InitFromArray(new Vector2Int(10, 8), System.Array.ConvertAll(_sampleMap, (value) => (TileType)value), new Vector2Int(2, 2));
+        _map.InitFromArray(new Vector2Int(8, 10), System.Array.ConvertAll(_sampleMap, (value) => (TileType)value), new Vector2Int(2, 2), arrayOriginTopLeft:true);
 
         _entityController.Init(_map);
         _entityController.OnEntitiesAdded += RegisterScheduledEntities;
