@@ -60,6 +60,22 @@ public class FairyBombMap : MonoBehaviour
         InitFromArray(dimensions, array, playerStart, arrayOriginTopLeft: false);
     }
 
+    internal List<Vector2Int> GetWalkableNeighbours(Vector2Int coords)
+    {
+        List<Vector2Int> neighbours = new List<Vector2Int>();
+        Vector2Int[] offsets = _neighbourOffsets[coords.y & 1];
+        for(int i = 1; i < offsets.Length; ++i)
+        {
+            Vector2Int neighbourCoords = coords + offsets[i];
+            var tile = TileAt(neighbourCoords);
+            if (tile.Walkable)
+            {
+                neighbours.Add(neighbourCoords);
+            }
+        }
+        return neighbours;
+    }
+
     public FairyBombTile GetTileByType(TileType type)
     {
         return _lesTiles[(int)type];

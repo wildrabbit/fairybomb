@@ -47,7 +47,6 @@ public class HUD : MonoBehaviour
 
     void SetLogText(string msg)
     {
-        Debug.Log("Text: " + msg);
         _logMessage.SetText(msg);
     }
 

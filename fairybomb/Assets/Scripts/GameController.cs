@@ -19,6 +19,8 @@ public class GameController : MonoBehaviour
     [SerializeField] FairyBombMap _mapPrefab;
     [SerializeField] Player _playerPrefab;
     [SerializeField] GameObject _explosionPrefab;
+    [SerializeField] Monster _monster1Prefab;
+    [SerializeField] Monster _monster2Prefab;
     [SerializeField] float _inputDelay = 0.25f;
     [SerializeField] float _defaultTimeScale = 1.0f;
 
@@ -26,6 +28,8 @@ public class GameController : MonoBehaviour
     public float TimeUnits => _elapsedUnits;
 
     IEntityController _entityController;
+    MonsterCreator _monsterCreator;
+    AIController _aiController;
     GameEventLog _eventLog;
     HUD _hud;
     List<GameObject> _explosionItems;
@@ -51,6 +55,7 @@ public class GameController : MonoBehaviour
 
     Vector2Int _sampleDimensions;
     Vector2Int _samplePlayerStart;
+    List<MonsterSpawn> _sampleMonsters;
 
     //----------------------- Shortcuts --------------------/
 
@@ -62,7 +67,8 @@ public class GameController : MonoBehaviour
         _entityController = new EntityController();
 
         _eventLog = new GameEventLog();
-        _eventLog.Init();
+        _aiController = new AIController();
+        _monsterCreator = new MonsterCreator();
 
         _explosionItems = new List<GameObject>();
         _scheduledEntities = new List<IScheduledEntity>();
@@ -105,11 +111,26 @@ public class GameController : MonoBehaviour
         _sampleDimensions = new Vector2Int(8, 10);
         _samplePlayerStart = new Vector2Int(2, 2);
 
+        _sampleMonsters = new List<MonsterSpawn>();
+        _sampleMonsters.Add(new MonsterSpawn()
+        {
+            Prefab = _monster1Prefab,
+            Coords = new Vector2Int(6, 2)
+        });
+        _sampleMonsters.Add(new MonsterSpawn()
+        {
+            Prefab = _monster2Prefab,
+            Coords = new Vector2Int(2, 7)
+        });
+        _eventLog.Init();
+
         StartGame();
     }
 
     void ResetGame()
     {
+        _aiController.Cleanup();
+
         _entityController.OnEntitiesAdded -= RegisterScheduledEntities;
         _entityController.OnEntitiesRemoved -= UnregisterScheduledEntities;
         _entityController.OnBombExploded -= BombExploded;
@@ -202,25 +223,35 @@ public class GameController : MonoBehaviour
         _entityController.OnBombSpawned += BombSpawned;
         _entityController.OnBombExploded += _map.BombExploded;
 
+        _aiController.Init(_entityController, _map, _eventLog);
+
+        // Inic camera
         Rect mapBounds = _map.GetBounds();
         _cameraController.SetBounds(mapBounds);
         _cameraController.SetFixed(new Vector3(mapBounds.width/2, mapBounds.height/2, _cameraController.transform.position.z));
 
-        _elapsedUnits = 0;
-        _turns = 0;
-
-        _result = GameResult.Running;
-
+        // Init default context
         var contextData = ((ActionPhaseData)_playContextData[PlayContext.Action]);
         contextData.EntityController = _entityController;
         contextData.Player = _entityController.Player;
         contextData.Map = _map;
 
-        _entityController.AddNewEntities();
-
+        // le hud
         _hud = Instantiate<HUD>(_hudPrefab);
         _hud.Init(_eventLog, _entityController.Player, () => Turns, () => TimeUnits);
 
+        // populate the level
+        _monsterCreator.Init(_entityController, _aiController, _map, _eventLog);
+        _monsterCreator.AddInitialMonsters(_sampleMonsters);
+
+        _entityController.AddNewEntities();
+
+        // Init game control / time vars
+        _elapsedUnits = 0;
+        _turns = 0;
+        _result = GameResult.Running;
+
+        // Starting event!
         var setupEvt = new GameSetupEvent();
         setupEvt.MapSize = _sampleDimensions;
         setupEvt.MapTiles = _sampleMap;

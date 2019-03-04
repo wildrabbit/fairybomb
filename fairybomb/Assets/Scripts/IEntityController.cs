@@ -27,6 +27,7 @@ public interface IEntityController
 
     Player CreatePlayer(Player prefab, Vector2Int coords);
     Bomb CreateBomb(Bomb prefab, IBomberEntity owner, Vector2Int coords);
+    Monster CreateMonster(Monster prefab, Vector2Int coords, AIController aiController);
 
     T Create<T>(T prefab, Vector2Int coords) where T : BaseEntity;
 

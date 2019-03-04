@@ -40,6 +40,13 @@ public class EntityController: IEntityController
         return b;
     }
 
+    public Monster CreateMonster(Monster prefab, Vector2Int coords, AIController aiController)
+    {
+        Monster m = Create<Monster>(prefab, coords);
+        m.SetAIController(aiController);
+        return m;
+    }
+
     public T Create<T>(T prefab, Vector2Int coords) where T : BaseEntity
     {
         T entity = GameObject.Instantiate<T>(prefab);

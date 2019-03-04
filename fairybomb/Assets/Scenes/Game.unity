@@ -237,6 +237,10 @@ MonoBehaviour:
     type: 3}
   _explosionPrefab: {fileID: 1521728278425283051, guid: f207ff42955156c428af44f545ccb847,
     type: 3}
+  _monster1Prefab: {fileID: 2984502519240736652, guid: 46859fa966afc4d41adfc2787b62814a,
+    type: 3}
+  _monster2Prefab: {fileID: 7511248246286170073, guid: 72f10c98aeca1fc40863de1155eaa0b2,
+    type: 3}
   _inputDelay: 0.25
   _defaultTimeScale: 1
 --- !u!1 &519420028
