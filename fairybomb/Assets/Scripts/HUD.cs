@@ -38,11 +38,17 @@ public class HUD : MonoBehaviour
 
         _player = player;
 
-        _logMessage.SetText("");
+        SetLogText("");
         _hpValue.SetText($"{_player.HP}/{_player.MaxHP}");
         _turnCountValue.SetText(_turnsGetter().ToString());
         _timeUnitsValue.SetText(_timeGetter().ToString());
         _mapPosValue.SetText(_player.Coords.ToString());
+    }
+
+    void SetLogText(string msg)
+    {
+        Debug.Log("Text: " + msg);
+        _logMessage.SetText(msg);
     }
 
     public void Cleanup()
@@ -54,7 +60,7 @@ public class HUD : MonoBehaviour
     {
         if(_displayPendingEvents.Count == 0)
         {
-            _logMessage.SetText(lastAdded.Message());
+            SetLogText(lastAdded.Message());
             _lastDisplayed = Time.time;
         }
         _displayPendingEvents.Enqueue(lastAdded);
@@ -69,7 +75,7 @@ public class HUD : MonoBehaviour
                 _displayPendingEvents.Dequeue();
                 if(_displayPendingEvents.Count > 0)
                 {
-                    _logMessage.SetText(_displayPendingEvents.Peek().Message());
+                    SetLogText(_displayPendingEvents.Peek().Message());
                     _lastDisplayed = Time.time;
                 }                
             }

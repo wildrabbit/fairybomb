@@ -126,7 +126,7 @@ public class PlayerActionEvent: BaseEvent
             }
             case ActionType.Idle:
             {
-                builder.AppendLine($"Player moves <b>{PlayerMoveDirection}</b> to <b>{EventCoords}</b>");
+                builder.AppendLine($"Player remains idle and contemplates her own existence");
                 break;
             }
             case ActionType.BombPlacement:
