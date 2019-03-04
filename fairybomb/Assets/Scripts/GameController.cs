@@ -15,14 +15,19 @@ public class GameController : MonoBehaviour
 {
     [SerializeField] CameraController _cameraController;
 
+    [SerializeField] HUD _hudPrefab;
     [SerializeField] FairyBombMap _mapPrefab;
     [SerializeField] Player _playerPrefab;
     [SerializeField] GameObject _explosionPrefab;
     [SerializeField] float _inputDelay = 0.25f;
     [SerializeField] float _defaultTimeScale = 1.0f;
 
-    IEntityController _entityController;
+    public int Turns => _turns;
+    public float TimeUnits => _elapsedUnits;
 
+    IEntityController _entityController;
+    GameEventLog _eventLog;
+    HUD _hud;
     List<GameObject> _explosionItems;
 
 
@@ -44,6 +49,9 @@ public class GameController : MonoBehaviour
     GameResult _result;
     int[] _sampleMap;
 
+    Vector2Int _sampleDimensions;
+    Vector2Int _samplePlayerStart;
+
     //----------------------- Shortcuts --------------------/
 
     FairyBombMap _map;
@@ -52,6 +60,9 @@ public class GameController : MonoBehaviour
     {
         _input = new GameInput(_inputDelay);
         _entityController = new EntityController();
+
+        _eventLog = new GameEventLog();
+        _eventLog.Init();
 
         _explosionItems = new List<GameObject>();
         _scheduledEntities = new List<IScheduledEntity>();
@@ -73,7 +84,8 @@ public class GameController : MonoBehaviour
 
         ActionPhaseData actionCtxtData = new ActionPhaseData();
         actionCtxtData.input = _input;
-        actionCtxtData.BumpingWallsWillSpendMoves = false;        
+        actionCtxtData.BumpingWallsWillSpendMoves = false;
+        actionCtxtData.Log = _eventLog;
         _playContextData[PlayContext.Action] = actionCtxtData;
     }
 
@@ -90,6 +102,8 @@ public class GameController : MonoBehaviour
             0,1,1,1,1,0,1,1,1,0,
             0,0,0,0,0,0,0,0,0,0,
         };
+        _sampleDimensions = new Vector2Int(8, 10);
+        _samplePlayerStart = new Vector2Int(2, 2);
 
         StartGame();
     }
@@ -99,10 +113,14 @@ public class GameController : MonoBehaviour
         _entityController.OnEntitiesAdded -= RegisterScheduledEntities;
         _entityController.OnEntitiesRemoved -= UnregisterScheduledEntities;
         _entityController.OnBombExploded -= BombExploded;
+        _entityController.OnBombSpawned -= BombSpawned;
         _entityController.OnBombExploded -= _map.BombExploded;
         _entityController.OnPlayerKilled -= PlayerKilled;
 
         _cameraController.Cleanup();
+
+        _hud.Cleanup();
+        Destroy(_hud.gameObject);
 
         foreach(var explosion in _explosionItems)
         {
@@ -120,9 +138,27 @@ public class GameController : MonoBehaviour
         _scheduledToAdd.Clear();
     }
 
-    private void BombExploded(Bomb bomb, List<Vector2Int> coords)
+    private void BombSpawned(Bomb bomb)
     {
-        foreach(var coord in coords)
+        BombActionEvent bombEvt = new BombActionEvent(_turns, _elapsedUnits);
+        bombEvt.SetSpawned(bomb);
+        _eventLog.AddEvent(bombEvt);
+    }
+
+    private void BombExploded(Bomb bomb, List<Vector2Int> coords, BaseEntity triggerEntity)
+    {
+        BombActionEvent bombEvt = new BombActionEvent(_turns, _elapsedUnits);
+        if (triggerEntity == null)
+        {
+            bombEvt.SetTimedOut(bomb);
+        }
+        else if (triggerEntity is Bomb)
+        {
+            bombEvt.SetChainExplosion(bomb, ((Bomb)triggerEntity));
+        }
+        _eventLog.AddEvent(bombEvt);
+
+        foreach (var coord in coords)
         {
             var explosion = Instantiate(_explosionPrefab);
             explosion.transform.position = _map.WorldFromCoords(coord);
@@ -141,14 +177,21 @@ public class GameController : MonoBehaviour
     private void PlayerKilled()
     {
         _result = GameResult.Lost;
-        // TODO: Lost event
-        Debug.Log("Booo, Lost");
+        GameFinishedEvent evt = new GameFinishedEvent(_turns, _elapsedUnits, GameResult.Lost);
+        _eventLog.EndSession(evt);
+
+        StartCoroutine(DelayedPurge(0.25f));
     }
 
+    IEnumerator DelayedPurge(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        _entityController.PurgeEntities();
+    }
     void StartGame()
     {
         _map = Instantiate<FairyBombMap>(_mapPrefab);
-        _map.InitFromArray(new Vector2Int(8, 10), System.Array.ConvertAll(_sampleMap, (value) => (TileType)value), new Vector2Int(2, 2), arrayOriginTopLeft:true);
+        _map.InitFromArray(_sampleDimensions, System.Array.ConvertAll(_sampleMap, (value) => (TileType)value), _samplePlayerStart, arrayOriginTopLeft:true);
 
         _entityController.Init(_map);
         _entityController.OnEntitiesAdded += RegisterScheduledEntities;
@@ -156,6 +199,7 @@ public class GameController : MonoBehaviour
         _entityController.CreatePlayer(_playerPrefab, _map.PlayerStart);
         _entityController.OnPlayerKilled += PlayerKilled;
         _entityController.OnBombExploded += BombExploded;
+        _entityController.OnBombSpawned += BombSpawned;
         _entityController.OnBombExploded += _map.BombExploded;
 
         Rect mapBounds = _map.GetBounds();
@@ -173,6 +217,17 @@ public class GameController : MonoBehaviour
         contextData.Map = _map;
 
         _entityController.AddNewEntities();
+
+        _hud = Instantiate<HUD>(_hudPrefab);
+        _hud.Init(_eventLog, _entityController.Player, () => Turns, () => TimeUnits);
+
+        var setupEvt = new GameSetupEvent();
+        setupEvt.MapSize = _sampleDimensions;
+        setupEvt.MapTiles = _sampleMap;
+        setupEvt.PlayerCoords = _samplePlayerStart;
+        setupEvt.HP = _entityController.Player.HP;
+        setupEvt.MaxHP = _entityController.Player.MaxHP;
+        _eventLog.StartSession(setupEvt);
     }
 
     void RegisterScheduledEntities(List<BaseEntity> entities)
@@ -203,8 +258,16 @@ public class GameController : MonoBehaviour
             return;
         }
 
+        if(Input.GetKeyDown(KeyCode.L))
+        {
+            Debug.Log(_eventLog.Flush());
+        }
+
         _input.Read();
         bool timeWillPass;
+
+        _playContextData[_playContext].Refresh(this);
+        
         _playContext = _playContexts[_playContext].Update(_playContextData[_playContext], out timeWillPass);
 
         if (timeWillPass)
@@ -216,7 +279,6 @@ public class GameController : MonoBehaviour
             }
             _elapsedUnits += units;
             _turns++;
-            Debug.Log($"Game time: {_elapsedUnits}, turns: {_turns}");
         }
 
         _entityController.RemovePendingEntities();
@@ -232,8 +294,9 @@ public class GameController : MonoBehaviour
     {
         if (_map.IsGoal(_entityController.Player.Coords))
         {
-            Debug.Log($"YAY WON");
             // TODO: Won event
+            GameFinishedEvent evt = new GameFinishedEvent(_turns, _elapsedUnits, GameResult.Won);
+            _eventLog.EndSession(evt);
             return GameResult.Won;
         }
         return GameResult.Running;

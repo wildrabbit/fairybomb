@@ -9,5 +9,5 @@ public interface IBomberEntity
     int BombCount { get; set; }
     void AddedBomb(Bomb bomb);
     bool HasBombAvailable();
-    void OnBombExploded(Bomb bomb, List<Vector2Int> coords);
+    void OnBombExploded(Bomb bomb, List<Vector2Int> coords, BaseEntity triggerEntity);
 }

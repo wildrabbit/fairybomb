@@ -7,7 +7,7 @@ public delegate void EntitiesAddedDelegate(List<BaseEntity> entities);
 public delegate void EntitiesRemovedDelegate(List<BaseEntity> entities);
 
 public delegate void BombDelegate(Bomb bomb);
-public delegate void BombDestroyedDelegate(Bomb bomb, List<Vector2Int> coords);
+public delegate void BombDestroyedDelegate(Bomb bomb, List<Vector2Int> coords, BaseEntity trigger);
 public delegate void PlayerDestroyedDelegate();
 
 
@@ -39,7 +39,7 @@ public interface IEntityController
     void RemovePendingEntities();
     void Cleanup();
 
-    void BombExploded(Bomb bomb, List<Vector2Int> coords);
+    void BombExploded(Bomb bomb, List<Vector2Int> coords, BaseEntity triggerEntity = null);
     void PlayerDestroyed();
     void BombSpawned(Bomb bomb);
 

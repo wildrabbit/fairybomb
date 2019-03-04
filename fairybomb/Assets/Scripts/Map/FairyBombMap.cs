@@ -183,7 +183,7 @@ public class FairyBombMap : MonoBehaviour
         return explodingTiles;
     }
 
-    public void BombExploded(Bomb bomb, List<Vector2Int> explodingCoordsList)
+    public void BombExploded(Bomb bomb, List<Vector2Int> explodingCoordsList, BaseEntity triggerEntity)
     {
         List<Vector2Int> coords = explodingCoordsList.FindAll((x) =>
         {

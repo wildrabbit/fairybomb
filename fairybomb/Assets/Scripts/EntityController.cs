@@ -167,9 +167,9 @@ public class EntityController: IEntityController
         return false;
     }
 
-    public void BombExploded(Bomb b, List<Vector2Int> coords)
+    public void BombExploded(Bomb b, List<Vector2Int> coords, BaseEntity triggerEntity = null)
     {
-        OnBombExploded?.Invoke(b, coords);
+        OnBombExploded?.Invoke(b, coords, triggerEntity);
     }
 
     public void BombSpawned(Bomb b)

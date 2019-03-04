@@ -9,13 +9,16 @@ public class ActionPhaseContext : IPlayContext
         Player player = actionData.Player;
         FairyBombMap map = actionData.Map;
         EntityController entityController = actionData.EntityController as EntityController;
-
+        GameEventLog log = actionData.Log;
 
         timeWillPass = false;
 
         if(input.IdleTurn)
         {
             timeWillPass = true;
+            PlayerActionEvent evt = new PlayerActionEvent(actionData.Turns, actionData.TimeUnits);
+            evt.SetIdle();
+            log.AddEvent(evt);
             return PlayContext.Action;
         }
 
@@ -27,6 +30,9 @@ public class ActionPhaseContext : IPlayContext
             if(map.TileAt(playerCoords).Walkable && !entityController.ExistsEntitiesAt(playerCoords, blackList) && player.HasBombAvailable())
             {
                 Bomb bomb = entityController.CreateBomb(player.SelectedBomb, player, playerCoords);
+                PlayerActionEvent evt = new PlayerActionEvent(actionData.Turns, actionData.TimeUnits);
+                evt.SetBomb(bomb.Coords);
+                log.AddEvent(evt);
             }
             timeWillPass = true;
             return PlayContext.Action;
@@ -42,6 +48,9 @@ public class ActionPhaseContext : IPlayContext
             if (map.IsWalkableTile(playerCoords))
             {
                 player.Coords = playerCoords;
+                PlayerActionEvent evt = new PlayerActionEvent(actionData.Turns, actionData.TimeUnits);
+                evt.SetMovement(moveDir, player.Coords);
+                log.AddEvent(evt);
                 timeWillPass = true;
             }
             else

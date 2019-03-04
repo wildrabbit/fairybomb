@@ -72,7 +72,7 @@ public class Player : BaseEntity, IBomberEntity
         BombCount++;
     }
 
-    public void OnBombExploded(Bomb bomb, List<Vector2Int> coords)
+    public void OnBombExploded(Bomb bomb, List<Vector2Int> coords, BaseEntity triggerEntity)
     {
 #pragma warning disable CS0252 // Involuntary reference comparison (What I DO want)
         bool isOwnBomb = (bomb.Owner == this);

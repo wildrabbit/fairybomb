@@ -25,7 +25,7 @@ public class Bomb : BaseEntity
         set
         {
             _owner = value;
-            name = $"{((BaseEntity)_owner).name}'s Bomb {_owner.BombCount}";
+            name = $"BMB_{((BaseEntity)_owner).name}_{_owner.BombCount}";
 
         }
     }
@@ -44,13 +44,13 @@ public class Bomb : BaseEntity
         _countdown.SetText(_ticksLeft.ToString());
     }
     
-    IEnumerator Explode()
+    IEnumerator Explode(BaseEntity triggerEntity = null)
     {
-        Debug.Log($"{name} goes BOOM!");
-        yield return new WaitForSeconds(0.5f);
         List<Vector2Int> affectedTiles = _map.GetExplodingCoords(this);
-        _entityController.BombExploded(this, affectedTiles);
+        Active = false;
+        _entityController.BombExploded(this, affectedTiles, triggerEntity);
 
+        yield return new WaitForSeconds(0.5f);
         _entityController.DestroyEntity(this);
     }
 
@@ -67,9 +67,14 @@ public class Bomb : BaseEntity
         _entityController.OnBombExploded -= BombExploded;
     }
 
-    private void BombExploded(Bomb bomb, List<Vector2Int> affectedCoords)
+    private void BombExploded(Bomb bomb, List<Vector2Int> affectedCoords, BaseEntity triggerEntity = null)
     {
         if(bomb == this)
+        {
+            return;
+        }
+
+        if(!Active)
         {
             return;
         }
@@ -77,7 +82,7 @@ public class Bomb : BaseEntity
         if (affectedCoords.Contains(Coords))
         {
             _elapsedSinceLastTick = 0;
-           StartCoroutine(Explode());
+           StartCoroutine(Explode(bomb));
         }
     }
 
