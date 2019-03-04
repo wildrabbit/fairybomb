@@ -970,7 +970,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3059207e21947a45bf92072321435d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _minLogDisplayTime: 1
+  _minLogDisplayTime: 0.5
   _logMessage: {fileID: 5389552651278264623}
   _hpValue: {fileID: 1162837250751893747}
   _turnCountValue: {fileID: 5565984296692825266}
