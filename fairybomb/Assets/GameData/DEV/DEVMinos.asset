@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e288e3b739e8364488c65f3df8360131, type: 3}
+  m_Name: DEVMinos
+  m_EditorClassIdentifier: 
+  DefaultViewPrefab: {fileID: 588421280417342936, guid: 0c2334e3ae34ea84fac06f35a32ef10d,
+    type: 3}
+  ThinkingDelay: 3
+  HPData:
+    MaxHP: 4
+    StartHP: 4
+    Regen: 0
+    RegenRate: 0
+  MovingData:
+    BombWalkability: 0
+    BombImmunity: 0
+  InitialState: 1
+  MinIdleTicks: 3
+  MaxIdleTicks: 6
+  IsMelee: 0
+  MeleeDamage: 0
+  IsBomber: 0
+  BomberData:
+    DeployedBombLimit: 0
+    DefaultBombData: {fileID: 0}

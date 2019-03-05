@@ -4,46 +4,48 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
+public class BombDependencies: BaseEntityDependencies
+{
+    public IBomberEntity Owner;
+}
+
 public class Bomb : BaseEntity
 {
-    [SerializeField] SpriteRenderer _view;
+    public IBomberEntity Owner { get { return _owner; } }
+    public int Radius => _radius;
+    public int Damage => _damage;
+    public bool IgnoreBlocks => _bombData.IgnoreBlocks;
+
+    public GameObject ExplosionPrefab => _bombData.VFXExplosion;
+
     [SerializeField] TextMeshPro _countdown;
-    [SerializeField] float _unitsPerBombTick = 1;
-    [SerializeField] int _baseRadius = 1;
-    [SerializeField] int _explosionTimeoutTicks = 3;
-    [SerializeField] int _baseDamage = 1;
-    [SerializeField] bool _ignoreBlocks = true;
 
-    int _radius;
+    BombData _bombData;
 
-    int _ticksLeft;
+    int _ticksLeft; // TODO: Consider no-timeout bombs
+    float _unitsPerBombTick;
     float _elapsedSinceLastTick;
     IBomberEntity _owner;
     int _damage;
+    int _radius;
 
-    public IBomberEntity Owner { get { return _owner; }
-        set
-        {
-            _owner = value;
-            name = $"BMB_{((BaseEntity)_owner).name}_{_owner.BombCount}";
-
-        }
-    }
-
-    public int Radius => _radius;
-    public bool IgnoreBlocks => _ignoreBlocks;
-    public int Damage => _damage;
-
-    public override void Init(IEntityController entityController, FairyBombMap map)
+    protected override void DoInit(BaseEntityDependencies deps)
     {
-        base.Init(entityController, map);
-        _radius = _baseRadius;
-        _damage = _baseDamage;
-        _ticksLeft = _explosionTimeoutTicks;
+        BombDependencies bombDeps = ((BombDependencies)deps);
+        _owner = bombDeps.Owner;
+        name = $"BMB_{((BaseEntity)_owner).name}_{_owner.BombCount}";
+
+        _bombData = ((BombData)_entityData);
+        _radius = _bombData.Radius;
+        _damage = _bombData.BaseDamage;
+        _ticksLeft = _bombData.Timeout;
+        _unitsPerBombTick = _bombData.TickUnits;
+        
         _elapsedSinceLastTick = 0.0f;
+
         _countdown.SetText(_ticksLeft.ToString());
     }
-    
+
     IEnumerator Explode(BaseEntity triggerEntity = null)
     {
         List<Vector2Int> affectedTiles = _map.GetExplodingCoords(this);
@@ -100,4 +102,5 @@ public class Bomb : BaseEntity
             }
         }
     }
+
 }

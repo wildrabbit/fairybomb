@@ -5,7 +5,7 @@ using UnityEngine;
 public interface IBomberEntity
 {
     // TODO: This is currently a prefab Replace with bomb config.
-    Bomb SelectedBomb { get; set; }
+    BombData SelectedBomb { get; set; }
     int BombCount { get; set; }
     void AddedBomb(Bomb bomb);
     bool HasBombAvailable();

@@ -17,7 +17,7 @@ public class ActionPhaseData: BaseContextData
     public IEntityController EntityController;
     public Player Player;
     public FairyBombMap Map;
-    public bool BumpingWallsWillSpendMoves;
+    public bool BumpingWallsWillSpendTurn;
     public GameEventLog Log;
     public int Turns;
     public float TimeUnits;

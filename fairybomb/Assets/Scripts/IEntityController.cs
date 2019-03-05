@@ -23,13 +23,13 @@ public interface IEntityController
 
     Player Player { get; }
 
-    void Init(FairyBombMap map);
+    void Init(FairyBombMap map, EntityCreationData creationData);
 
-    Player CreatePlayer(Player prefab, Vector2Int coords);
-    Bomb CreateBomb(Bomb prefab, IBomberEntity owner, Vector2Int coords);
-    Monster CreateMonster(Monster prefab, Vector2Int coords, AIController aiController);
+    Player CreatePlayer(PlayerData data, Vector2Int coords);
+    Bomb CreateBomb(BombData data, Vector2Int coords, IBomberEntity Owner);
+    Monster CreateMonster(MonsterData data, Vector2Int coords, AIController aiController);
 
-    T Create<T>(T prefab, Vector2Int coords) where T : BaseEntity;
+    T Create<T>(T prefab, BaseEntityData data, BaseEntityDependencies deps) where T : BaseEntity;
 
     bool ExistsNearbyEntity(Vector2Int coords, int radius, BaseEntity[] excluded = null);
     bool ExistsEntitiesAt(Vector2Int coords, BaseEntity[] excluded = null); // We could use the former with radius == 0, but with this we skip the distance calculations

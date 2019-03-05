@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e288e3b739e8364488c65f3df8360131, type: 3}
+  m_Name: DEVCactus
+  m_EditorClassIdentifier: 
+  DefaultViewPrefab: {fileID: 2368961619232815764, guid: 52047bae66418284db7b8025434ad2ad,
+    type: 3}
+  ThinkingDelay: 2
+  HPData:
+    MaxHP: 0
+    StartHP: 0
+    Regen: 0
+    RegenRate: 0
+  MovingData:
+    BombWalkability: 0
+    BombImmunity: 0
+  InitialState: 0
+  MinIdleTicks: 0
+  MaxIdleTicks: 0
+  IsMelee: 0
+  MeleeDamage: 0
+  IsBomber: 0
+  BomberData:
+    DeployedBombLimit: 0
+    DefaultBombData: {fileID: 0}

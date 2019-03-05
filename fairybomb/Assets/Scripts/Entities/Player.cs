@@ -12,45 +12,52 @@ public enum BombWalkabilityType
 public enum BombImmunityType
 {
     AnyBombs,
-    EnemyBombs,
+    OwnBombs,
     NoBombs
 }
 
 public class Player : BaseEntity, IBomberEntity
 {
-    public Bomb SelectedBomb
+    public BombData SelectedBomb
     {
-        get => _bombPrefab;
+        get => _selectedBomb;
         set {}
     }
+    // Total bombs placed (for naming, stuff)
+    public int BombCount { get; set; }
 
     public int HP => _hpTrait.HP;
     public int MaxHP => _hpTrait.MaxHP;
+    public float Speed => _speed;
 
-    public int BombCount { get; set; }
-
-    [SerializeField] SpriteRenderer _view;
-    [Header("Config")]
-    [SerializeField] int DeployedBombLimit = 1;
-    public BombWalkabilityType BombWalkability = BombWalkabilityType.Block;
-    public BombImmunityType BombImmunity = BombImmunityType.AnyBombs;
-    public float Speed = 1.0f;
-    public int StartHP = 3;
-
-    public Bomb _bombPrefab;
+    float _speed;
     
+    BombData _selectedBomb;
+
+    BombImmunityType _bombImmunity;
+    BombWalkabilityType _walkOverBombs;
+
+    int _deployedBombLimit;
     int _deployedBombs;
     HPTrait _hpTrait;
     //...whatever
 
-    public override void Init(IEntityController entityController, FairyBombMap map)
+    PlayerData _playerData;
+
+    protected override void DoInit(BaseEntityDependencies deps)
     {
-        base.Init(entityController, map);
+        _playerData = ((PlayerData)_entityData);
+
         name = "Player";
         BombCount = 0;
         _hpTrait = new HPTrait();
-        _hpTrait.Init(this, StartHP, false);
+        _hpTrait.Init(this, _playerData.HPData);
+        _deployedBombLimit = _playerData.BomberData.DeployedBombLimit;
+        _selectedBomb = _playerData.BomberData.DefaultBombData;
+        _bombImmunity = _playerData.MobilityData.BombImmunity;
+        _walkOverBombs = _playerData.MobilityData.BombWalkability;
         _deployedBombs = 0;
+        _speed = _playerData.Speed;
     }
 
     public override void AddTime(float timeUnits, ref PlayContext playContext)
@@ -63,7 +70,7 @@ public class Player : BaseEntity, IBomberEntity
 
     public bool HasBombAvailable()
     {
-        return _bombPrefab != null && _deployedBombs < DeployedBombLimit;
+        return _selectedBomb != null && _deployedBombs < _deployedBombLimit;
     }
 
     public void AddedBomb(Bomb bomb)
@@ -84,7 +91,7 @@ public class Player : BaseEntity, IBomberEntity
         }
         if(coords.Contains(Coords))
         {
-            if(BombImmunity == BombImmunityType.AnyBombs || (BombImmunity == BombImmunityType.EnemyBombs && !isOwnBomb))
+            if(_bombImmunity == BombImmunityType.NoBombs || (_bombImmunity == BombImmunityType.OwnBombs && !isOwnBomb))
             {
                 _hpTrait.Decrease(bomb.Damage);
                 Debug.Log($"Player took {bomb.Damage} damage!. Current HP: {HP}");

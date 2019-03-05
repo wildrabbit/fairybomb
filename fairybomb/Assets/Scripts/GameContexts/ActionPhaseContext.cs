@@ -29,7 +29,7 @@ public class ActionPhaseContext : IPlayContext
             BaseEntity[] blackList = new BaseEntity[] { player };
             if(map.TileAt(playerCoords).Walkable && !entityController.ExistsEntitiesAt(playerCoords, blackList) && player.HasBombAvailable())
             {
-                Bomb bomb = entityController.CreateBomb(player.SelectedBomb, player, playerCoords);
+                Bomb bomb = entityController.CreateBomb(player.SelectedBomb, playerCoords, player);
                 PlayerActionEvent evt = new PlayerActionEvent(actionData.Turns, actionData.TimeUnits);
                 evt.SetBomb(bomb.Coords);
                 log.AddEvent(evt);
@@ -55,7 +55,7 @@ public class ActionPhaseContext : IPlayContext
             }
             else
             {
-                timeWillPass = actionData.BumpingWallsWillSpendMoves;
+                timeWillPass = actionData.BumpingWallsWillSpendTurn;
             }
         }    
         

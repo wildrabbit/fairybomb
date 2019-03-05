@@ -228,21 +228,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b02df472196ab0e428ef59fcbb44f9ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _gameData: {fileID: 11400000, guid: 7dbe605afa8d677479dac1e05a862a95, type: 2}
   _cameraController: {fileID: 519420030}
   _hudPrefab: {fileID: 2142075829852468483, guid: e2dac17509daedd4c90d7ccd30c08ce7,
     type: 3}
   _mapPrefab: {fileID: 2278358201414874514, guid: f418e60e7f8f0e845886d4d6d96aeb99,
     type: 3}
-  _playerPrefab: {fileID: 5073076910135972578, guid: a87ab9ea031c5ad44b5ae21dfd0f4aa9,
-    type: 3}
   _explosionPrefab: {fileID: 1521728278425283051, guid: f207ff42955156c428af44f545ccb847,
     type: 3}
-  _monster1Prefab: {fileID: 2984502519240736652, guid: 46859fa966afc4d41adfc2787b62814a,
-    type: 3}
-  _monster2Prefab: {fileID: 7511248246286170073, guid: 72f10c98aeca1fc40863de1155eaa0b2,
-    type: 3}
-  _inputDelay: 0.25
-  _defaultTimeScale: 1
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0

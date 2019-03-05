@@ -7,7 +7,9 @@ public class HPTrait
 {
     public event ExhaustedHP OnExhaustedHP;
 
-    BaseEntity Owner => _owner;
+    public HPTraitData _data;
+
+    public BaseEntity Owner => _owner;
     public int HP => _hp;
     public int MaxHP => _maxHP;
     public bool Regen => _regen;
@@ -20,12 +22,14 @@ public class HPTrait
     float _elapsedSinceLastRefill = 0.0f;
     bool _regen;
 
-    public void Init(BaseEntity owner, int maxHP, bool regen = false, float regenRate = 0.0f)
+    public void Init(BaseEntity owner, HPTraitData hpData)
     {
+        _data = hpData;
         _owner = owner;
-        _maxHP = _hp = maxHP;
-        _regen = regen;
-        _timeUnitsForHPRefill = regenRate;
+        _maxHP = _data.MaxHP;
+        _hp = _data.StartHP;
+        _regen = _data.Regen;
+        _timeUnitsForHPRefill = _data.RegenRate;
     }
 
     public void IncreaseMaxHP(int newMax, bool refillCurrent = false)

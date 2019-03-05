@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class EntityController: IEntityController
 {
+    EntityCreationData _entityCreationData;
+
     Player _player;
     List<BaseEntity> _allEntities;
 
@@ -19,39 +21,64 @@ public class EntityController: IEntityController
     public event BombDestroyedDelegate OnBombExploded;
     public event PlayerDestroyedDelegate OnPlayerKilled;
 
-    public void Init(FairyBombMap map)
+    public void Init(FairyBombMap map, EntityCreationData entityCreationData)
     {
         _map = map;
+        _entityCreationData = entityCreationData;
         _allEntities = new List<BaseEntity>();
         _entitiesToAdd = new List<BaseEntity>();
         _entitiesToRemove = new List<BaseEntity>();
     }
-   
-    public Player CreatePlayer(Player prefab, Vector2Int coords)
+
+    
+    //Bomb CreateBomb(BombData data, Vector2Int coords, BaseEntity Owner);
+    //Monster CreateMonster(MonsterData data, Vector2Int coords, AIController aiController);
+    public Player CreatePlayer(PlayerData data, Vector2Int coords)
     {
-        _player = Create<Player>(prefab, coords);
+        BaseEntityDependencies deps = new BaseEntityDependencies()
+        {
+            ParentNode = null,
+            EntityController = this,
+            Map = _map,
+            Coords = coords
+        };
+        _player = Create<Player>(_entityCreationData.PlayerPrefab, data, deps);
         return _player;
     }
 
-    public Bomb CreateBomb(Bomb prefab, IBomberEntity owner, Vector2Int coords)
+    public Bomb CreateBomb(BombData data, Vector2Int coords, IBomberEntity owner)
     {
-        Bomb b = Create<Bomb>(prefab, coords);
-        b.Owner = owner;
-        return b;
+        BombDependencies deps = new BombDependencies()
+        {
+            ParentNode = null,
+            EntityController = this,
+            Map = _map,
+            Coords = coords,
+            Owner = owner
+        };
+        var bomb = Create<Bomb>(_entityCreationData.BombPrefab, data, deps);
+        return bomb;
     }
 
-    public Monster CreateMonster(Monster prefab, Vector2Int coords, AIController aiController)
+    public Monster CreateMonster(MonsterData data, Vector2Int coords, AIController aiController)
     {
-        Monster m = Create<Monster>(prefab, coords);
-        m.SetAIController(aiController);
-        return m;
+        MonsterDependencies deps = new MonsterDependencies()
+        {
+            ParentNode = null,
+            EntityController = this,
+            Map = _map,
+            Coords = coords,
+            AIController = aiController
+        };
+        var monster = Create<Monster>(_entityCreationData.MonsterPrefab, data, deps);
+        return monster;
+
     }
 
-    public T Create<T>(T prefab, Vector2Int coords) where T : BaseEntity
+    public T Create<T>(T prefab, BaseEntityData data, BaseEntityDependencies deps) where T : BaseEntity
     {
         T entity = GameObject.Instantiate<T>(prefab);
-        entity.Init(this, _map);
-        entity.Coords = coords;
+        entity.Init(data, deps);
         _entitiesToAdd.Add(entity);
         return entity;
     }

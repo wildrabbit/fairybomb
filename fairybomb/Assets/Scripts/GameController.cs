@@ -13,16 +13,11 @@ public enum GameResult
 
 public class GameController : MonoBehaviour
 {
+    [SerializeField] GameData _gameData;
     [SerializeField] CameraController _cameraController;
 
     [SerializeField] HUD _hudPrefab;
     [SerializeField] FairyBombMap _mapPrefab;
-    [SerializeField] Player _playerPrefab;
-    [SerializeField] GameObject _explosionPrefab;
-    [SerializeField] Monster _monster1Prefab;
-    [SerializeField] Monster _monster2Prefab;
-    [SerializeField] float _inputDelay = 0.25f;
-    [SerializeField] float _defaultTimeScale = 1.0f;
 
     public int Turns => _turns;
     public float TimeUnits => _elapsedUnits;
@@ -34,6 +29,8 @@ public class GameController : MonoBehaviour
     HUD _hud;
     List<GameObject> _explosionItems;
 
+    float _inputDelay;
+    float _defaultTimeScale;
 
     // Time control / contexts
     float _timeScale;
@@ -51,19 +48,15 @@ public class GameController : MonoBehaviour
 
     GameInput _input;
     GameResult _result;
-    int[] _sampleMap;
-
-    Vector2Int _sampleDimensions;
-    Vector2Int _samplePlayerStart;
-    List<MonsterSpawn> _sampleMonsters;
-
+    
     //----------------------- Shortcuts --------------------/
 
     FairyBombMap _map;
 
     void Awake()
     {
-        _input = new GameInput(_inputDelay);
+        _input = new GameInput();
+
         _entityController = new EntityController();
 
         _eventLog = new GameEventLog();
@@ -90,38 +83,13 @@ public class GameController : MonoBehaviour
 
         ActionPhaseData actionCtxtData = new ActionPhaseData();
         actionCtxtData.input = _input;
-        actionCtxtData.BumpingWallsWillSpendMoves = false;
+        actionCtxtData.BumpingWallsWillSpendTurn = _gameData.BumpingWallsWillSpendTurn;
         actionCtxtData.Log = _eventLog;
         _playContextData[PlayContext.Action] = actionCtxtData;
     }
 
     void Start()
     {
-        _sampleMap = new int[]
-        {
-            0,0,0,0,0,0,0,0,0,0,
-            0,1,1,1,1,0,1,1,3,0,
-            0,1,1,1,1,0,1,1,1,0,
-            0,1,1,1,1,1,1,1,1,0,
-            0,0,1,0,0,2,0,2,0,0,
-            0,1,1,1,1,2,1,1,1,0,
-            0,1,1,1,1,0,1,1,1,0,
-            0,0,0,0,0,0,0,0,0,0,
-        };
-        _sampleDimensions = new Vector2Int(8, 10);
-        _samplePlayerStart = new Vector2Int(2, 2);
-
-        _sampleMonsters = new List<MonsterSpawn>();
-        _sampleMonsters.Add(new MonsterSpawn()
-        {
-            Prefab = _monster1Prefab,
-            Coords = new Vector2Int(6, 2)
-        });
-        _sampleMonsters.Add(new MonsterSpawn()
-        {
-            Prefab = _monster2Prefab,
-            Coords = new Vector2Int(2, 7)
-        });
         _eventLog.Init();
 
         StartGame();
@@ -181,7 +149,7 @@ public class GameController : MonoBehaviour
 
         foreach (var coord in coords)
         {
-            var explosion = Instantiate(_explosionPrefab);
+            var explosion = Instantiate(bomb.ExplosionPrefab);
             explosion.transform.position = _map.WorldFromCoords(coord);
             _explosionItems.Add(explosion);
             StartCoroutine(DelayedKillExplosion(explosion, 0.25f));
@@ -211,13 +179,17 @@ public class GameController : MonoBehaviour
     }
     void StartGame()
     {
-        _map = Instantiate<FairyBombMap>(_mapPrefab);
-        _map.InitFromArray(_sampleDimensions, System.Array.ConvertAll(_sampleMap, (value) => (TileType)value), _samplePlayerStart, arrayOriginTopLeft:true);
+        _inputDelay = _gameData.InputDelay;
+        _defaultTimeScale = _gameData.DefaultTimescale;
+        _input.Init(_inputDelay);
 
-        _entityController.Init(_map);
+        _map = Instantiate<FairyBombMap>(_mapPrefab);
+        _map.InitFromData(_gameData.MapData, _eventLog);
+
+        _entityController.Init(_map, _gameData.EntityCreationData);
         _entityController.OnEntitiesAdded += RegisterScheduledEntities;
         _entityController.OnEntitiesRemoved += UnregisterScheduledEntities;
-        _entityController.CreatePlayer(_playerPrefab, _map.PlayerStart);
+        _entityController.CreatePlayer(_gameData.PlayerData, _map.PlayerStart);
         _entityController.OnPlayerKilled += PlayerKilled;
         _entityController.OnBombExploded += BombExploded;
         _entityController.OnBombSpawned += BombSpawned;
@@ -242,7 +214,7 @@ public class GameController : MonoBehaviour
 
         // populate the level
         _monsterCreator.Init(_entityController, _aiController, _map, _eventLog);
-        _monsterCreator.AddInitialMonsters(_sampleMonsters);
+        _monsterCreator.AddInitialMonsters(_gameData.MapData.MonsterSpawns);
 
         _entityController.AddNewEntities();
 
@@ -253,9 +225,9 @@ public class GameController : MonoBehaviour
 
         // Starting event!
         var setupEvt = new GameSetupEvent();
-        setupEvt.MapSize = _sampleDimensions;
-        setupEvt.MapTiles = _sampleMap;
-        setupEvt.PlayerCoords = _samplePlayerStart;
+        setupEvt.MapSize = new Vector2Int(_map.Height, _map.Width);
+        setupEvt.MapTiles = _map.Tiles;
+        setupEvt.PlayerCoords = _map.PlayerStart;
         setupEvt.HP = _entityController.Player.HP;
         setupEvt.MaxHP = _entityController.Player.MaxHP;
         _eventLog.StartSession(setupEvt);
@@ -282,7 +254,7 @@ public class GameController : MonoBehaviour
     {
         if (_result != GameResult.Running)
         {
-            if (_input.Any)
+            if (_input != null && _input.Any)
             {
                 StartCoroutine(RestartGame());
             }

@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72451144a9357ee46ab7fccf4727e411, type: 3}
+  m_Name: DEVGameData
+  m_EditorClassIdentifier: 
+  InputDelay: 0.25
+  DefaultTimescale: 1
+  BumpingWallsWillSpendTurn: 0
+  PlayerData: {fileID: 11400000, guid: 048cd09c14d518b4aaa99066d0e825ea, type: 2}
+  MapData: {fileID: 11400000, guid: 314ddf9a30b232947927a1c8f33d3afb, type: 2}
+  EntityCreationData:
+    PlayerPrefab: {fileID: 5073076910135972578, guid: a87ab9ea031c5ad44b5ae21dfd0f4aa9,
+      type: 3}
+    BombPrefab: {fileID: 315620243872586645, guid: cf91220acdee95341bd6106587dab540,
+      type: 3}
+    MonsterPrefab: {fileID: 2984502519240736652, guid: 46859fa966afc4d41adfc2787b62814a,
+      type: 3}
+  MonsterDataList:
+  - {fileID: 11400000, guid: 002835a5d25060c47bc079eceb83a8cc, type: 2}
+  - {fileID: 11400000, guid: d547d0589895ef04a9382bd55e860a6b, type: 2}
+  BombDataList:
+  - {fileID: 11400000, guid: c6d3d460afdbf994e83357bff7fb844f, type: 2}

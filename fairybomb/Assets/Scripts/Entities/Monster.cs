@@ -20,6 +20,11 @@ public class MeleeAttackAction: BaseMonsterAction
 public class BombAttackAction: BaseMonsterAction
 {}
 
+public class MonsterDependencies: BaseEntityDependencies
+{
+    public AIController AIController;
+}
+
 public enum MonsterState
 {
     Idle = 0,
@@ -29,40 +34,41 @@ public enum MonsterState
 
 public class Monster : BaseEntity
 {
-    [Header("Config")]
-    public float Speed = 1.0f;
-    public int StartHP = 3;
-    public float ThinkingDelay = 2.0f;
     public SpriteRenderer ViewPrefab;
-
-    [Header("Structure")]
-    [SerializeField] SpriteRenderer _view;
-
 
     public int HP => _hpTrait.HP;
     public int MaxHP => _hpTrait.MaxHP;
-
     public MonsterState CurrentState => _currentState;
+
+    MonsterData _monsterData;
 
     HPTrait _hpTrait;
     MonsterState _currentState;
 
-    public float _elapsedNextAction;
-    public float _elapsedPathUpdate;
-    public float _decisionDelay;
+    BombImmunityType _bombImmunity;
+    BombWalkabilityType _walkOverBombs;
+
+    float _elapsedNextAction;
+    float _elapsedPathUpdate;
+    float _decisionDelay;
 
     AIController _aiController;
 
-    public override void Init(IEntityController entityController, FairyBombMap map)
+    protected override void DoInit(BaseEntityDependencies deps)
     {
-        base.Init(entityController, map);
-        name = "Monsterrr";
+        MonsterDependencies monsterDeps = ((MonsterDependencies)deps);
+        _aiController = monsterDeps.AIController;
+
+        _monsterData = ((MonsterData)_entityData);
+        name = _monsterData.name;
         _hpTrait = new HPTrait();
-        _hpTrait.Init(this, StartHP, false);
-        _decisionDelay = ThinkingDelay;
+        _hpTrait.Init(this, _monsterData.HPData);
+        _decisionDelay = _monsterData.ThinkingDelay;
         _elapsedNextAction = 0.0f;
         _elapsedPathUpdate = 0.0f;
-        _currentState = MonsterState.Wandering;
+        _currentState =_monsterData.InitialState;
+        _bombImmunity = _monsterData.MovingData.BombImmunity;
+        _walkOverBombs = _monsterData.MovingData.BombWalkability;
     }
 
     public void SetAIController(AIController aiController)
@@ -74,7 +80,7 @@ public class Monster : BaseEntity
     {
         _elapsedNextAction += timeUnits;
 
-        while (_elapsedNextAction >= ThinkingDelay)
+        while (_elapsedNextAction >= _decisionDelay)
         {
             BaseMonsterAction action;
             MonsterState nextState = _aiController.MonsterBrain(this, out action);
@@ -99,7 +105,7 @@ public class Monster : BaseEntity
             {
                 _hpTrait.UpdateRegen(timeUnits);
             }
-            _elapsedNextAction = Mathf.Max(_elapsedNextAction - ThinkingDelay, 0.0f);
+            _elapsedNextAction = Mathf.Max(_elapsedNextAction - _decisionDelay, 0.0f);
         }
     }
 

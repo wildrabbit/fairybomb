@@ -5,7 +5,7 @@ using UnityEngine;
 [Serializable]
 public class MonsterSpawn
 {
-    public Monster Prefab;
+    public MonsterData Data;
     public Vector2Int Coords;
 }
 
@@ -28,7 +28,7 @@ public class MonsterCreator
     {
         foreach(var spawnData in spawns)
         {
-            _entityController.CreateMonster(spawnData.Prefab, spawnData.Coords, _aiController);
+            _entityController.CreateMonster(spawnData.Data, spawnData.Coords, _aiController);
         }
     }
 }

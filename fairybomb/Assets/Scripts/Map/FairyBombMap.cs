@@ -5,15 +5,19 @@ using UnityEngine.Tilemaps;
 
 public class FairyBombMap : MonoBehaviour
 {
-    [SerializeField] List<FairyBombTile> _lesTiles;
-    [SerializeField] FairyBombTile _goalTile;
+    public Vector2Int PlayerStart => _playerStart;
 
     [SerializeField] Tilemap _map;
-    public Vector2Int PlayerStart;
-    
+
+    FairyBombMapData _mapData;
+
+    List<FairyBombTile> _lesTiles;
+    FairyBombTile _goalTile;
+    Vector2Int _playerStart;
+
     // We'll start with neutral, then N and then clockwise
     Vector2Int[][] _neighbourOffsets = new Vector2Int[][]
-    { 
+    {
         new Vector2Int[]{ new Vector2Int(0, 0), new Vector2Int(1, 0), new Vector2Int(0, 1), new Vector2Int(-1,1), new Vector2Int(-1, 0), new Vector2Int(-1, -1), new Vector2Int(0, -1)},
         new Vector2Int[]{ new Vector2Int(0, 0), new Vector2Int(1, 0), new Vector2Int(1, 1),new Vector2Int(0, 1), new Vector2Int(-1, 0), new Vector2Int(0, -1),new Vector2Int(1, -1)}
     };
@@ -21,13 +25,30 @@ public class FairyBombMap : MonoBehaviour
     public int Height => _map.size.x;
     public int Width => _map.size.y;
 
-    private void Awake()
+    public int[] Tiles
     {
-        _lesTiles.Sort((x1, x2) => x1.TileType.CompareTo(x2.TileType));
+        get
+        {
+            BoundsInt bounds = _map.cellBounds;
+            var tileBase =_map.GetTilesBlock(bounds);
+            return System.Array.ConvertAll(tileBase, tile => (int)(((FairyBombTile)tile).TileType));
+        }
     }
 
-    public void InitFromMap()
+    public void InitFromData(FairyBombMapData data, GameEventLog gameEventLog)
     {
+        _mapData = data;
+        _lesTiles = data.Palette;
+        _lesTiles.Sort((x1, x2) => x1.TileType.CompareTo(x2.TileType));
+        _goalTile = data.GoalTile;
+        Vector2Int size;
+        int[] level;
+        if(data.GetLevelData(out size, out level))
+        {
+            TileType[] levelTiles = System.Array.ConvertAll(level, intValue => (TileType)intValue);
+            InitFromArray(size, levelTiles, data.PlayerStart, data.OriginIsTopLeft);
+        }
+        // TODO: MAP GENERATION
     }
 
     public void InitFromArray(Vector2Int dimensions, TileType[] typeArray, Vector2Int playerStart, bool arrayOriginTopLeft)
@@ -41,7 +62,7 @@ public class FairyBombMap : MonoBehaviour
             return;
         }
 
-        PlayerStart = playerStart;
+        _playerStart = playerStart;
         for(int row = 0; row < height; ++row)
         {
             for(int col = 0; col < width; ++col)

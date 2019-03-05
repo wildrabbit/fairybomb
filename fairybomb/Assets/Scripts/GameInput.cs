@@ -70,7 +70,12 @@ public class GameInput
 
     InputEntry[] numInputs;
 
-    public GameInput(float inputDelay)
+    public GameInput()
+    {
+
+    }
+
+    public void Init(float inputDelay)
     {
         _moveInputDelay = inputDelay;
         dirNW = new InputEntry("dirNW", _moveInputDelay);

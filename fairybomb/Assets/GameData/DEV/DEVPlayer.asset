@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee717ab3f2fbe114da3c63d0e1a1588a, type: 3}
+  m_Name: DEVPlayer
+  m_EditorClassIdentifier: 
+  DefaultViewPrefab: {fileID: 2798364246931441843, guid: 8eb2a6adf8496274c9159a5ba81e532f,
+    type: 3}
+  HPData:
+    MaxHP: 3
+    StartHP: 3
+    Regen: 0
+    RegenRate: 0
+  MobilityData:
+    BombWalkability: 1
+    BombImmunity: 0
+  BomberData:
+    DeployedBombLimit: 3
+    DefaultBombData: {fileID: 11400000, guid: c6d3d460afdbf994e83357bff7fb844f, type: 2}
+  Speed: 1
