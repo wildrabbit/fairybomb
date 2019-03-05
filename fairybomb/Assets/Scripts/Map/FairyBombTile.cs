@@ -9,7 +9,7 @@ public enum TileType: int
     Wood,
     Goal
 }
-
+[CreateAssetMenu(fileName = "New FairyBombTile", menuName = "FAIRY BOMB/FairyBombTile")]
 public class FairyBombTile : Tile
 {
     public TileType TileType => _tile;
@@ -24,17 +24,5 @@ public class FairyBombTile : Tile
     [SerializeField] bool _walkable;
     [SerializeField] bool _blocksExplosions;
     [SerializeField] FairyBombTile _destructionReplacement;
-
-#if UNITY_EDITOR
-    // The following is a helper that adds a menu item to create a RoadTile Asset
-    [MenuItem("Assets/Create/FAIRY BOMB/Create Terrain Tile")]
-    public static void CreateTerrainTile()
-    {
-        string path = EditorUtility.SaveFilePanelInProject("Save Terrain Tile", "New TerrainTile", "Asset", "Save Terrain Tile", "Assets");
-        if (path == "")
-            return;
-        AssetDatabase.CreateAsset(ScriptableObject.CreateInstance<FairyBombTile>(), path);
-    }
-#endif
 }
 

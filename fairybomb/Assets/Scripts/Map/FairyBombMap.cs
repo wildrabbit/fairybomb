@@ -38,17 +38,59 @@ public class FairyBombMap : MonoBehaviour
     public void InitFromData(FairyBombMapData data, GameEventLog gameEventLog)
     {
         _mapData = data;
-        _lesTiles = data.Palette;
+        _lesTiles = new List<FairyBombTile>(data.Palette);
         _lesTiles.Sort((x1, x2) => x1.TileType.CompareTo(x2.TileType));
         _goalTile = data.GoalTile;
         Vector2Int size;
         int[] level;
-        if(data.GetLevelData(out size, out level))
+        if(GetLevelData(data, out size, out level))
         {
             TileType[] levelTiles = System.Array.ConvertAll(level, intValue => (TileType)intValue);
             InitFromArray(size, levelTiles, data.PlayerStart, data.OriginIsTopLeft);
         }
         // TODO: MAP GENERATION
+    }
+
+    bool GetLevelData(FairyBombMapData data, out Vector2Int size, out int[] tiles)
+    {
+        size = Vector2Int.zero;
+        tiles = new int[0];
+
+        string[] lines = data.MapInfo.text.Split('\n');
+        if (lines.Length == 0)
+        {
+            Debug.LogError("Invalid length");
+            return false;
+        }
+        string[] dims = lines[0].Split(',');
+        if (dims.Length != 2)
+        {
+            Debug.LogError("Invalid dims");
+            return false;
+        }
+
+        size = new Vector2Int(Int32.Parse(dims[0]), Int32.Parse(dims[1]));
+        tiles = new int[size.x * size.y];
+        if (lines.Length != (size.x + 1))
+        {
+            Debug.LogError("Invalid row count");
+            return false;
+        }
+
+        for (int i = 1; i < lines.Length; ++i)
+        {
+            string[] tilesRow = lines[i].Trim().TrimEnd(',').Split(',');
+            if (tilesRow.Length != size.y)
+            {
+                Debug.LogError($"Invalid col count @ row {i - 1}");
+                return false;
+            }
+            for (int j = 0; j < tilesRow.Length; ++j)
+            {
+                tiles[(i - 1) * size.y + j] = Int32.Parse(tilesRow[j]);
+            }
+        }
+        return true;
     }
 
     public void InitFromArray(Vector2Int dimensions, TileType[] typeArray, Vector2Int playerStart, bool arrayOriginTopLeft)

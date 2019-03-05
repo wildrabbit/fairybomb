@@ -16,7 +16,7 @@ MonoBehaviour:
   DefaultTimescale: 1
   BumpingWallsWillSpendTurn: 0
   PlayerData: {fileID: 11400000, guid: 048cd09c14d518b4aaa99066d0e825ea, type: 2}
-  MapData: {fileID: 11400000, guid: 314ddf9a30b232947927a1c8f33d3afb, type: 2}
+  MapData: {fileID: 11400000, guid: 1e8ae5a4991358847a173a5e5cb75392, type: 2}
   EntityCreationData:
     PlayerPrefab: {fileID: 5073076910135972578, guid: a87ab9ea031c5ad44b5ae21dfd0f4aa9,
       type: 3}
