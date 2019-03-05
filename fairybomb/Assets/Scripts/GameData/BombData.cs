@@ -8,6 +8,5 @@ public class BombData: BaseEntityData
     public int Timeout;
     public bool IgnoreBlocks;
     public GameObject VFXExplosion;
-
-    public float TickUnits { get; internal set; }
+    public float TickUnits;
 }
