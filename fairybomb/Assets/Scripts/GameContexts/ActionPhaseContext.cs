@@ -28,9 +28,9 @@ public class ActionPhaseContext : IPlayContext
         if (input.BombPlaced)
         {
             BaseEntity[] blackList = new BaseEntity[] { player };
-            if(map.TileAt(playerCoords).Walkable && !entityController.ExistsEntitiesAt(playerCoords, blackList) && player.HasBombAvailable())
+            if(map.TileAt(playerCoords).Walkable && !entityController.ExistsEntitiesAt(playerCoords, blackList) && player.BomberTrait.HasBombAvailable())
             {
-                Bomb bomb = entityController.CreateBomb(player.SelectedBomb, playerCoords, player);
+                Bomb bomb = entityController.CreateBomb(player.BomberTrait.SelectedBomb, playerCoords, player);
                 PlayerActionEvent evt = new PlayerActionEvent(actionData.Turns, actionData.TimeUnits);
                 evt.SetBomb(bomb.Coords);
                 log.AddEvent(evt);

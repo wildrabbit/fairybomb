@@ -46,4 +46,6 @@ public interface IEntityController
 
     void AddBomber(IBomberEntity bomber);
     void RemoveBomber(IBomberEntity bomber);
+
+    List<Bomb> GetBombs();
 }

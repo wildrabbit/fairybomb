@@ -1,7 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
-using System;
 
 public enum BombWalkabilityType
 {
@@ -17,56 +15,41 @@ public enum BombImmunityType
     NoBombs
 }
 
-public class Player : BaseEntity, IBomberEntity, IBattleEntity
+public class Player : BaseEntity, IBattleEntity, IBomberEntity
 {
-    public BombData SelectedBomb
-    {
-        get => _selectedBomb;
-        set {}
-    }
-
-    // Total bombs placed (for naming, stuff)
-    public int BombCount { get; set; }
-
     public int HP => _hpTrait.HP;
     public int MaxHP => _hpTrait.MaxHP;
     public float Speed => _speed;
 
+    public BomberTrait BomberTrait => _bomberTrait;
+
     public BombWalkabilityType BombWalkability => _walkOverBombs;
 
     int IBattleEntity.HP => HP;
-
     int IBattleEntity.Damage => 0;
-
     string IBattleEntity.Name => name;
 
-    float _speed;
     
-    BombData _selectedBomb;
-
     BombImmunityType _bombImmunity;
     BombWalkabilityType _walkOverBombs;
-
-    int _deployedBombLimit;
-    int _deployedBombs;
-    HPTrait _hpTrait;
-    //...whatever
+    float _speed;
 
     PlayerData _playerData;
+    HPTrait _hpTrait;
+    BomberTrait _bomberTrait;
+
 
     protected override void DoInit(BaseEntityDependencies deps)
     {
         _playerData = ((PlayerData)_entityData);
 
         name = "Player";
-        BombCount = 0;
         _hpTrait = new HPTrait();
         _hpTrait.Init(this, _playerData.HPData);
-        _deployedBombLimit = _playerData.BomberData.DeployedBombLimit;
-        _selectedBomb = _playerData.BomberData.DefaultBombData;
+        _bomberTrait = new BomberTrait();
+        _bomberTrait.Init(this, _playerData.BomberData);
         _bombImmunity = _playerData.MobilityData.BombImmunity;
         _walkOverBombs = _playerData.MobilityData.BombWalkability;
-        _deployedBombs = 0;
         _speed = _playerData.Speed;
     }
 
@@ -78,17 +61,6 @@ public class Player : BaseEntity, IBomberEntity, IBattleEntity
         }
     }
 
-    public bool HasBombAvailable()
-    {
-        return _selectedBomb != null && _deployedBombs < _deployedBombLimit;
-    }
-
-    public void AddedBomb(Bomb bomb)
-    {
-        _deployedBombs++;
-        BombCount++;
-    }
-
     public void OnBombExploded(Bomb bomb, List<Vector2Int> coords, BaseEntity triggerEntity)
     {
 #pragma warning disable CS0252 // Involuntary reference comparison (What I DO want)
@@ -97,15 +69,21 @@ public class Player : BaseEntity, IBomberEntity, IBattleEntity
 
         if (isOwnBomb)
         {
-            _deployedBombs--;
+            _bomberTrait.RestoreBomb(bomb);
         }
         if(coords.Contains(Coords))
         {
-            if(_bombImmunity == BombImmunityType.NoBombs || (_bombImmunity == BombImmunityType.OwnBombs && !isOwnBomb))
+            if (!IsImmuneTo(bomb) && coords.Contains(Coords))
             {
                 TakeDamage(bomb.Damage);
             }
         }
+    }
+
+    private bool IsImmuneTo(Bomb bomb)
+    {
+        bool isOwnBomb = (bomb.Owner == this);
+        return (_bombImmunity == BombImmunityType.AnyBombs || (_bombImmunity == BombImmunityType.OwnBombs && isOwnBomb));
     }
 
     public bool TakeDamage(int damage)

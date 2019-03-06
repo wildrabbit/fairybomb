@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
 
 public class BaseMonsterAction
 {
@@ -25,8 +25,11 @@ public class MeleeAttackAction: BaseMonsterAction
     // TODO: Melee weapon, stuff
 }
 
-public class BombAttackAction: BaseMonsterAction
-{}
+public class PlaceBombAction: BaseMonsterAction
+{
+    public BombData BombData;
+    public Vector2Int BombCoords;
+}
 
 public class MonsterDependencies: BaseEntityDependencies
 {
@@ -39,11 +42,12 @@ public enum MonsterState
     Wandering,
     Chasing,
     Escaping,
-    BattleAction
+    BattleAction,
+    BombPlacement
 }
 
 
-public class Monster : BaseEntity, IBattleEntity
+public class Monster : BaseEntity, IBattleEntity, IBomberEntity
 {
     public SpriteRenderer ViewPrefab;
 
@@ -51,9 +55,19 @@ public class Monster : BaseEntity, IBattleEntity
     public int MaxHP => _hpTrait.MaxHP;
 
     public MonsterState CurrentState => _currentState;
-
+    public BomberTrait BomberTrait => _bomberTrait;
     public BombWalkabilityType BombWalkability => _walkOverBombs;
 
+    public bool IsMelee => _monsterData.IsMelee;
+
+    public bool IsImmuneTo(Bomb bomb)
+    {
+        bool isOwnBomb = (bomb.Owner == this);
+        return (_bombImmunity == BombImmunityType.AnyBombs || (_bombImmunity == BombImmunityType.OwnBombs && isOwnBomb));            
+    }
+
+    public bool IsBomber => _monsterData.IsBomber;
+    
     public int TurnsInSameState => _turnsInSameState;
     public int TurnLimit => _turnLimit;
     public float EscapeHPRatio => _monsterData.EscapeHPRatio;
@@ -70,9 +84,18 @@ public class Monster : BaseEntity, IBattleEntity
 
     string IBattleEntity.Name => name;
 
+    public BombData SelectedBomb
+    {
+        get => _monsterData.BomberData.DefaultBombData;
+        set { }
+    }
+    public int BombCount { get; set; }
+
     MonsterData _monsterData; // Should we expose it?
 
     HPTrait _hpTrait;
+    BomberTrait _bomberTrait;
+
     MonsterState _currentState;
 
     BombImmunityType _bombImmunity;
@@ -97,13 +120,13 @@ public class Monster : BaseEntity, IBattleEntity
         }
         else if (_monsterData.IsBomber)
         {
-            return _monsterData.BomberData.DefaultBombData.Radius;
+            return _bomberTrait.SelectedBomb.Radius;
         }
         return 0; // attack distance == 0? 
     }
 
     AIController _aiController;
-
+    
     protected override void DoInit(BaseEntityDependencies deps)
     {
         MonsterDependencies monsterDeps = ((MonsterDependencies)deps);
@@ -113,6 +136,10 @@ public class Monster : BaseEntity, IBattleEntity
         name = _monsterData.name;
         _hpTrait = new HPTrait();
         _hpTrait.Init(this, _monsterData.HPData);
+
+        _bomberTrait = new BomberTrait();
+        _bomberTrait.Init(this, _monsterData.BomberData);
+
         _decisionDelay = _monsterData.ThinkingDelay;
         _elapsedNextAction = 0.0f;
         _elapsedPathUpdate = 0.0f;
@@ -162,6 +189,12 @@ public class Monster : BaseEntity, IBattleEntity
                     BattleActionResult results;
                     BattleUtils.SolveAttack(this, target, out results);
                 }
+                else if (action is PlaceBombAction)
+                {
+                    var bombAction = ((PlaceBombAction)action);
+                    Bomb bomb = _entityController.CreateBomb(bombAction.BombData, bombAction.BombCoords, this);
+                    // TODO: Track monster placing bomb
+                }
             }
 
             // TODO: Combat actions!!
@@ -208,12 +241,18 @@ public class Monster : BaseEntity, IBattleEntity
 
     public void OnBombExploded(Bomb bomb, List<Vector2Int> coords, BaseEntity triggerEntity)
     {
-        if (coords.Contains(Coords))
+#pragma warning disable CS0252 // Involuntary reference comparison (What I DO want)
+        bool isOwnBomb = (bomb.Owner == this);
+#pragma warning restore CS0252
+
+        if (isOwnBomb)
         {
-            if (_bombImmunity == BombImmunityType.NoBombs || (_bombImmunity == BombImmunityType.OwnBombs && !(bomb.Owner is Monster)))
-            {
-                TakeDamage(bomb.Damage);
-            }
+            _bomberTrait.RestoreBomb(bomb);
+        }
+
+        if(!IsImmuneTo(bomb) && coords.Contains(Coords))
+        {
+            TakeDamage(bomb.Damage);
         }
     }
 

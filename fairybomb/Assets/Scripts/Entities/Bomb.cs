@@ -18,6 +18,8 @@ public class Bomb : BaseEntity
 
     public GameObject ExplosionPrefab => _bombData.VFXExplosion;
 
+    public int TurnsLeftToExplosion => _ticksLeft;
+
     [SerializeField] TextMeshPro _countdown;
 
     BombData _bombData;
@@ -33,7 +35,7 @@ public class Bomb : BaseEntity
     {
         BombDependencies bombDeps = ((BombDependencies)deps);
         _owner = bombDeps.Owner;
-        name = $"BMB_{((BaseEntity)_owner).name}_{_owner.BombCount}";
+        name = $"BMB_{((BaseEntity)_owner).name}_{_owner.BomberTrait.TotalBombCount}";
 
         _bombData = ((BombData)_entityData);
         _radius = _bombData.Radius;

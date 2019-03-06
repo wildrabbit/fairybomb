@@ -28,12 +28,12 @@ MonoBehaviour:
   WanderToIdleMaxTurns: 10
   MinIdleTurns: 1
   MaxIdleTurns: 1
-  IsMelee: 1
+  IsMelee: 0
   MeleeDamage: 1
-  IsBomber: 0
+  IsBomber: 1
   BomberData:
-    DeployedBombLimit: 0
-    DefaultBombData: {fileID: 0}
+    DeployedBombLimit: 1
+    DefaultBombData: {fileID: 11400000, guid: cf7a56e99b32f1f4bafe6be89c3518cd, type: 2}
   VisibilityRange: 3
   EscapeHPRatio: 0.25
   EscapeSafeDistance: 4

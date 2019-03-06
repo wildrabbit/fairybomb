@@ -1,5 +1,16 @@
 ﻿using UnityEngine;
 
+public enum MonsterAITemplate
+{
+    Chaser,
+    Avoider,
+    Wanderer,
+    Smartass
+}
+
+// TODO: Put ai template params in ai template data??
+
+
 [CreateAssetMenu(fileName = "New MonsterData", menuName = "FAIRY BOMB/Monster")]
 public class MonsterData: BaseEntityData
 {

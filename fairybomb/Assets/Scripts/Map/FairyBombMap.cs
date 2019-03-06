@@ -15,6 +15,11 @@ public class FairyBombMap : MonoBehaviour
     FairyBombTile _goalTile;
     Vector2Int _playerStart;
 
+    Vector3Int[] cubeOffsets = new Vector3Int[]
+    {
+        new Vector3Int(0, 0, 0), new Vector3Int(0, -1, 1), new Vector3Int(1, 0, 1), new Vector3Int(1, 1, 0), new Vector3Int(0, 1, -1), new Vector3Int(-1, 0, -1), new Vector3Int(-1, -1, 0)
+    };
+
     // We'll start with neutral, then N and then clockwise
     Vector2Int[][] _neighbourOffsets = new Vector2Int[][]
     {
@@ -363,8 +368,28 @@ public class FairyBombMap : MonoBehaviour
         return CubeDistance(cube1, cube2);
     }
 
-    public List<Vector2Int> FindPath(Vector2Int from, Vector2Int to)
+    public bool IsOnRay(Vector2Int coords1, Vector2Int coords2)
     {
-        return null;
+        Vector3Int cube1 = CubeFromCoords(coords1);
+        Vector3Int cube2 = CubeFromCoords(coords2);
+        Vector3Int diff = cube2 - cube1;
+
+        int distance = CubeDistance(cube2, cube1);
+
+        Vector3Int[] scaled = System.Array.ConvertAll(cubeOffsets, offset =>
+        {
+            offset.Scale(new Vector3Int(distance, distance, distance));
+            return offset;
+        });
+
+        foreach(var offset in scaled)
+        {
+            if (diff == offset)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

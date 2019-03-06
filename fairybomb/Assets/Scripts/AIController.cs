@@ -31,18 +31,51 @@ public class AIController
         float hpRatio = leMonster.HP / (float)leMonster.MaxHP;
         bool isEscapeHPRatio = hpRatio <= leMonster.EscapeHPRatio;
 
-        MonsterState currentState = leMonster.CurrentState;
-        if (isEscapeHPRatio && playerDistance <= leMonster.EscapeSafeDistance)
+        if(isEscapeHPRatio)
         {
-            return SetupEscapeState(leMonster, out actionData);
+            List<Bomb> placedBombs = _entityController.GetBombs();
+            placedBombs.RemoveAll(x => leMonster.IsImmuneTo(x));
+            Bomb escapeBomb = null;
+            int minTurns = Int32.MaxValue;
+            foreach (var bomb in placedBombs)
+            {
+                if (_map.IsOnRay(bomb.Coords, leMonster.Coords) && bomb.TurnsLeftToExplosion < minTurns)
+                {
+                    escapeBomb = bomb;
+                    minTurns = escapeBomb.TurnsLeftToExplosion;
+                }
+            }
+
+            if (escapeBomb != null)
+            {
+                return SetupEscapeState(leMonster, escapeBomb.Coords, out actionData);
+            }
+
+            MonsterState currentState = leMonster.CurrentState;
+            if (isEscapeHPRatio && playerDistance <= leMonster.EscapeSafeDistance)
+            {
+                return SetupEscapeState(leMonster, p.Coords, out actionData);
+            }
         }
+
 
         if (playerDistance <= leMonster.VisibilityRange)
         {
-            // TODO: Checks for available attacks here or when actually attacking?
             if (playerDistance <= leMonster.AttackDistance())
             {
-                return SetupAttackState(leMonster, out actionData);
+                if (leMonster.IsMelee)
+                {
+                    return SetupAttackState(leMonster, out actionData);
+                }
+
+                if (leMonster.IsBomber)
+                {
+                    return SetupBomberState(leMonster, units, out actionData);
+                }
+                else
+                {
+                    return SetupChaseState(leMonster, units, out actionData);
+                }
             }
             else
             {
@@ -50,7 +83,7 @@ public class AIController
             }
         }
 
-        switch (currentState)
+        switch (leMonster.CurrentState)
         {
             case MonsterState.Idle:
                 {
@@ -118,11 +151,11 @@ public class AIController
         };
         return MonsterState.Chasing;
     }
-    MonsterState SetupEscapeState(Monster leMonster, out BaseMonsterAction leAction)
+    MonsterState SetupEscapeState(Monster leMonster, Vector2Int targetCoords, out BaseMonsterAction leAction)
     {
         leAction = new BaseMonsterAction()
         {
-            NextCoords = EscapeCoords(leMonster),
+            NextCoords = EscapeCoords(leMonster, targetCoords),
         };
         return MonsterState.Escaping;
     }
@@ -184,11 +217,7 @@ public class AIController
         }
         return coords;
     }
-    Vector2Int EscapeCoords(Monster leMonster)
-    {
-        return Vector2Int.zero;
-    }
-    Vector2Int GetEscapeCoords(Monster leMonster, Vector2Int targetCoords)
+    Vector2Int EscapeCoords(Monster leMonster, Vector2Int targetCoords)
     {
         Vector2Int monsterCoords = leMonster.Coords;
         int bestDistance = _map.Distance(monsterCoords, targetCoords);
@@ -224,5 +253,22 @@ public class AIController
     public void Cleanup()
     {
            
+    }
+
+    private MonsterState SetupBomberState(Monster leMonster, float units, out BaseMonsterAction actionData)
+    {
+        BaseEntity[] blackList = new BaseEntity[] { leMonster };
+        Vector2Int coords = leMonster.Coords;
+        if (_map.TileAt(coords).Walkable && !_entityController.ExistsEntitiesAt(coords, blackList) && leMonster.BomberTrait.HasBombAvailable())
+        {
+            actionData = new PlaceBombAction()
+            {
+                NextCoords = coords,
+                BombData = leMonster.BomberTrait.SelectedBomb,
+                BombCoords = coords
+            };
+            return MonsterState.BombPlacement;
+        }
+        return SetupChaseState(leMonster, units, out actionData);
     }
 }

@@ -213,13 +213,18 @@ public class EntityController: IEntityController
 
     public void AddBomber(IBomberEntity bomber)
     {
-        OnBombSpawned += bomber.AddedBomb;
+        OnBombSpawned += bomber.BomberTrait.AddedBomb;
         OnBombExploded += bomber.OnBombExploded;
     }
 
     public void RemoveBomber(IBomberEntity bomber)
     {
-        OnBombSpawned -= bomber.AddedBomb;
+        OnBombSpawned -= bomber.BomberTrait.AddedBomb;
         OnBombExploded -= bomber.OnBombExploded;
+    }
+
+    public List<Bomb> GetBombs()
+    {
+        return _allEntities.FindAll(x => x is Bomb && x.Active).ConvertAll(x => ((Bomb)x));
     }
 }
