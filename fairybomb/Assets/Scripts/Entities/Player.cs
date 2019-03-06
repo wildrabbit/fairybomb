@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System;
 
 public enum BombWalkabilityType
 {
@@ -16,13 +17,14 @@ public enum BombImmunityType
     NoBombs
 }
 
-public class Player : BaseEntity, IBomberEntity
+public class Player : BaseEntity, IBomberEntity, IBattleEntity
 {
     public BombData SelectedBomb
     {
         get => _selectedBomb;
         set {}
     }
+
     // Total bombs placed (for naming, stuff)
     public int BombCount { get; set; }
 
@@ -31,6 +33,12 @@ public class Player : BaseEntity, IBomberEntity
     public float Speed => _speed;
 
     public BombWalkabilityType BombWalkability => _walkOverBombs;
+
+    int IBattleEntity.HP => HP;
+
+    int IBattleEntity.Damage => 0;
+
+    string IBattleEntity.Name => name;
 
     float _speed;
     
@@ -95,14 +103,21 @@ public class Player : BaseEntity, IBomberEntity
         {
             if(_bombImmunity == BombImmunityType.NoBombs || (_bombImmunity == BombImmunityType.OwnBombs && !isOwnBomb))
             {
-                _hpTrait.Decrease(bomb.Damage);
-                Debug.Log($"Player took {bomb.Damage} damage!. Current HP: {HP}");
-                if (HP == 0)
-                {
-                    _entityController.DestroyEntity(this);
-                }
+                TakeDamage(bomb.Damage);
             }
         }
+    }
+
+    public bool TakeDamage(int damage)
+    {
+        _hpTrait.Decrease(damage);
+        Debug.Log($"Player took {damage} damage!. Current HP: {HP}");
+        if (HP == 0)
+        {
+            _entityController.DestroyEntity(this);
+            return true;
+        }
+        return false;
     }
 
     public override void Cleanup()
@@ -116,11 +131,22 @@ public class Player : BaseEntity, IBomberEntity
        _entityController.AddBomber(this);
     }
 
-
     public override void OnDestroyed()
     {
         base.OnDestroyed();
         _entityController.RemoveBomber(this);
         _entityController.PlayerDestroyed();
+    }
+
+    void IBattleEntity.ApplyBattleResults(BattleActionResult results, BattleRole role)
+    {
+        if(role == BattleRole.Defender)
+        {
+            TakeDamage(results.DefenderDmgTaken);
+        }
+        else
+        {
+            Debug.Log($"{name} attacked {results.DefenderName} and caused {results.AttackerDmgInflicted} dmg");
+        }
     }
 }

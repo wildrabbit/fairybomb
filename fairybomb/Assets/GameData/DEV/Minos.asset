@@ -22,7 +22,7 @@ MonoBehaviour:
     RegenRate: 0
   MovingData:
     BombWalkability: 0
-    BombImmunity: 0
+    BombImmunity: 2
   InitialState: 1
   WanderToIdleMinTurns: 8
   WanderToIdleMaxTurns: 12

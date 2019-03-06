@@ -20,8 +20,8 @@ MonoBehaviour:
     Regen: 0
     RegenRate: 0
   MobilityData:
-    BombWalkability: 0
-    BombImmunity: 0
+    BombWalkability: 1
+    BombImmunity: 2
   BomberData:
     DeployedBombLimit: 3
     DefaultBombData: {fileID: 11400000, guid: c6d3d460afdbf994e83357bff7fb844f, type: 2}

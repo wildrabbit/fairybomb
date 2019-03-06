@@ -40,11 +40,11 @@ public class AIController
         if (playerDistance <= leMonster.VisibilityRange)
         {
             // TODO: Checks for available attacks here or when actually attacking?
-            //if (playerDistance <= leMonster.AttackDistance())
-            //{
-            //    return SetupAttackState(leMonster, out actionData);
-            //}
-            //else
+            if (playerDistance <= leMonster.AttackDistance())
+            {
+                return SetupAttackState(leMonster, out actionData);
+            }
+            else
             {
                 return SetupChaseState(leMonster, units, out actionData);
             }
@@ -79,11 +79,18 @@ public class AIController
 
     MonsterState SetupAttackState(Monster leMonster, out BaseMonsterAction leAction)
     {
-        leAction = null;
-        return MonsterState.Idle;
+        leAction = new MeleeAttackAction
+        {
+            NextCoords = leMonster.Coords,
+            Target = _entityController.Player
+        };
+        return MonsterState.BattleAction;
     }
     MonsterState SetupChaseState(Monster leMonster, float timeUnits, out BaseMonsterAction leAction)
     {
+        // TODO: Alternate results for special cases: 
+        // - no path available: revert to wander
+        // - etc, etc, etc
         List<Vector2Int> currentPath = leMonster.Path ?? new List<Vector2Int>();
         bool willRefreshPath = false;
         int pathIdx = leMonster.CurrentPathIdx;

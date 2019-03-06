@@ -22,5 +22,7 @@ MonoBehaviour:
   MonsterSpawns:
   - Data: {fileID: 11400000, guid: d547d0589895ef04a9382bd55e860a6b, type: 2}
     Coords: {x: 1, y: 7}
+  - Data: {fileID: 11400000, guid: 002835a5d25060c47bc079eceb83a8cc, type: 2}
+    Coords: {x: 6, y: 2}
   MapInfo: {fileID: 4900000, guid: 01b9cd69951eb0847a5e61fb694a4b2d, type: 3}
   OriginIsTopLeft: 1
