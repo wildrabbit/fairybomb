@@ -226,7 +226,7 @@ public class GameController : MonoBehaviour
         // Starting event!
         var setupEvt = new GameSetupEvent();
         setupEvt.MapSize = new Vector2Int(_map.Height, _map.Width);
-        setupEvt.MapTiles = _map.Tiles;
+        setupEvt.MapTiles = _map.AllTileValues;
         setupEvt.PlayerCoords = _map.PlayerStart;
         setupEvt.HP = _entityController.Player.HP;
         setupEvt.MaxHP = _entityController.Player.MaxHP;

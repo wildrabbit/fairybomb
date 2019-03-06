@@ -6,8 +6,16 @@ using UnityEngine;
 public class BaseMonsterAction
 {
     public Vector2Int NextCoords;
+    
+}
+
+public class ChaseMonsterAction: BaseMonsterAction
+{
+    public BaseEntity Target;
+
     public bool RefreshPath;
     public List<Vector2Int> Path;
+    public float PathElapsed;
     public int PathIdx;
 }
 
@@ -29,6 +37,8 @@ public enum MonsterState
 {
     Idle = 0,
     Wandering,
+    Chasing,
+    Escaping
 }
 
 
@@ -40,7 +50,19 @@ public class Monster : BaseEntity
     public int MaxHP => _hpTrait.MaxHP;
     public MonsterState CurrentState => _currentState;
 
-    MonsterData _monsterData;
+    public BombWalkabilityType BombWalkability => _walkOverBombs;
+
+    public int TurnsInSameState => _turnsInSameState;
+    public int TurnLimit => _turnLimit;
+    public float EscapeHPRatio => _monsterData.EscapeHPRatio;
+    public int EscapeSafeDistance => _monsterData.EscapeSafeDistance;
+    public int VisibilityRange => _monsterData.VisibilityRange;
+    public List<Vector2Int> Path => _path;
+    public int CurrentPathIdx => _currentPathIdx;
+    public float PathDelay => _monsterData.PathUpdateDelay;
+    public float PathElapsed => _elapsedPathUpdate;
+
+    MonsterData _monsterData; // Should we expose it?
 
     HPTrait _hpTrait;
     MonsterState _currentState;
@@ -49,8 +71,28 @@ public class Monster : BaseEntity
     BombWalkabilityType _walkOverBombs;
 
     float _elapsedNextAction;
-    float _elapsedPathUpdate;
+
     float _decisionDelay;
+
+    float _elapsedPathUpdate;
+    int _turnLimit;
+    int _turnsInSameState;
+
+    List<Vector2Int> _path;
+    int _currentPathIdx;
+
+    public int AttackDistance()
+    {
+        if (_monsterData.IsMelee)
+        {
+            return 1;
+        }
+        else if (_monsterData.IsBomber)
+        {
+            return _monsterData.BomberData.DefaultBombData.Radius;
+        }
+        return 0; // attack distance == 0? 
+    }
 
     AIController _aiController;
 
@@ -66,9 +108,11 @@ public class Monster : BaseEntity
         _decisionDelay = _monsterData.ThinkingDelay;
         _elapsedNextAction = 0.0f;
         _elapsedPathUpdate = 0.0f;
-        _currentState =_monsterData.InitialState;
         _bombImmunity = _monsterData.MovingData.BombImmunity;
         _walkOverBombs = _monsterData.MovingData.BombWalkability;
+
+        _turnsInSameState = 0;
+        StateChanged(_monsterData.InitialState);
     }
 
     public void SetAIController(AIController aiController)
@@ -83,13 +127,26 @@ public class Monster : BaseEntity
         while (_elapsedNextAction >= _decisionDelay)
         {
             BaseMonsterAction action;
-            MonsterState nextState = _aiController.MonsterBrain(this, out action);
+            MonsterState nextState = _aiController.MonsterBrain(this, out action, timeUnits);
 
             // Execute action, change state!
-            if (action.NextCoords != Coords)
+            if (action != null)
             {
-                Coords = action.NextCoords;
-                // TODO: Replace path?
+                if(action.NextCoords != Coords)
+                {
+                    Coords = action.NextCoords;
+                }
+                
+                if(action is ChaseMonsterAction)
+                {
+                    ChaseMonsterAction chaseAction = ((ChaseMonsterAction)action);
+                    _currentPathIdx = chaseAction.PathIdx;
+                    _elapsedPathUpdate = chaseAction.PathElapsed;
+                    if (chaseAction.RefreshPath)
+                    {
+                        _path = chaseAction.Path;
+                    }
+                }
             }
 
             // TODO: Combat actions!!
@@ -97,16 +154,41 @@ public class Monster : BaseEntity
             bool changeState = nextState != _currentState;
             if(changeState)
             {
-                //.... change views, reset data, etc,etc.
-                _currentState = nextState;
+                StateChanged(nextState);
+            }
+            else
+            {
+                // UpdateState(state, action)
+                //if (_hpTrait.HP > 0 && _hpTrait.Regen)
+                //{
+                //    _hpTrait.UpdateRegen(timeUnits);
+                //}
+                _turnsInSameState++;
             }
 
-            if (_hpTrait.HP > 0 && _hpTrait.Regen)
-            {
-                _hpTrait.UpdateRegen(timeUnits);
-            }
             _elapsedNextAction = Mathf.Max(_elapsedNextAction - _decisionDelay, 0.0f);
         }
+    }
+
+    public void StateChanged(MonsterState monsterState)
+    {
+        Debug.Log($"{name} changes state to { monsterState}");
+        switch (monsterState)
+        {
+            case MonsterState.Idle:
+            {
+                _turnLimit = UnityEngine.Random.Range(_monsterData.MinIdleTurns, _monsterData.MaxIdleTurns + 1);
+                break;
+            }
+            case MonsterState.Wandering:
+            {
+                _turnLimit = UnityEngine.Random.Range(_monsterData.WanderToIdleMinTurns, _monsterData.WanderToIdleMaxTurns + 1);
+                break;
+            }
+            default:
+                break;
+        }
+        _currentState = monsterState;
     }
 
     public void OnBombExploded(Bomb bomb, List<Vector2Int> coords, BaseEntity triggerEntity)
@@ -124,6 +206,7 @@ public class Monster : BaseEntity
             }
         }
     }
+
 
     public override void OnAdded()
     {

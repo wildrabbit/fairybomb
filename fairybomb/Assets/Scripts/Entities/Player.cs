@@ -30,6 +30,8 @@ public class Player : BaseEntity, IBomberEntity
     public int MaxHP => _hpTrait.MaxHP;
     public float Speed => _speed;
 
+    public BombWalkabilityType BombWalkability => _walkOverBombs;
+
     float _speed;
     
     BombData _selectedBomb;

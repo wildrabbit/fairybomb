@@ -25,14 +25,44 @@ public class FairyBombMap : MonoBehaviour
     public int Height => _map.size.x;
     public int Width => _map.size.y;
 
-    public int[] Tiles
+    public bool HasTile(Vector3Int pos)
+    {
+        return _map.HasTile(pos);
+    }
+
+    public int[] AllTileValues
     {
         get
         {
-            BoundsInt bounds = _map.cellBounds;
-            var tileBase =_map.GetTilesBlock(bounds);
+           var tileBase = _map.GetTilesBlock(CellBounds);
             return System.Array.ConvertAll(tileBase, tile => (int)(((FairyBombTile)tile).TileType));
         }
+    }
+
+    public FairyBombTile[] AllTiles
+    {
+        get
+        {
+            var tileBase = _map.GetTilesBlock(CellBounds);
+            return System.Array.ConvertAll(tileBase, tile => (FairyBombTile)tile);
+        }
+    }
+
+    public BoundsInt CellBounds
+    {
+        get
+        {
+            _map.CompressBounds();
+            return _map.cellBounds;
+        }
+    }
+
+    public void GetNeighbourDeltas(Vector2Int currentCoords, out Vector2Int[] offsets)
+    {
+        var source = _neighbourOffsets[currentCoords.y & 1];
+        int deltasLen = source.Length - 1;
+        offsets = new Vector2Int[deltasLen];
+        Array.Copy(source, 1, offsets, 0, deltasLen);
     }
 
     public void InitFromData(FairyBombMapData data, GameEventLog gameEventLog)
@@ -123,7 +153,7 @@ public class FairyBombMap : MonoBehaviour
         InitFromArray(dimensions, array, playerStart, arrayOriginTopLeft: false);
     }
 
-    internal List<Vector2Int> GetWalkableNeighbours(Vector2Int coords)
+    public List<Vector2Int> GetWalkableNeighbours(Vector2Int coords)
     {
         List<Vector2Int> neighbours = new List<Vector2Int>();
         Vector2Int[] offsets = _neighbourOffsets[coords.y & 1];
@@ -331,5 +361,10 @@ public class FairyBombMap : MonoBehaviour
         Vector3Int cube1 = CubeFromCoords(coords1);
         Vector3Int cube2 = CubeFromCoords(coords2);
         return CubeDistance(cube1, cube2);
+    }
+
+    public List<Vector2Int> FindPath(Vector2Int from, Vector2Int to)
+    {
+        return null;
     }
 }

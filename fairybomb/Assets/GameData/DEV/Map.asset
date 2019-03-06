@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ad68be852ac6e8749bd1d9909ae5453d, type: 3}
-  m_Name: DEVMap
+  m_Name: Map
   m_EditorClassIdentifier: 
   GoalTile: {fileID: 11400000, guid: fe9ffc623419f254f9fdb58585b9cf59, type: 2}
   Palette:
@@ -20,9 +20,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: fe9ffc623419f254f9fdb58585b9cf59, type: 2}
   PlayerStart: {x: 2, y: 2}
   MonsterSpawns:
-  - Data: {fileID: 11400000, guid: 002835a5d25060c47bc079eceb83a8cc, type: 2}
-    Coords: {x: 2, y: 7}
   - Data: {fileID: 11400000, guid: d547d0589895ef04a9382bd55e860a6b, type: 2}
-    Coords: {x: 6, y: 2}
+    Coords: {x: 1, y: 7}
   MapInfo: {fileID: 4900000, guid: 01b9cd69951eb0847a5e61fb694a4b2d, type: 3}
   OriginIsTopLeft: 1

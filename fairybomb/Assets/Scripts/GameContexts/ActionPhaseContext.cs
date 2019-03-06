@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class ActionPhaseContext : IPlayContext
 {
@@ -47,11 +48,35 @@ public class ActionPhaseContext : IPlayContext
             
             if (map.IsWalkableTile(playerCoords))
             {
-                player.Coords = playerCoords;
-                PlayerActionEvent evt = new PlayerActionEvent(actionData.Turns, actionData.TimeUnits);
-                evt.SetMovement(moveDir, player.Coords);
-                log.AddEvent(evt);
-                timeWillPass = true;
+                List<BaseEntity> otherEntities = entityController.GetEntitiesAt(playerCoords);
+                bool canMove = true;
+                foreach(var other in otherEntities)
+                {
+                    if (other is Bomb)
+                    {
+                        BombWalkabilityType walksOverBombs = player.BombWalkability;
+                        bool isOwnBomb = ((Bomb)other).Owner == player;
+                        canMove = (walksOverBombs == BombWalkabilityType.CrossAny || walksOverBombs == BombWalkabilityType.CrossOwnBombs && isOwnBomb);
+                    }
+                    else if (other is Monster)
+                    {
+                        canMove = false; // TODO: Can we suicide? Can we melee?                       
+                    }
+
+                    if(!canMove)
+                    {
+                        break;
+                    }
+                }
+
+                if(canMove)
+                {
+                    player.Coords = playerCoords;
+                    PlayerActionEvent evt = new PlayerActionEvent(actionData.Turns, actionData.TimeUnits);
+                    evt.SetMovement(moveDir, player.Coords);
+                    log.AddEvent(evt);
+                    timeWillPass = true;
+                }                
             }
             else
             {

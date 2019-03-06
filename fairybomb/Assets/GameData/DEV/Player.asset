@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ee717ab3f2fbe114da3c63d0e1a1588a, type: 3}
-  m_Name: DEVPlayer
+  m_Name: Player
   m_EditorClassIdentifier: 
   DefaultViewPrefab: {fileID: 2798364246931441843, guid: 8eb2a6adf8496274c9159a5ba81e532f,
     type: 3}
@@ -20,7 +20,7 @@ MonoBehaviour:
     Regen: 0
     RegenRate: 0
   MobilityData:
-    BombWalkability: 1
+    BombWalkability: 0
     BombImmunity: 0
   BomberData:
     DeployedBombLimit: 3
