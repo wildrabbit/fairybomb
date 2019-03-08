@@ -9,6 +9,7 @@ public enum CameraType
 
 public class CameraController : MonoBehaviour
 {
+    public Camera Camera => _camera;
     public AnimationCurve EaseCurve;
     public CameraType _type;
     Camera _camera;

@@ -7,7 +7,7 @@ public delegate void TilesPaintUpdateDelegate(List<InGameTile> tiles);
 
 public class PaintMap : MonoBehaviour, IScheduledEntity
 {
-    [SerializeField] Tilemap _map;
+    [SerializeField] Tilemap _tileMap;
     [SerializeField] TileBase _playerPaint;
     [SerializeField] TileBase _enemyPaint;
     [SerializeField] TileBase _neutralPaint;
@@ -53,13 +53,13 @@ public class PaintMap : MonoBehaviour, IScheduledEntity
             Vector3Int coordVec = (Vector3Int)(t.Coords);
             if (t.PaintData == null)
             {
-                _map.SetTile(coordVec, null);
+                _tileMap.SetTile(coordVec, null);
             }
             else
             {
-                _map.SetTile(coordVec, t.TileFaction == Faction.Player ? _playerPaint : (t.TileFaction == Faction.Enemy)? _enemyPaint : _neutralPaint);
-                _map.SetTileFlags(coordVec, TileFlags.None);
-                _map.SetColor(coordVec, t.PaintData.Colour);
+                _tileMap.SetTile(coordVec, t.TileFaction == Faction.Player ? _playerPaint : (t.TileFaction == Faction.Enemy)? _enemyPaint : _neutralPaint);
+                _tileMap.SetTileFlags(coordVec, TileFlags.None);
+                _tileMap.SetColor(coordVec, t.PaintData.Colour);
             }
         }
     }
@@ -81,17 +81,17 @@ public class PaintMap : MonoBehaviour, IScheduledEntity
 
     public void MapLoaded()
     {
-        _map.ClearAllTiles();
+        _tileMap.ClearAllTiles();
 
         _paintTiles = new InGameTile[_srcMap.Height, _srcMap.Width];
-        for(int y = 0; y < _srcMap.Height; ++y)
+        for(int row = 0; row < _srcMap.Height; ++row)
         {
-            for(int x = 0; x < _srcMap.Width; ++x)
+            for(int col = 0; col < _srcMap.Width; ++col)
             {
-                _paintTiles[y, x] = new InGameTile()
+                _paintTiles[row, col] = new InGameTile()
                 {
                     Owner = this,
-                    Coords = new Vector2Int(y, x),
+                    Coords = new Vector2Int(row, col),
                     PaintData = null,
                     TileFaction = Faction.Neutral,
                     TurnsSinceLastPaintingChange = 0

@@ -15,6 +15,7 @@ public class GameController : MonoBehaviour
 {
     [SerializeField] GameData _gameData;
     [SerializeField] CameraController _cameraController;
+    [SerializeField] Camera _uiCamera;
 
     [SerializeField] HUD _hudPrefab;
     [SerializeField] FairyBombMap _mapPrefab;
@@ -220,11 +221,11 @@ public class GameController : MonoBehaviour
 
         // le hud
         _hud = Instantiate<HUD>(_hudPrefab);
-        _hud.Init(_eventLog, _entityController.Player, () => Turns, () => TimeUnits);
+        _hud.Init(_eventLog, _entityController.Player, () => Turns, () => TimeUnits, _uiCamera);
 
         // populate the level
         _monsterCreator.Init(_entityController, _aiController, _map, _eventLog);
-        _monsterCreator.AddInitialMonsters(_gameData.MapData.MonsterSpawns);
+        _monsterCreator.AddInitialMonsters(_map.MonsterSpawns);
 
         _entityController.AddNewEntities();
 

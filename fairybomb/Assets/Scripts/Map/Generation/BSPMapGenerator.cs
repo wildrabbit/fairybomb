@@ -46,9 +46,10 @@ public class BSPContext: BaseMapContext
     public Vector2Int MapSize;
 
     public List<MonsterData> MonsterPool;
-    public float roomSpawnChance = 0.4f;
+    public float monsterSpawnChance = 0.4f;
     public int minMonstersPerRoom = 1;
     public int maxMonstersPerRoom = 3;
+    public int maxTotalMonsters = 15;
 
     public Vector2Int PlayerStart;
     public List<MonsterSpawn> MonsterSpawns;
@@ -87,13 +88,52 @@ public class BSPMapGenerator : IMapGenerator
         _tree = new BSPNode();
         _tree.context = _context;
         _tree.left = _tree.right = null;
-        _tree.area = new BSPRect(0, 0, _context.Size.x, _context.Size.y);
+        _tree.area = new BSPRect(1, 1, _context.Size.x - 2, _context.Size.y - 2);
 
         GenerateRooms(ref mapAux);
+        GenerateMonsters(mapAux);
         Connect(_tree, ref mapAux);
 
         GeneratorUtils.PlaceWalls(_context.WallTile, _context.GroundTile, ref mapAux);
         GeneratorUtils.ConvertGrid(mapAux, out map);
+    }
+
+    void GenerateMonsters(TileType[,] map)
+    {
+        _context.MonsterSpawns = new List<MonsterSpawn>();
+        int monsterCount = 0;
+
+        Predicate<Vector2Int> validMonsterPos = (pos) =>
+        {
+            return _context.PlayerStart != pos && map[pos.x, pos.y] == _context.GroundTile;
+        };
+
+        foreach (var r in _rooms)
+        {
+            float monsterRoll = URandom.value;
+            if(monsterRoll <= _context.monsterSpawnChance)
+            {
+                int monstersLeft = _context.maxTotalMonsters - monsterCount;
+                int numMonsters = Mathf.Min(monstersLeft, URandom.Range(_context.minMonstersPerRoom, _context.maxMonstersPerRoom + 1));
+                for(int i = 0; i < numMonsters; ++i)
+                {
+                    
+                    MonsterData monsterType = _context.MonsterPool[URandom.Range(0, _context.MonsterPool.Count)];
+                    Vector2Int monsterCoords = GetRandomCoordsInRoom(r, validMonsterPos, 10);
+                    if(monsterCoords.x >= 0 && monsterCoords.y >= 0)
+                    {
+                        MonsterSpawn spawn = new MonsterSpawn();
+                        spawn.Data = monsterType;
+                        spawn.Coords = monsterCoords;
+                        _context.MonsterSpawns.Add(spawn);
+                        monsterCount++;
+                    }
+                }
+            }
+
+            if (monsterCount >= _context.maxTotalMonsters)
+                break;
+        }
     }
 
     public int CompareSelections(PatternSelection one, PatternSelection other)
@@ -118,14 +158,14 @@ public class BSPMapGenerator : IMapGenerator
 
     PatternMatchType PatternFitsInRoom(TileType[,] woodPattern, BSPRect roomRect)
     {
-        int height = woodPattern.GetLength(0);
-        int width = woodPattern.GetLength(1);
+        int patternHeight = woodPattern.GetLength(0);
+        int patternWidth = woodPattern.GetLength(1);
 
-        if (roomRect.Height == height && roomRect.Width == width)
+        if (roomRect.Height == patternHeight && roomRect.Width == patternWidth)
         {
             return PatternMatchType.Exact;
         }
-        else if (roomRect.Height <= height && roomRect.Width <= width)
+        else if (patternHeight <= roomRect.Height && patternWidth <= roomRect.Width )
         {
             return PatternMatchType.Smaller;
         }
@@ -144,7 +184,10 @@ public class BSPMapGenerator : IMapGenerator
         {
             for(var c = 0; c < width; ++c)
             {
-                map[row + r, col + c] = pattern[r, c];
+                if(pattern[r,c] != TileType.None && map[row + r, col + c] != TileType.Goal && (_context.PlayerStart.x != row + r || _context.PlayerStart.y != col + c))
+                {
+                    map[row + r, col + c] = pattern[r, c];
+                }
             }
         }
     }
@@ -172,8 +215,27 @@ public class BSPMapGenerator : IMapGenerator
             GeneratorUtils.DrawRoom(new Vector2Int(row, col), new Vector2Int(height, width), _context.GroundTile, ref mapAux);
         }
 
+        // Player start
+        int randomPlayerStart = URandom.Range(0, _rooms.Count);
+        BSPRect playerStart = _rooms[randomPlayerStart];
+        _context.PlayerStart = GetRandomCoordsInRoom(playerStart);
+
+        // Goal
+        int goalIdx;
+        do
+        {
+            goalIdx = URandom.Range(0, _rooms.Count);
+        } while (goalIdx != randomPlayerStart);
+
+        // TODO: Locate goal somewhere better
+        BSPRect goalRoom = _rooms[goalIdx];
+        Vector2Int goalCoords = GetRandomCoordsInRoom(goalRoom);
+
+        mapAux[goalCoords.x, goalCoords.y] = TileType.Goal;
+
+
         // Place patterns:
-        foreach(var r in _rooms)
+        foreach (var r in _rooms)
         {
             bool tryApplyPattern = URandom.value < _context.patternRoomsChance; 
             if(tryApplyPattern && _context.WoodPatterns != null && _context.WoodPatterns.Count > 0)
@@ -186,10 +248,27 @@ public class BSPMapGenerator : IMapGenerator
             }
         }
 
-        int randomPlayerStart = URandom.Range(0, _rooms.Count);
-        BSPRect playerStart = _rooms[randomPlayerStart];
-        _context.PlayerStart = new Vector2Int(URandom.Range(playerStart.Row, playerStart.Row + playerStart.Height),
-            URandom.Range(playerStart.Col, playerStart.Col + playerStart.Width));
+    }
+
+    public Vector2Int GetRandomCoordsInRoom(BSPRect rect)
+    {
+        return new Vector2Int(URandom.Range(rect.Row, rect.Row + rect.Height),
+            URandom.Range(rect.Col, rect.Col + rect.Width));
+    }
+
+    public Vector2Int GetRandomCoordsInRoom(BSPRect rect, Predicate<Vector2Int> coordsCheck, int maxAttempts)
+    {
+        int numAttempts = 0;
+        do
+        {
+            Vector2Int coords = GetRandomCoordsInRoom(rect);
+            if (coordsCheck(coords))
+            {
+                return coords;
+            }
+            else numAttempts++;
+        } while (numAttempts < maxAttempts);
+        return new Vector2Int(-1, -1);
     }
     
     public void Connect(BSPNode tree, ref TileType[,] mapAux)

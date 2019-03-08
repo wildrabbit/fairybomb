@@ -9,14 +9,18 @@ public class FairyBombMap : MonoBehaviour
 
     [SerializeField] Tilemap _map;
 
+    public List<MonsterSpawn> MonsterSpawns => _monsterSpawns;
+
     FairyBombMapData _mapData;
 
     InGameTile[,] _paintStateTiles;
 
     List<FairyBombTile> _lesTiles;
     FairyBombTile _goalTile;
+    FairyBombTile _noTile;
     Vector2Int _playerStart;
 
+    List<MonsterSpawn> _monsterSpawns;
     
     Vector3Int[] cubeOffsets = new Vector3Int[]
     {
@@ -88,6 +92,7 @@ public class FairyBombMap : MonoBehaviour
         _lesTiles = new List<FairyBombTile>(data.Palette);
         _lesTiles.Sort((x1, x2) => x1.TileType.CompareTo(x2.TileType));
         _goalTile = data.GoalTile;
+        _noTile = data.NoTile;
 
         BSPContext context = new BSPContext();
         context.emptyRoomChance = 0.05f;
@@ -97,23 +102,76 @@ public class FairyBombMap : MonoBehaviour
         context.horzSplitRatio = 0.3f;
         context.vertSplitRatio = 0.5f;
         context.Size = new Vector2Int(20, 40);
-        context.MinAreaSize = new Vector2Int(10, 10);
-        context.MinRoomSize = new Vector2Int(4, 4);
+        context.MinAreaSize = new Vector2Int(8, 8);
+        context.MinRoomSize = new Vector2Int(3, 3);
         context.MaxRoomSize = new Vector2Int(context.MinAreaSize.x - 2, context.MinAreaSize.y - 2);
         context.Seeded = false;
         context.Seed = 1;
+
+        context.PlayerStart = Vector2Int.zero;
+
+        context.monsterSpawnChance = 0.3f;
+        context.maxMonstersPerRoom = 5;
+        context.minMonstersPerRoom = 1;
+        context.MonsterPool = data.MonsterPool;
+
+        context.patternRoomsChance = 0.4f;
+        context.WoodPatterns = new List<TileType[,]>
+        {
+            new TileType[,]
+            {
+                {TileType.None, TileType.Wood, TileType.None },
+                {TileType.Wood, TileType.Wood, TileType.Wood },
+                {TileType.None, TileType.Wood, TileType.None }
+            },
+            new TileType[,]
+            {
+                {TileType.None, TileType.Wood, },
+                {TileType.Wood, TileType.None, },
+            },
+
+            new TileType[,]
+            {
+                {TileType.Wood, TileType.None, TileType.None, TileType.Wood },
+                { TileType.Wood, TileType.Wood, TileType.Wood, TileType.Wood},
+                { TileType.Wood, TileType.Wood, TileType.Wood, TileType.Wood},
+                {TileType.Wood, TileType.None, TileType.None, TileType.Wood }
+            },
+            new TileType[,]
+            {
+                {TileType.None, TileType.None, TileType.None },
+                {TileType.Wood, TileType.Wood, TileType.Wood },
+                {TileType.None, TileType.None, TileType.None }
+            },
+
+            new TileType[,]
+            {
+                {TileType.Wood, TileType.None, TileType.None, TileType.None},
+                {TileType.None, TileType.Wood, TileType.None, TileType.None},
+                {TileType.None, TileType.None, TileType.Wood, TileType.None},
+                {TileType.None, TileType.None, TileType.None, TileType.Wood }
+            },
+
+            new TileType[,]
+            {
+                {TileType.Wood, TileType.Wood, },
+                {TileType.Wood, TileType.Wood, },
+            }
+        };
 
         //int[] level;
         TileType[] level = null;
         IMapGenerator generator = new BSPMapGenerator();
         generator.GenerateMap(ref level, context);
 
+        _monsterSpawns = context.MonsterSpawns;
+
         //if(GetLevelData(data, out size, out level))
         {
 
             
             //TileType[] levelTiles = System.Array.ConvertAll(level, intValue => (TileType)intValue);
-            InitFromArray(context.Size, level, data.PlayerStart, false);
+            InitFromArray(context.Size, level, context.PlayerStart, false);
         }
         // TODO: MAP GENERATION
     }
@@ -180,14 +238,7 @@ public class FairyBombMap : MonoBehaviour
                 _map.SetTile(new Vector3Int(rowCoord, col, 0), GetTileByType(typeArray[width * row + col]));
             }
         }
-    }
-
-    public void Generate()
-    {
-        Vector2Int dimensions = Vector2Int.zero;
-        TileType[] array = new TileType[] { };
-        Vector2Int playerStart = Vector2Int.zero;
-        InitFromArray(dimensions, array, playerStart, arrayOriginTopLeft: false);
+        _map.CompressBounds();
     }
 
     public List<Vector2Int> GetWalkableNeighbours(Vector2Int coords)
@@ -210,7 +261,7 @@ public class FairyBombMap : MonoBehaviour
     {
         if(type == TileType.None)
         {
-            return null;
+            return _noTile;
         }
         return _lesTiles[(int)type];
     }

@@ -230,6 +230,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _gameData: {fileID: 11400000, guid: 7dbe605afa8d677479dac1e05a862a95, type: 2}
   _cameraController: {fileID: 519420030}
+  _uiCamera: {fileID: 11882405}
   _hudPrefab: {fileID: 2142075829852468483, guid: e2dac17509daedd4c90d7ccd30c08ce7,
     type: 3}
   _mapPrefab: {fileID: 2278358201414874514, guid: f418e60e7f8f0e845886d4d6d96aeb99,

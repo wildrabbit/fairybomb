@@ -6,9 +6,10 @@ using UnityEngine;
 public class FairyBombMapData: ScriptableObject
 {
     public FairyBombTile GoalTile;
+    public FairyBombTile NoTile;
     public List<FairyBombTile> Palette;
     public Vector2Int PlayerStart;
-    public List<MonsterSpawn> MonsterSpawns;
+    public List<MonsterData> MonsterPool;
     public TextAsset MapInfo;
     public bool OriginIsTopLeft;
 }

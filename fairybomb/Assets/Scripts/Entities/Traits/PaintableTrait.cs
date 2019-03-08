@@ -142,8 +142,8 @@ public class PaintableTrait
             }
             case PaintingEffect.Poison:
             {
-                int initialRecover = paint.HPDelta;
-                ((IHealthTrackingEntity)_owner).HPTrait.Decrease(initialRecover);
+                int poisonDmg = paint.HPDelta;
+                ((IHealthTrackingEntity)_owner).TakeDamage(poisonDmg);
                 break;
             }
             case PaintingEffect.Slow:
@@ -212,7 +212,7 @@ public class PaintableTrait
                 while (_elapsedUnits >= _currentPaint.TicksForHPChange)
                 {
                     _elapsedUnits -= _currentPaint.TicksForHPChange;
-                    ((IHealthTrackingEntity)_owner).HPTrait.Decrease(_currentPaint.HPDelta);
+                    ((IHealthTrackingEntity)_owner).TakeDamage(_currentPaint.HPDelta);
                 }
                 break;
             }

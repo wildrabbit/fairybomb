@@ -9,6 +9,7 @@ public delegate float TimeGetterDelegate();
 
 public class HUD : MonoBehaviour
 {
+    [SerializeField] Canvas _canvas;
     [SerializeField] float _minLogDisplayTime = 0.7f;
 
     [SerializeField] TextMeshProUGUI _logMessage;
@@ -26,8 +27,9 @@ public class HUD : MonoBehaviour
     TurnsGetterDelegate _turnsGetter;
     TimeGetterDelegate _timeGetter;
 
-    public void Init(GameEventLog logger, Player player, TurnsGetterDelegate turnsGetter, TimeGetterDelegate timeGetter)
+    public void Init(GameEventLog logger, Player player, TurnsGetterDelegate turnsGetter, TimeGetterDelegate timeGetter, Camera camera)
     {
+        _canvas.worldCamera = camera;
         _logger = logger;
         _logger.OnEventAdded += UpdateLog;
         _displayPendingEvents = new Queue<BaseEvent>();

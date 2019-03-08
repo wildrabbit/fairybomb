@@ -38,4 +38,5 @@ MonoBehaviour:
   _destructible: 0
   _hp: 1
   _walkable: 1
+  _impassable: 0
   _destructionReplacement: {fileID: 0}
