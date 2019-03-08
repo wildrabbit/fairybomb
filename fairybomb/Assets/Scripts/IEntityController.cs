@@ -23,7 +23,7 @@ public interface IEntityController
 
     Player Player { get; }
 
-    void Init(FairyBombMap map, EntityCreationData creationData);
+    void Init(FairyBombMap map, PaintMap paintMap, EntityCreationData creationData);
 
     Player CreatePlayer(PlayerData data, Vector2Int coords);
     Bomb CreateBomb(BombData data, Vector2Int coords, IBomberEntity Owner);

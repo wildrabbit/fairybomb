@@ -29,3 +29,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: d547d0589895ef04a9382bd55e860a6b, type: 2}
   BombDataList:
   - {fileID: 11400000, guid: c6d3d460afdbf994e83357bff7fb844f, type: 2}
+  PaintingDataList:
+  - {fileID: 11400000, guid: 78968f55d9b7e7d41a0ef8679f782f90, type: 2}
+  - {fileID: 11400000, guid: d9589e4d39f669447ae85a88e9d65bc7, type: 2}
+  - {fileID: 11400000, guid: a42776606552dc8449e79431f62756e7, type: 2}

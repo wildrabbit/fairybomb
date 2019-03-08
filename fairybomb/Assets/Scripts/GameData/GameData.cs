@@ -13,5 +13,7 @@ public class GameData: ScriptableObject
     public FairyBombMapData MapData;
     public EntityCreationData EntityCreationData; // Prefabs, pool stuff, etc
     public List<MonsterData> MonsterDataList;
-    public List<BombData> BombDataList;  
+    public List<BombData> BombDataList;
+
+    public List<PaintData> PaintingDataList;
 }

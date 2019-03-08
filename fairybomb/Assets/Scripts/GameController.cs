@@ -18,6 +18,7 @@ public class GameController : MonoBehaviour
 
     [SerializeField] HUD _hudPrefab;
     [SerializeField] FairyBombMap _mapPrefab;
+    [SerializeField] PaintMap _paintMapPrefab;
 
     public int Turns => _turns;
     public float TimeUnits => _elapsedUnits;
@@ -52,6 +53,7 @@ public class GameController : MonoBehaviour
     //----------------------- Shortcuts --------------------/
 
     FairyBombMap _map;
+    PaintMap _paintMap;
 
     void Awake()
     {
@@ -121,6 +123,10 @@ public class GameController : MonoBehaviour
         GameObject.Destroy(_map.gameObject);
         _map = null;
 
+        _paintMap.Cleanup();
+        GameObject.Destroy(_paintMap.gameObject);
+        _paintMap = null;
+
         _entityController.Cleanup();
 
         _scheduledEntities.Clear();
@@ -186,7 +192,10 @@ public class GameController : MonoBehaviour
         _map = Instantiate<FairyBombMap>(_mapPrefab);
         _map.InitFromData(_gameData.MapData, _eventLog);
 
-        _entityController.Init(_map, _gameData.EntityCreationData);
+        _paintMap = Instantiate<PaintMap>(_paintMapPrefab);
+        _scheduledEntities.Add(_paintMap);
+
+        _entityController.Init(_map, _paintMap, _gameData.EntityCreationData);
         _entityController.OnEntitiesAdded += RegisterScheduledEntities;
         _entityController.OnEntitiesRemoved += UnregisterScheduledEntities;
         _entityController.CreatePlayer(_gameData.PlayerData, _map.PlayerStart);
@@ -231,6 +240,9 @@ public class GameController : MonoBehaviour
         setupEvt.HP = _entityController.Player.HP;
         setupEvt.MaxHP = _entityController.Player.MaxHP;
         _eventLog.StartSession(setupEvt);
+
+        _paintMap.Init(_map, _entityController, _eventLog);
+        _paintMap.MapLoaded();
     }
 
     void RegisterScheduledEntities(List<BaseEntity> entities)

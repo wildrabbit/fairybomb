@@ -15,7 +15,7 @@ public enum BombImmunityType
     NoBombs
 }
 
-public class Player : BaseEntity, IBattleEntity, IBomberEntity
+public class Player : BaseEntity, IBattleEntity, IBomberEntity, IPaintableEntity, IHealthTrackingEntity
 {
     public int HP => _hpTrait.HP;
     public int MaxHP => _hpTrait.MaxHP;
@@ -29,14 +29,20 @@ public class Player : BaseEntity, IBattleEntity, IBomberEntity
     int IBattleEntity.Damage => 0;
     string IBattleEntity.Name => name;
 
-    
+    public PaintableTrait PaintableTrait => _paintableTrait;
+
+    public HPTrait HPTrait => _hpTrait;
+
     BombImmunityType _bombImmunity;
     BombWalkabilityType _walkOverBombs;
+
+    float _oldSpeed;
     float _speed;
 
     PlayerData _playerData;
     HPTrait _hpTrait;
     BomberTrait _bomberTrait;
+    PaintableTrait _paintableTrait;
 
 
     protected override void DoInit(BaseEntityDependencies deps)
@@ -51,6 +57,8 @@ public class Player : BaseEntity, IBattleEntity, IBomberEntity
         _bombImmunity = _playerData.MobilityData.BombImmunity;
         _walkOverBombs = _playerData.MobilityData.BombWalkability;
         _speed = _playerData.Speed;
+        _paintableTrait = new PaintableTrait();
+        _paintableTrait.Init(this, deps.PaintMap);
     }
 
     public override void AddTime(float timeUnits, ref PlayContext playContext)
@@ -126,5 +134,16 @@ public class Player : BaseEntity, IBattleEntity, IBomberEntity
         {
             Debug.Log($"{name} attacked {results.DefenderName} and caused {results.AttackerDmgInflicted} dmg");
         }
+    }
+
+    public override void SetSpeedRate(float speedRate)
+    {
+        _oldSpeed = _speed;
+        _speed *= (1 + speedRate / 100);
+    }
+
+    public override void ResetSpeedRate()
+    {
+        _speed = _oldSpeed;
     }
 }

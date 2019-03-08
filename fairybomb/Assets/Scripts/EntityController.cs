@@ -14,6 +14,7 @@ public class EntityController: IEntityController
 
     public Player Player => _player;
     FairyBombMap _map;
+    PaintMap _paintMap;
 
     public event EntitiesAddedDelegate OnEntitiesAdded;
     public event EntitiesRemovedDelegate OnEntitiesRemoved;
@@ -21,16 +22,31 @@ public class EntityController: IEntityController
     public event BombDestroyedDelegate OnBombExploded;
     public event PlayerDestroyedDelegate OnPlayerKilled;
 
-    public void Init(FairyBombMap map, EntityCreationData entityCreationData)
+    public void Init(FairyBombMap map, PaintMap paintMap, EntityCreationData entityCreationData)
     {
         _map = map;
+        _paintMap = paintMap;
         _entityCreationData = entityCreationData;
         _allEntities = new List<BaseEntity>();
         _entitiesToAdd = new List<BaseEntity>();
         _entitiesToRemove = new List<BaseEntity>();
+
+        _paintMap.OnTilePaintUpdated += OnTilePaintUpdated;
     }
 
-    
+    private void OnTilePaintUpdated(List<InGameTile> tiles)
+    {
+        foreach(var t in tiles)
+        {
+            var entities = GetEntitiesAt(t.Coords).FindAll(x => x.Active && x is IPaintableEntity);
+            foreach(var e in entities)
+            {
+                ((IPaintableEntity)e).PaintableTrait.PaintTileUpdated(t);
+            };
+        }
+    }
+
+
     //Bomb CreateBomb(BombData data, Vector2Int coords, BaseEntity Owner);
     //Monster CreateMonster(MonsterData data, Vector2Int coords, AIController aiController);
     public Player CreatePlayer(PlayerData data, Vector2Int coords)
@@ -40,6 +56,7 @@ public class EntityController: IEntityController
             ParentNode = null,
             EntityController = this,
             Map = _map,
+            PaintMap = _paintMap,
             Coords = coords
         };
         _player = Create<Player>(_entityCreationData.PlayerPrefab, data, deps);
@@ -186,6 +203,7 @@ public class EntityController: IEntityController
     public void Cleanup()
     {
         PurgeEntities();
+        _paintMap.OnTilePaintUpdated -= OnTilePaintUpdated;
     }
 
     public bool ExistsEntitiesAt(Vector2Int coords, BaseEntity[] excluded = null)

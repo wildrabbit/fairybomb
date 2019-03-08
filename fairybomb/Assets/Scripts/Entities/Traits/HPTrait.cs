@@ -68,12 +68,14 @@ public class HPTrait
     {
         _hp = Mathf.Clamp(_hp + delta, 0, _maxHP);
         // Notify max HP??
+        Debug.Log($"{_owner.name} gains {delta} HP to a total of {_hp}");
     }
 
     public void Decrease(int delta)
     {
         _hp = Mathf.Clamp(_hp - delta, 0, _maxHP);
-        if(_hp == 0)
+        Debug.Log($"{_owner.name} loses {delta} HP to a total of {_hp}");
+        if (_hp == 0)
         {
             OnExhaustedHP?.Invoke(this.Owner);
         }

@@ -27,13 +27,21 @@ public class ActionPhaseContext : IPlayContext
 
         if (input.BombPlaced)
         {
-            BaseEntity[] blackList = new BaseEntity[] { player };
-            if(map.TileAt(playerCoords).Walkable && !entityController.ExistsEntitiesAt(playerCoords, blackList) && player.BomberTrait.HasBombAvailable())
+            if(player.Frozen)
             {
-                Bomb bomb = entityController.CreateBomb(player.BomberTrait.SelectedBomb, playerCoords, player);
-                PlayerActionEvent evt = new PlayerActionEvent(actionData.Turns, actionData.TimeUnits);
-                evt.SetBomb(bomb.Coords);
-                log.AddEvent(evt);
+                Debug.Log("Player is frozen and can't lay bombs");
+            }
+            else
+            {
+                BaseEntity[] blackList = new BaseEntity[] { player };
+                if (map.TileAt(playerCoords).Walkable && !entityController.ExistsEntitiesAt(playerCoords, blackList) && player.BomberTrait.HasBombAvailable())
+                {
+                    Bomb bomb = entityController.CreateBomb(player.BomberTrait.SelectedBomb, playerCoords, player);
+                    PlayerActionEvent evt = new PlayerActionEvent(actionData.Turns, actionData.TimeUnits);
+                    evt.SetBomb(bomb.Coords);
+                    log.AddEvent(evt);
+                }
+
             }
             timeWillPass = true;
             return PlayContext.Action;
@@ -72,6 +80,7 @@ public class ActionPhaseContext : IPlayContext
                 if(canMove)
                 {
                     player.Coords = playerCoords;
+                    player.PaintableTrait.OwnerChangedPos(playerCoords);
                     PlayerActionEvent evt = new PlayerActionEvent(actionData.Turns, actionData.TimeUnits);
                     evt.SetMovement(moveDir, player.Coords);
                     log.AddEvent(evt);

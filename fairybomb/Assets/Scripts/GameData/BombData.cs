@@ -9,4 +9,5 @@ public class BombData: BaseEntityData
     public bool IgnoreBlocks;
     public GameObject VFXExplosion;
     public float TickUnits;
+    public PaintData PaintData;
 }

@@ -11,10 +11,13 @@ public class FairyBombMap : MonoBehaviour
 
     FairyBombMapData _mapData;
 
+    InGameTile[,] _paintStateTiles;
+
     List<FairyBombTile> _lesTiles;
     FairyBombTile _goalTile;
     Vector2Int _playerStart;
 
+    
     Vector3Int[] cubeOffsets = new Vector3Int[]
     {
         new Vector3Int(0, 0, 0), new Vector3Int(0, -1, 1), new Vector3Int(1, 0, 1), new Vector3Int(1, 1, 0), new Vector3Int(0, 1, -1), new Vector3Int(-1, 0, -1), new Vector3Int(-1, -1, 0)

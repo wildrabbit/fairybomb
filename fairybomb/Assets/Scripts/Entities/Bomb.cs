@@ -20,6 +20,8 @@ public class Bomb : BaseEntity
 
     public int TurnsLeftToExplosion => _ticksLeft;
 
+    public PaintData PaintData => _bombData.PaintData;
+
     [SerializeField] TextMeshPro _countdown;
 
     BombData _bombData;

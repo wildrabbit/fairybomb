@@ -47,7 +47,7 @@ public enum MonsterState
 }
 
 
-public class Monster : BaseEntity, IBattleEntity, IBomberEntity
+public class Monster : BaseEntity, IBattleEntity, IBomberEntity, IHealthTrackingEntity, IPaintableEntity
 {
     public SpriteRenderer ViewPrefab;
 
@@ -89,12 +89,15 @@ public class Monster : BaseEntity, IBattleEntity, IBomberEntity
         get => _monsterData.BomberData.DefaultBombData;
         set { }
     }
-    public int BombCount { get; set; }
+
+    public HPTrait HPTrait => _hpTrait;
+    public PaintableTrait PaintableTrait => _paintableTrait;
 
     MonsterData _monsterData; // Should we expose it?
 
     HPTrait _hpTrait;
     BomberTrait _bomberTrait;
+    PaintableTrait _paintableTrait;
 
     MonsterState _currentState;
 
@@ -139,6 +142,9 @@ public class Monster : BaseEntity, IBattleEntity, IBomberEntity
 
         _bomberTrait = new BomberTrait();
         _bomberTrait.Init(this, _monsterData.BomberData);
+
+        _paintableTrait = new PaintableTrait();
+        _paintableTrait.Init(this, deps.PaintMap);
 
         _decisionDelay = _monsterData.ThinkingDelay;
         _elapsedNextAction = 0.0f;
@@ -295,5 +301,17 @@ public class Monster : BaseEntity, IBattleEntity, IBomberEntity
             return true;
         }
         return false;
+    }
+
+    public override void SetSpeedRate(float speedRate)
+    {
+        _decisionDelay *= (1 - speedRate);
+        Debug.Log($"Monster speed rate changed by {speedRate}% to a value of {_decisionDelay}");
+    }
+
+    public override void ResetSpeedRate()
+    {
+        _decisionDelay = _monsterData.ThinkingDelay;
+        Debug.Log($"Monster speed rate restored to {_decisionDelay}");
     }
 }

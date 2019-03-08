@@ -6,17 +6,27 @@ public class BaseEntityDependencies
     public Transform ParentNode;
     public IEntityController EntityController;
     public FairyBombMap Map;
+    public PaintMap PaintMap;
     public Vector2Int Coords;
+}
+
+public class TileBasedEffect
+{
+    public InGameTile Source;
+    public int Elapsed;
+    public int Duration;
 }
 
 public abstract class BaseEntity : MonoBehaviour, IScheduledEntity
 {
-    public Vector2Int Coords {
+    public Vector2Int Coords
+    {
         get => _coords;
         set
         {
             _coords = value;
             _map.ConstrainCoords(ref _coords);
+            EvaluatePaintMap();
             Vector2 playerTargetPos = _map.WorldFromCoords(_coords);
             transform.localPosition = playerTargetPos;
         }
@@ -31,18 +41,30 @@ public abstract class BaseEntity : MonoBehaviour, IScheduledEntity
     protected Transform _view;
     protected BaseEntityData _entityData;
     protected FairyBombMap _map;
+    protected PaintMap _paintMap;
     protected IEntityController _entityController;
     protected Vector2Int _coords;
     protected bool _active;
+
+    public bool Frozen;
+
+    protected TileBasedEffect _tileEffect = null;
 
     public void Init(BaseEntityData entityData, BaseEntityDependencies deps)
     {
         _entityData = entityData;
         _entityController = deps.EntityController;
         _map = deps.Map;
+        _paintMap = deps.PaintMap;
+        Frozen = false;
         DoInit(deps);
         Coords = deps.Coords;
         CreateView();
+    }
+
+    internal void AppliedPaint(PaintData paintData)
+    {
+        throw new NotImplementedException();
     }
 
     protected abstract void DoInit(BaseEntityDependencies dependencies);
@@ -64,6 +86,9 @@ public abstract class BaseEntity : MonoBehaviour, IScheduledEntity
         _coords = _map.CoordsFromWorld(transform.position);
     }
 
+    void OnRemovedPaint()
+    {
+    }
 
     public abstract void AddTime(float timeUnits, ref PlayContext playContext);
 
@@ -75,5 +100,18 @@ public abstract class BaseEntity : MonoBehaviour, IScheduledEntity
     public virtual void OnDestroyed()
     {
         Cleanup();
+    }
+
+    void EvaluatePaintMap()
+    {
+
+    }
+
+    public virtual void SetSpeedRate(float speedRate)
+    {
+    }
+
+    public virtual void ResetSpeedRate()
+    {
     }
 }
