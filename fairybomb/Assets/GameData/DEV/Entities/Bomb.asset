@@ -22,3 +22,4 @@ MonoBehaviour:
     type: 3}
   TickUnits: 1
   PaintData: {fileID: 11400000, guid: 78968f55d9b7e7d41a0ef8679f782f90, type: 2}
+  Piercing: 0

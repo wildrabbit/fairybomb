@@ -22,6 +22,8 @@ public class Bomb : BaseEntity
 
     public PaintData PaintData => _bombData.PaintData;
 
+    public bool Piercing => _bombData.Piercing;
+
     [SerializeField] TextMeshPro _countdown;
 
     BombData _bombData;

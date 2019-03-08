@@ -1,5 +1,6 @@
 ﻿using UnityEditor;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
 
 public enum TileType: int
@@ -15,14 +16,14 @@ public class FairyBombTile : Tile
     public TileType TileType => _tile;
     public bool Destructible => _destructible;
     public bool Walkable => _walkable;
-    public bool BlocksExplosions => _blocksExplosions;
+    public bool Impassable => _impassable;
     public FairyBombTile ReplacementTile => _destructionReplacement;
 
     [SerializeField] TileType _tile;
     [SerializeField] bool _destructible;
     [SerializeField] int _hp = 1;
     [SerializeField] bool _walkable;
-    [SerializeField] bool _blocksExplosions;
+    [FormerlySerializedAs("_blocksExplosions")][SerializeField] bool _impassable;
     [SerializeField] FairyBombTile _destructionReplacement;
 }
 

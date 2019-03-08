@@ -270,7 +270,7 @@ public class FairyBombMap : MonoBehaviour
         Vector2Int refCoords = bomb.Coords;
      
         var tile = TileAt(refCoords);
-        if (!ignoreBlocks && tile.BlocksExplosions)
+        if (!ignoreBlocks && tile.Impassable)
         {
             return explodingTiles;
         }
@@ -290,11 +290,17 @@ public class FairyBombMap : MonoBehaviour
 
                 tile = TileAt(rayCurrentCoords);
 
-                if (!ignoreBlocks && tile.BlocksExplosions)
+                if (!ignoreBlocks && tile.Impassable)
                 {
                     break;
                 }
+
                 explodingTiles.Add(rayCurrentCoords);
+
+                if(tile.Destructible && !bomb.Piercing)
+                {
+                    break;
+                }
             }
         }
         return explodingTiles;

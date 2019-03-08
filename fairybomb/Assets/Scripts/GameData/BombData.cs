@@ -10,4 +10,5 @@ public class BombData: BaseEntityData
     public GameObject VFXExplosion;
     public float TickUnits;
     public PaintData PaintData;
+    public bool Piercing;
 }
