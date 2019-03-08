@@ -67,6 +67,10 @@ public class Player : BaseEntity, IBattleEntity, IBomberEntity, IPaintableEntity
         {
             _hpTrait.UpdateRegen(timeUnits);
         }
+        if(_paintableTrait != null)
+        {
+            _paintableTrait.AddTime(timeUnits);
+        }
     }
 
     public void OnBombExploded(Bomb bomb, List<Vector2Int> coords, BaseEntity triggerEntity)

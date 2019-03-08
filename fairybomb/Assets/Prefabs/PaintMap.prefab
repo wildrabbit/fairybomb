@@ -45,7 +45,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _map: {fileID: 7774014147301458176}
-  _paintTile: {fileID: 11400000, guid: d5da00479457f64409138c50264f7b78, type: 2}
+  _playerPaint: {fileID: 11400000, guid: d5da00479457f64409138c50264f7b78, type: 2}
+  _enemyPaint: {fileID: 11400000, guid: 530c2e20c7bacb04f8accc2ab47bea72, type: 2}
+  _neutralPaint: {fileID: 11400000, guid: 634ab50a5e02a6a4bae00fecfec08816, type: 2}
   UnitsPerTick: 1
 --- !u!1 &3097348719938600469
 GameObject:

@@ -21,3 +21,4 @@ MonoBehaviour:
   VFXExplosion: {fileID: 1521728278425283051, guid: f207ff42955156c428af44f545ccb847,
     type: 3}
   TickUnits: 1
+  PaintData: {fileID: 11400000, guid: d9589e4d39f669447ae85a88e9d65bc7, type: 2}

@@ -17,9 +17,9 @@ MonoBehaviour:
   Colour: {r: 0, g: 0.28616363, b: 0.38679248, a: 1}
   TilePrefab: {fileID: 0}
   TimeToDegrade: 15
-  TimeForHPChange: 0
-  HPChangeDelta: 0
-  SpeedRate: 0.5
+  TicksForHPChange: 0
+  HPDelta: 0
+  SpeedRate: 50
   FreezeChance: 0
   TeleportChance: 0
   TeleportMinRange: 0

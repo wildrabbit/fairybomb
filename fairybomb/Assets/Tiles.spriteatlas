@@ -31,16 +31,18 @@ SpriteAtlas:
     variantMultiplier: 1
     packables:
     - {fileID: 102900000, guid: 424cb692922da6e4f8b8433e89fa00b2, type: 3}
-    totalSpriteSurfaceArea: 479232
+    totalSpriteSurfaceArea: 487424
     bindAsDefault: 1
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
   - {fileID: 21300000, guid: 82e521f018ca5d14f92434c761c3d4f1, type: 3}
   - {fileID: 21300000, guid: b4ad91516673df047b23e34bc15b7986, type: 3}
+  - {fileID: 21300000, guid: a9aa58d155f063c4e85af96defc92a03, type: 3}
   - {fileID: 21300000, guid: 65b7ba758be9b9e409909e6682ad67a3, type: 3}
   - {fileID: 21300000, guid: 20229206bdd26634f8cb5968e1f0500d, type: 3}
   - {fileID: 21300000, guid: 5c41e306d253b70448c12bd061c7b4e9, type: 3}
   - {fileID: 21300000, guid: 7921e067711dea643a0a3fc132167df3, type: 3}
+  - {fileID: 21300000, guid: c53fc687884d101438784f77fb1fd47d, type: 3}
   - {fileID: 21300000, guid: eed648972108c014285e2e4aa57785bb, type: 3}
   - {fileID: 21300000, guid: 03b98128cbb3bdb4fb9eb8f91c28b382, type: 3}
   - {fileID: 21300000, guid: 7845f078cd2cdee47837bf3b8b00ebba, type: 3}
@@ -50,14 +52,16 @@ SpriteAtlas:
   m_PackedSpriteNamesToIndex:
   - basic-bomb
   - monster-2
+  - tile-neutral-paint
   - tile-unblockable
   - chara
   - monster-1
   - bomb-explosion
+  - tile-enemy-paint
   - enemy-bomb
   - tile-wood
   - tile-goal
-  - tile-grass-paint
+  - tile-player-paint
   - chara2
   - tile-grass
   m_Tag: Tiles

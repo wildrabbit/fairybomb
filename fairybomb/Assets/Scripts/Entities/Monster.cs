@@ -305,7 +305,7 @@ public class Monster : BaseEntity, IBattleEntity, IBomberEntity, IHealthTracking
 
     public override void SetSpeedRate(float speedRate)
     {
-        _decisionDelay *= (1 - speedRate);
+        _decisionDelay *= (1 - speedRate/100);
         Debug.Log($"Monster speed rate changed by {speedRate}% to a value of {_decisionDelay}");
     }
 

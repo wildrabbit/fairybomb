@@ -30,7 +30,7 @@ public class PaintData: ScriptableObject
     public int TimeToDegrade;
 
     public int TicksForHPChange;
-    public int HPChangeDelta;
+    public int HPDelta;
 
     public float SpeedRate;
 

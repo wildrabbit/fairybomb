@@ -57,10 +57,22 @@ public class PaintableTrait
                 ? Faction.Enemy
                 : Faction.Neutral;
 
-        return (paintData.TargetType == EffectTargetType.Everyone)
+        bool affectedByFaction = (paintData.TargetType == EffectTargetType.Everyone)
             || (paintData.TargetType == EffectTargetType.EveryoneNonNeutral && ownerFaction != Faction.Neutral)
             || (paintData.TargetType == EffectTargetType.SameFaction && ownerFaction == tileFaction)
             || (paintData.TargetType == EffectTargetType.RivalFaction && ownerFaction != tileFaction);
+
+        if (!affectedByFaction) return false;
+
+        switch(paintData.Effect)
+        {
+            case PaintingEffect.Heal:
+            case PaintingEffect.Poison:
+            {
+                return typeof(IHealthTrackingEntity).IsAssignableFrom(_owner.GetType());                
+            }
+        }
+        return true;
     }
 
     private void RemoveEffect()
@@ -92,7 +104,8 @@ public class PaintableTrait
                 break;
             }
         }
-
+        _currentPaint = null;
+        _elapsedUnits = 0.0f;
     }
 
     private bool TryApplyEffect(PaintData paint, Faction faction)
@@ -123,21 +136,13 @@ public class PaintableTrait
             }
             case PaintingEffect.Heal:
             {
-                int initialRecover = paint.HPChangeDelta;
-                if(!_owner is IHealthTrackingEntity)
-                {
-                    return false;
-                }
+                int initialRecover = paint.HPDelta;
                 ((IHealthTrackingEntity)_owner).HPTrait.Add(initialRecover);
                 break;
             }
             case PaintingEffect.Poison:
             {
-                int initialRecover = paint.HPChangeDelta;
-                if (!_owner is IHealthTrackingEntity) // typeof(_owner).IsAssignableFrom(IHealthTrackingEntity)
-                {
-                    return false;
-                }
+                int initialRecover = paint.HPDelta;
                 ((IHealthTrackingEntity)_owner).HPTrait.Decrease(initialRecover);
                 break;
             }
@@ -198,7 +203,7 @@ public class PaintableTrait
                 while (_elapsedUnits >= _currentPaint.TicksForHPChange)
                 {
                     _elapsedUnits -= _currentPaint.TicksForHPChange;
-                    ((IHealthTrackingEntity)_owner).HPTrait.Add(_currentPaint.HPChangeDelta);
+                    ((IHealthTrackingEntity)_owner).HPTrait.Add(_currentPaint.HPDelta);
                 }
                 break;
             }
@@ -207,7 +212,7 @@ public class PaintableTrait
                 while (_elapsedUnits >= _currentPaint.TicksForHPChange)
                 {
                     _elapsedUnits -= _currentPaint.TicksForHPChange;
-                    ((IHealthTrackingEntity)_owner).HPTrait.Decrease(_currentPaint.HPChangeDelta);
+                    ((IHealthTrackingEntity)_owner).HPTrait.Decrease(_currentPaint.HPDelta);
                 }
                 break;
             }

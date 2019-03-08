@@ -7,6 +7,7 @@ public class HPTraitData
     public int StartHP;
     public bool Regen;
     public float RegenRate;
+    public int RegenAmount; // amount or percent??
 }
 
 [System.Serializable]

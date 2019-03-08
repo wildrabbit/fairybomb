@@ -20,6 +20,7 @@ public class HPTrait
     int _maxHP;
     float _timeUnitsForHPRefill = 1.0f;
     float _elapsedSinceLastRefill = 0.0f;
+    int _regenAmount;
     bool _regen;
 
     public void Init(BaseEntity owner, HPTraitData hpData)
@@ -29,6 +30,7 @@ public class HPTrait
         _maxHP = _data.MaxHP;
         _hp = _data.StartHP;
         _regen = _data.Regen;
+        _regenAmount = _data.RegenAmount;
         _timeUnitsForHPRefill = _data.RegenRate;
     }
 
@@ -54,7 +56,7 @@ public class HPTrait
         while(_elapsedSinceLastRefill >= _timeUnitsForHPRefill)
         {
             _elapsedSinceLastRefill -= _timeUnitsForHPRefill;
-            hpIncrease++;
+            hpIncrease += _regenAmount;
         }
 
         if(hpIncrease > 0)

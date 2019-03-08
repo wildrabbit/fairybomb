@@ -8,7 +8,9 @@ public delegate void TilesPaintUpdateDelegate(List<InGameTile> tiles);
 public class PaintMap : MonoBehaviour, IScheduledEntity
 {
     [SerializeField] Tilemap _map;
-    [SerializeField] TileBase _paintTile; // TODO: Make this dependent on the paint for that cell?
+    [SerializeField] TileBase _playerPaint;
+    [SerializeField] TileBase _enemyPaint;
+    [SerializeField] TileBase _neutralPaint;
     [SerializeField] float UnitsPerTick;
 
     public event TilesPaintUpdateDelegate OnTilePaintUpdated;
@@ -55,7 +57,7 @@ public class PaintMap : MonoBehaviour, IScheduledEntity
             }
             else
             {
-                _map.SetTile(coordVec, _paintTile);
+                _map.SetTile(coordVec, t.TileFaction == Faction.Player ? _playerPaint : (t.TileFaction == Faction.Enemy)? _enemyPaint : _neutralPaint);
                 _map.SetTileFlags(coordVec, TileFlags.None);
                 _map.SetColor(coordVec, t.PaintData.Colour);
             }
