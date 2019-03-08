@@ -5,6 +5,7 @@ using UnityEngine.Tilemaps;
 
 public enum TileType: int
 {
+    None = -1,
     Block = 0,
     Grass,
     Wood,

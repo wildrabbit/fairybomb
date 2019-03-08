@@ -209,7 +209,8 @@ public class GameController : MonoBehaviour
         // Inic camera
         Rect mapBounds = _map.GetBounds();
         _cameraController.SetBounds(mapBounds);
-        _cameraController.SetFixed(new Vector3(mapBounds.width/2, mapBounds.height/2, _cameraController.transform.position.z));
+        _cameraController.SetTarget(_entityController.Player.transform);
+        //_cameraController.SetFixed(new Vector3(mapBounds.width/2, mapBounds.height/2, _cameraController.transform.position.z));
 
         // Init default context
         var contextData = ((ActionPhaseData)_playContextData[PlayContext.Action]);
@@ -232,6 +233,8 @@ public class GameController : MonoBehaviour
         _turns = 0;
         _result = GameResult.Running;
 
+        _paintMap.Init(_map, _entityController, _eventLog);
+
         // Starting event!
         var setupEvt = new GameSetupEvent();
         setupEvt.MapSize = new Vector2Int(_map.Height, _map.Width);
@@ -240,9 +243,8 @@ public class GameController : MonoBehaviour
         setupEvt.HP = _entityController.Player.HP;
         setupEvt.MaxHP = _entityController.Player.MaxHP;
         _eventLog.StartSession(setupEvt);
-
-        _paintMap.Init(_map, _entityController, _eventLog);
         _paintMap.MapLoaded();
+
     }
 
     void RegisterScheduledEntities(List<BaseEntity> entities)

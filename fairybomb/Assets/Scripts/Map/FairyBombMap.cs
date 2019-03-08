@@ -43,8 +43,17 @@ public class FairyBombMap : MonoBehaviour
         get
         {
            var tileBase = _map.GetTilesBlock(CellBounds);
-            return System.Array.ConvertAll(tileBase, tile => (int)(((FairyBombTile)tile).TileType));
+            return System.Array.ConvertAll(tileBase, x => (int)GetTypeFromTile(x));
         }
+    }
+
+    public TileType GetTypeFromTile(TileBase tile)
+    {
+        if(tile == null)
+        {
+            return TileType.None;
+        }
+        return ((FairyBombTile)tile).TileType;
     }
 
     public FairyBombTile[] AllTiles
@@ -79,12 +88,32 @@ public class FairyBombMap : MonoBehaviour
         _lesTiles = new List<FairyBombTile>(data.Palette);
         _lesTiles.Sort((x1, x2) => x1.TileType.CompareTo(x2.TileType));
         _goalTile = data.GoalTile;
-        Vector2Int size;
-        int[] level;
-        if(GetLevelData(data, out size, out level))
+
+        BSPContext context = new BSPContext();
+        context.emptyRoomChance = 0.05f;
+        context.GroundTile = TileType.Grass;
+        context.WallTile = TileType.Block;
+        context.horzSplitChance = 0.5f;
+        context.horzSplitRatio = 0.3f;
+        context.vertSplitRatio = 0.5f;
+        context.Size = new Vector2Int(20, 40);
+        context.MinAreaSize = new Vector2Int(10, 10);
+        context.MinRoomSize = new Vector2Int(4, 4);
+        context.MaxRoomSize = new Vector2Int(context.MinAreaSize.x - 2, context.MinAreaSize.y - 2);
+        context.Seeded = false;
+        context.Seed = 1;
+
+        //int[] level;
+        TileType[] level = null;
+        IMapGenerator generator = new BSPMapGenerator();
+        generator.GenerateMap(ref level, context);
+
+        //if(GetLevelData(data, out size, out level))
         {
-            TileType[] levelTiles = System.Array.ConvertAll(level, intValue => (TileType)intValue);
-            InitFromArray(size, levelTiles, data.PlayerStart, data.OriginIsTopLeft);
+
+            
+            //TileType[] levelTiles = System.Array.ConvertAll(level, intValue => (TileType)intValue);
+            InitFromArray(context.Size, level, data.PlayerStart, false);
         }
         // TODO: MAP GENERATION
     }
@@ -169,7 +198,7 @@ public class FairyBombMap : MonoBehaviour
         {
             Vector2Int neighbourCoords = coords + offsets[i];
             var tile = TileAt(neighbourCoords);
-            if (tile.Walkable)
+            if (tile != null && tile.Walkable)
             {
                 neighbours.Add(neighbourCoords);
             }
@@ -179,6 +208,10 @@ public class FairyBombMap : MonoBehaviour
 
     public FairyBombTile GetTileByType(TileType type)
     {
+        if(type == TileType.None)
+        {
+            return null;
+        }
         return _lesTiles[(int)type];
     }
 
