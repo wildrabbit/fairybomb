@@ -330,4 +330,77 @@ public class Monster : BaseEntity, IBattleEntity, IBomberEntity, IHealthTracking
             TakeDamage(_monsterData.PlayerCollisionDmg);
         }
     }
+
+    public void AppliedPaint(PaintData data)
+    {
+
+    }
+    public void RemovedPaint(PaintData data)
+    {
+        switch (data.Effect)
+        {
+            case PaintingEffect.Freeze:
+                {
+                    Frozen = false;
+                    break;
+                }
+            case PaintingEffect.Haste:
+                {
+                    ResetSpeedRate();
+                    break;
+                }
+            case PaintingEffect.Heal:
+                {
+                    break;
+                }
+            case PaintingEffect.Poison:
+                {
+                    break;
+                }
+            case PaintingEffect.Slow:
+                {
+                    ResetSpeedRate();
+                    break;
+                }
+        }
+    }
+    public float UpdatedPaint(PaintData paintData, float ticks)
+    {
+        switch (paintData.Effect)
+        {
+            case PaintingEffect.Freeze:
+                {
+                    bool wasFrozen = Frozen;
+                    Frozen = UnityEngine.Random.value <= paintData.FreezeChance;
+                    break;
+                }
+            case PaintingEffect.Haste:
+                {
+                    break;
+                }
+            case PaintingEffect.Heal:
+                {
+                    while (ticks >= paintData.TicksForHPChange)
+                    {
+                        ticks -= paintData.TicksForHPChange;
+                        HPTrait.Add(paintData.HPDelta);
+                    }
+                    break;
+                }
+            case PaintingEffect.Poison:
+                {
+                    while (ticks >= paintData.TicksForHPChange)
+                    {
+                        ticks -= paintData.TicksForHPChange;
+                        TakeDamage(paintData.HPDelta);
+                    }
+                    break;
+                }
+            case PaintingEffect.Slow:
+                {
+                    break;
+                }
+        }
+        return ticks;
+    }
 }

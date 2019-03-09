@@ -1,15 +1,23 @@
 ﻿using System;
 using UnityEngine;
 
+public delegate void AppliedPaint(PaintData paint, IPaintableEntity owner);
+public delegate void RemovedPaint(PaintData paint, IPaintableEntity owner);
+public delegate void UpdatedPaint(PaintData paint, IPaintableEntity owner);
+
 public class PaintableTrait
 {
-    BaseEntity _owner;
+    IPaintableEntity _owner;
     PaintMap _paintMap;
 
     PaintData _currentPaint;
     float _elapsedUnits;
 
-    public void Init(BaseEntity owner, PaintMap map)
+    public event AppliedPaint OnAppliedPaint;
+    public event RemovedPaint OnRemovedPaint;
+    public event UpdatedPaint OnUpdatedPaint;
+
+    public void Init(IPaintableEntity owner, PaintMap map)
     {
         _owner = owner;
         _paintMap = map;
@@ -77,33 +85,8 @@ public class PaintableTrait
 
     private void RemoveEffect()
     {
-        switch (_currentPaint.Effect)
-        {
-            case PaintingEffect.Freeze:
-            {
-                _owner.Frozen = false;
-                Debug.Log($"{_owner.name} no longer frozen");
-                break;
-            }
-            case PaintingEffect.Haste:
-            {
-                _owner.ResetSpeedRate();
-                break;
-            }
-            case PaintingEffect.Heal:
-            {
-                break;
-            }
-            case PaintingEffect.Poison:
-            {
-                break;
-            }
-            case PaintingEffect.Slow:
-            {
-                _owner.ResetSpeedRate();
-                break;
-            }
-        }
+        OnRemovedPaint?.Invoke(_currentPaint, _owner);
+        _owner.RemovedPaint(_currentPaint);
         _currentPaint = null;
         _elapsedUnits = 0.0f;
     }
@@ -117,41 +100,8 @@ public class PaintableTrait
 
         _currentPaint = paint;
         _elapsedUnits = 0.0f;
-        switch(paint.Effect)
-        {
-            case PaintingEffect.Freeze:
-            {
-                if(UnityEngine.Random.value <= paint.FreezeChance)
-                {
-                    _owner.Frozen = true;
-                    Debug.Log($"{_owner.name} is frozen and cannot move!");
-                    // TODO: Freeze view!
-                }
-                break;
-            }
-            case PaintingEffect.Haste:
-            {
-                _owner.SetSpeedRate(paint.SpeedRate);
-                break;
-            }
-            case PaintingEffect.Heal:
-            {
-                int initialRecover = paint.HPDelta;
-                ((IHealthTrackingEntity)_owner).HPTrait.Add(initialRecover);
-                break;
-            }
-            case PaintingEffect.Poison:
-            {
-                int poisonDmg = paint.HPDelta;
-                ((IHealthTrackingEntity)_owner).TakeDamage(poisonDmg);
-                break;
-            }
-            case PaintingEffect.Slow:
-            {
-                _owner.SetSpeedRate(-paint.SpeedRate);
-                break;
-            }
-        }
+        _owner.AppliedPaint(_currentPaint);
+        OnAppliedPaint?.Invoke(_currentPaint, _owner);
         return true;
     }
 
@@ -173,54 +123,7 @@ public class PaintableTrait
 
     private void UpdateEffect(float units)
     {
-        _elapsedUnits += units;
-        switch (_currentPaint.Effect)
-        {
-            case PaintingEffect.Freeze:
-            {
-                bool wasFrozen = _owner.Frozen;
-                _owner.Frozen = UnityEngine.Random.value <= _currentPaint.FreezeChance;
-                if(!_owner.Frozen && wasFrozen)
-                {
-                    Debug.Log($"{_owner.name} no longer frozen");
-                }
-                else if (_owner.Frozen && wasFrozen)
-                {
-                    Debug.Log($"{_owner.name} remains frozen");
-                }
-                else if(_owner.Frozen && !wasFrozen)
-                {
-                    Debug.Log($"{_owner.name} becomes frozen");
-                    }
-                break;
-            }
-            case PaintingEffect.Haste:
-            {
-                break;
-            }
-            case PaintingEffect.Heal:
-            {
-                while (_elapsedUnits >= _currentPaint.TicksForHPChange)
-                {
-                    _elapsedUnits -= _currentPaint.TicksForHPChange;
-                    ((IHealthTrackingEntity)_owner).HPTrait.Add(_currentPaint.HPDelta);
-                }
-                break;
-            }
-            case PaintingEffect.Poison:
-            {
-                while (_elapsedUnits >= _currentPaint.TicksForHPChange)
-                {
-                    _elapsedUnits -= _currentPaint.TicksForHPChange;
-                    ((IHealthTrackingEntity)_owner).TakeDamage(_currentPaint.HPDelta);
-                }
-                break;
-            }
-            case PaintingEffect.Slow:
-            {
-                break;
-            }            
-        }
-
+        _elapsedUnits = _owner.UpdatedPaint(_currentPaint, _elapsedUnits + units);
+        OnUpdatedPaint?.Invoke(_currentPaint, _owner);
     }
 }

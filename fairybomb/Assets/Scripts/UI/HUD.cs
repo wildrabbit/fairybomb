@@ -24,8 +24,11 @@ public class HUD : MonoBehaviour
     [SerializeField] TextMeshProUGUI _turnCountValue;
     [SerializeField] TextMeshProUGUI _timeUnitsValue;
     [SerializeField] TextMeshProUGUI _mapPosValue;
+    [SerializeField] TextMeshProUGUI _layoutLabel;
+    [SerializeField] TextMeshProUGUI _layoutCycleLabel;
 
     // TODO
+    [SerializeField] RectTransform _statusRoot;
     [SerializeField] TextMeshProUGUI _statusLabel;
     [SerializeField] Image _statusHighlight;
 
@@ -140,5 +143,54 @@ public class HUD : MonoBehaviour
     public void UsedItem(int idx, BombInventoryEntry entry, IBomberEntity entity)
     {
         _inventoryItems[idx].UpdateItem(entry);
+    }
+
+    public void AppliedPaint(PaintData data, IPaintableEntity entity)
+    {
+        string statusText = GetEffectName(data.Effect);
+
+        _statusRoot.gameObject.SetActive(!string.IsNullOrEmpty(statusText));
+
+        _statusHighlight.color = data.Colour;
+        _statusLabel.text = statusText;
+    }
+
+    public void RemovedPaint(PaintData data, IPaintableEntity entity)
+    {
+        _statusRoot.gameObject.SetActive(false);
+    }
+
+    public string GetEffectName(PaintingEffect effect)
+    {
+        switch (effect)
+        {
+            case PaintingEffect.Poison:
+                return "POISON";                
+            case PaintingEffect.Heal:
+                return "HEAL";
+            case PaintingEffect.Freeze:
+                return "FROZEN";
+            case PaintingEffect.Haste:
+                return "HASTE";
+            case PaintingEffect.Slow:
+                return "SLOW";
+            default:
+                return string.Empty;
+        }
+
+    }
+
+    public void OnInputLayoutChanged(int layout)
+    {
+        if(layout == GameInput.kLayoutQwerty)
+        {
+            _layoutLabel.text = "MOVE: QWEASD";
+            _layoutCycleLabel.text = "(Switch to AZERTY: TAB)";
+        }
+        else if (layout == GameInput.kLayoutAzerty)
+        {
+            _layoutLabel.text = "MOVE: AZEQSD";
+            _layoutCycleLabel.text = "(Switch to QWERTY: TAB)";
+        }
     }
 }

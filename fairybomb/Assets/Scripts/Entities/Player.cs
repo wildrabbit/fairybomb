@@ -164,4 +164,109 @@ public class Player : BaseEntity, IBattleEntity, IBomberEntity, IPaintableEntity
             TakeDamage(_playerData.MonsterCollisionDmg);
         }
     }
+
+    public void AppliedPaint(PaintData paint)
+    {
+        switch (paint.Effect)
+        {
+            case PaintingEffect.Freeze:
+            {
+                if (UnityEngine.Random.value <= paint.FreezeChance)
+                {
+                    Frozen = true;                        
+                }
+                break;
+            }
+            case PaintingEffect.Haste:
+            {
+                SetSpeedRate(paint.SpeedRate);
+                break;
+            }
+            case PaintingEffect.Heal:
+            {
+                int initialRecover = paint.HPDelta;
+                HPTrait.Add(initialRecover);
+                break;
+            }
+            case PaintingEffect.Poison:
+            {
+                int poisonDmg = paint.HPDelta;
+                TakeDamage(poisonDmg);
+                break;
+            }
+            case PaintingEffect.Slow:
+            {
+                SetSpeedRate(-paint.SpeedRate);
+                break;
+            }
+        }
+    }
+    public void RemovedPaint(PaintData data)
+    {
+        switch (data.Effect)
+        {
+            case PaintingEffect.Freeze:
+                {
+                    Frozen = false;
+                    break;
+                }
+            case PaintingEffect.Haste:
+                {
+                    ResetSpeedRate();
+                    break;
+                }
+            case PaintingEffect.Heal:
+                {
+                    break;
+                }
+            case PaintingEffect.Poison:
+                {
+                    break;
+                }
+            case PaintingEffect.Slow:
+                {
+                    ResetSpeedRate();
+                    break;
+                }
+        }
+    }
+    public float UpdatedPaint(PaintData paintData, float ticks)
+    {
+        switch (paintData.Effect)
+        {
+            case PaintingEffect.Freeze:
+                {
+                    bool wasFrozen = Frozen;
+                    Frozen = UnityEngine.Random.value <= paintData.FreezeChance;
+                    break;
+                }
+            case PaintingEffect.Haste:
+                {
+                    break;
+                }
+            case PaintingEffect.Heal:
+                {
+                    while (ticks >= paintData.TicksForHPChange)
+                    {
+                        ticks -= paintData.TicksForHPChange;
+                        HPTrait.Add(paintData.HPDelta);
+                    }
+                    break;
+                }
+            case PaintingEffect.Poison:
+                {
+                    while (ticks >= paintData.TicksForHPChange)
+                    {
+                        ticks -= paintData.TicksForHPChange;
+                        TakeDamage(paintData.HPDelta);
+                    }
+                    break;
+                }
+            case PaintingEffect.Slow:
+                {
+                    break;
+                }
+        }
+        return ticks;
+    }
 }

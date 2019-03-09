@@ -272,6 +272,11 @@ public class GameController : MonoBehaviour
         player.BomberTrait.OnItemDepleted += _hud.DepletedItem;
         player.BomberTrait.OnSelectedItem += _hud.SelectedItem;
         player.BomberTrait.OnUsedItem += _hud.UsedItem;
+
+        player.PaintableTrait.OnAppliedPaint += _hud.AppliedPaint;
+        player.PaintableTrait.OnRemovedPaint += _hud.RemovedPaint;
+
+        _input.OnLayoutChanged += _hud.OnInputLayoutChanged;
     }
 
     void UnRegisterEntityEvents()
@@ -285,6 +290,11 @@ public class GameController : MonoBehaviour
         player.BomberTrait.OnItemDepleted -= _hud.DepletedItem;
         player.BomberTrait.OnSelectedItem -= _hud.SelectedItem;
         player.BomberTrait.OnUsedItem -= _hud.UsedItem;
+
+        player.PaintableTrait.OnAppliedPaint -= _hud.AppliedPaint;
+        player.PaintableTrait.OnRemovedPaint -= _hud.RemovedPaint;
+
+        _input.OnLayoutChanged -= _hud.OnInputLayoutChanged;
     }
 
     void RegisterScheduledEntities(List<BaseEntity> entities)

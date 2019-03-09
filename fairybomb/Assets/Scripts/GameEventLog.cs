@@ -247,7 +247,6 @@ public class GameEventLog
     {
         AddEvent(evt);
         OnSessionFinished?.Invoke();
-        Debug.Log(Flush());
     }
 
     public void Clear()

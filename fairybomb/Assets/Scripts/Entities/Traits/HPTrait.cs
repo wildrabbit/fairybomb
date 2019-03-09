@@ -1,8 +1,8 @@
 ﻿using System;
 using UnityEngine;
 
-public delegate void ExhaustedHP(BaseEntity owner);
-public delegate void HPChangedDelegate(int newHP, BaseEntity Owner);
+public delegate void ExhaustedHP(IHealthTrackingEntity owner);
+public delegate void HPChangedDelegate(int newHP, IHealthTrackingEntity Owner);
 
 public class HPTrait
 {
@@ -11,12 +11,12 @@ public class HPTrait
 
     public HPTraitData _data;
 
-    public BaseEntity Owner => _owner;
+    public IHealthTrackingEntity  Owner => _owner;
     public int HP => _hp;
     public int MaxHP => _maxHP;
     public bool Regen => _regen;
 
-    BaseEntity _owner;
+    IHealthTrackingEntity _owner;
 
     int _hp;
     int _maxHP;
@@ -25,7 +25,7 @@ public class HPTrait
     int _regenAmount;
     bool _regen;
 
-    public void Init(BaseEntity owner, HPTraitData hpData)
+    public void Init(IHealthTrackingEntity owner, HPTraitData hpData)
     {
         _data = hpData;
         _owner = owner;
@@ -73,7 +73,6 @@ public class HPTrait
     {
         _hp = Mathf.Clamp(_hp + delta, 0, _maxHP);
         OnPlayerHPChanged?.Invoke(_hp, _owner);
-        Debug.Log($"{_owner.name} gains {delta} HP to a total of {_hp}");
     }
 
     public void Decrease(int delta)

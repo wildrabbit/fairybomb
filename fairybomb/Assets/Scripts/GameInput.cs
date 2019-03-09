@@ -5,12 +5,12 @@ public class InputEntry
     public bool Value;
     float _last;
 
-    string _buttonKey;
+    KeyCode _key;
     float _delay;
 
-    public InputEntry(string key, float delay)
+    public InputEntry(KeyCode key, float delay)
     {
-        _buttonKey = key;
+        _key = key;
         _delay = delay;
         _last = -1;
         Value = false;
@@ -18,7 +18,7 @@ public class InputEntry
 
     public bool Read()
     {
-        if ((_last < 0 || Time.time - _last >= _delay) && Input.GetButton(_buttonKey))
+        if ((_last < 0 || Time.time - _last >= _delay) && Input.GetKey(_key))
         {
             _last = Time.time;
             Value = true;
@@ -28,6 +28,13 @@ public class InputEntry
             Value = false;
         }
         return Value;
+    }
+
+    public void UpdateKey(KeyCode newKey)
+    {
+        _key = newKey;
+        _last = -1;
+        Value = false;
     }
 }
 
@@ -44,8 +51,20 @@ public enum MoveDirection
 
 public class GameInput
 {
+    public const int kLayoutQwerty = 0;
+    public const int kLayoutAzerty = 1;
+    
     const int kNumInputs = 3;
     float _moveInputDelay;
+    int _currentLayout = 0;
+
+    KeyCode[][] _directionLayouts = new KeyCode[][]
+    {
+        new KeyCode[]{KeyCode.W, KeyCode.E, KeyCode.D, KeyCode.S, KeyCode.A, KeyCode.Q},
+        new KeyCode[]{KeyCode.Z, KeyCode.E, KeyCode.D, KeyCode.S, KeyCode.Q, KeyCode.A},
+    };
+
+    public event System.Action<int> OnLayoutChanged;
 
     public bool IdleTurn => idle.Value;
     public bool BombPlaced => placeBomb.Value;
@@ -76,19 +95,36 @@ public class GameInput
 
     }
 
-    public void Init(float inputDelay)
+    public void ChangeLayout(int layoutIdx)
     {
-        _moveInputDelay = inputDelay;
-        dirNW = new InputEntry("dirNW", _moveInputDelay);
-        dirN = new InputEntry("dirN", _moveInputDelay);
-        dirNE = new InputEntry("dirNE", _moveInputDelay);
-        dirSW = new InputEntry("dirSW", _moveInputDelay);
-        dirS = new InputEntry("dirS", _moveInputDelay);
-        dirSE = new InputEntry("dirSE", _moveInputDelay);
+        _currentLayout = layoutIdx;
+        KeyCode[] keycodes = _directionLayouts[_currentLayout];
+        dirNW.UpdateKey(keycodes[(int)MoveDirection.NW - 1]);
+        dirN.UpdateKey(keycodes[(int)MoveDirection.N - 1]);
+        dirNE.UpdateKey(keycodes[(int)MoveDirection.NE - 1]);
+        dirSW.UpdateKey(keycodes[(int)MoveDirection.SW - 1]);
+        dirS.UpdateKey(keycodes[(int)MoveDirection.S - 1]);
+        dirSE.UpdateKey(keycodes[(int)MoveDirection.SE - 1]);
+        OnLayoutChanged?.Invoke(_currentLayout);
 
-        idle = new InputEntry("idle", _moveInputDelay);
-        placeBomb = new InputEntry("place", _moveInputDelay);
-        detonateBomb = new InputEntry("detonate", _moveInputDelay);
+    }
+
+    public void Init(float inputDelay, int layout = kLayoutQwerty)
+    {
+        _currentLayout = layout;
+        KeyCode[] keycodes = _directionLayouts[_currentLayout];
+
+        _moveInputDelay = inputDelay;
+        dirNW = new InputEntry(keycodes[(int)MoveDirection.NW - 1], _moveInputDelay);
+        dirN = new InputEntry(keycodes[(int)MoveDirection.N - 1], _moveInputDelay);
+        dirNE = new InputEntry(keycodes[(int)MoveDirection.NE - 1], _moveInputDelay);
+        dirSW = new InputEntry(keycodes[(int)MoveDirection.SW - 1], _moveInputDelay);
+        dirS = new InputEntry(keycodes[(int)MoveDirection.S - 1], _moveInputDelay);
+        dirSE = new InputEntry(keycodes[(int)MoveDirection.SE - 1], _moveInputDelay);
+
+        idle = new InputEntry(KeyCode.Space, _moveInputDelay);
+        placeBomb = new InputEntry(KeyCode.J, _moveInputDelay);
+        detonateBomb = new InputEntry(KeyCode.K, _moveInputDelay);
 
         NumbersPressed = new bool[kNumInputs];
         NumbersPressed.Fill<bool>(false);
@@ -97,6 +133,11 @@ public class GameInput
 
     public void Read()
     {
+        if(Input.GetKeyUp(KeyCode.Tab))
+        {
+            ChangeLayout((_currentLayout + 1) % 2);
+        }
+
         detonateBomb.Read();
         placeBomb.Read();
         idle.Read();
