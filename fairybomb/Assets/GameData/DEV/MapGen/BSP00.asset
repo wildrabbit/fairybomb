@@ -15,22 +15,22 @@ MonoBehaviour:
   WallTile: 0
   GroundTile: 1
   OriginIsTopLeft: 0
-  _mapSize: {x: 20, y: 40}
+  _mapSize: {x: 30, y: 50}
   PatternRoomsChance: 0.64
   PatternsFile: {fileID: 4900000, guid: 5a319297daca7d340b886d632c06d124, type: 3}
   MonsterPool:
   - {fileID: 11400000, guid: 57760683599217e40887686e43920af3, type: 2}
   - {fileID: 11400000, guid: a60da4a8cc6d4f94682a3f18a54e9f37, type: 2}
-  MonsterSpawnChance: 0.35
+  MonsterSpawnChance: 0.4
   MinMonstersPerRoom: 1
-  MaxMonstersPerRoom: 2
-  MaxTotalMonsters: 15
+  MaxMonstersPerRoom: 4
+  MaxTotalMonsters: 30
   BombPool:
   - {fileID: 11400000, guid: 55379eac24551b64f903d99415918581, type: 2}
   - {fileID: 11400000, guid: 801a9423a7bda9844baf8635ecbfc965, type: 2}
   - {fileID: 11400000, guid: 42e0db8f87f097f40b266ac1fc3280ac, type: 2}
-  BombSpawnChancePerRoom: 0.2
-  MaxLootItems: 8
+  BombSpawnChancePerRoom: 0.3
+  MaxLootItems: 20
   MinLootPerRoom: 1
   MaxLootPerRoom: 2
   HorizontalSplitChance: 0.5
@@ -39,6 +39,6 @@ MonoBehaviour:
   EmptyRoomChance: 0.05
   MinAreaSize: {x: 8, y: 8}
   MinRoomSize: {x: 2, y: 2}
-  MaxRoomSize: {x: 6, y: 6}
+  MaxRoomSize: {x: 8, y: 8}
   IsSeeded: 0
   Seed: '{"s0":336196064,"s1":1642366592,"s2":309585109,"s3":855076775}'
