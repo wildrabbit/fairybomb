@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public enum MonsterAITemplate
 {
@@ -37,4 +38,8 @@ public class MonsterData: BaseEntityData
 
     public float PathUpdateDelay;
     // TODO: Distances, visibility
+
+    [Header("loot stuff")]
+    public LootInfo LootInfoOnDeath;
+    public int XPOnDeath;
 }

@@ -40,6 +40,13 @@ public class BSPGeneratorData: BaseMapGeneratorData
     public int MaxMonstersPerRoom;
     public int MaxTotalMonsters;
 
+    [Header("Initial loot data")]
+    public List<BombData> BombPool;
+    public float BombSpawnChancePerRoom;
+    public int MaxLootItems;
+    public int MinLootPerRoom;
+    public int MaxLootPerRoom;
+
     [Header("BSP Control data")]
     public float HorizontalSplitChance; // Vertical == 1 - horz :P
     public float HorizontalSplitRatio;

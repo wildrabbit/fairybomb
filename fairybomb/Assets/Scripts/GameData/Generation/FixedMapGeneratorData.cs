@@ -7,6 +7,7 @@ public class FixedMapGeneratorData : BaseMapGeneratorData
 {
     public Vector2Int PlayerStart;
     public List<MonsterSpawn> MonsterSpawns;
+    public List<LootSpawn> LootSpawns;
     public TextAsset MapInfo;
 
     public TileType[] LevelData

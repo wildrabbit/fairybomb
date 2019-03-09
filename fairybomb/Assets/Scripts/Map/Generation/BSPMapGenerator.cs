@@ -32,6 +32,7 @@ public class BSPContext: BaseMapContext
     public BSPGeneratorData BSPData => ((BSPGeneratorData)GeneratorData);
     public Vector2Int PlayerStart;
     public List<MonsterSpawn> MonsterSpawns;
+    public List<LootSpawn> LootSpawns;
 }
 
 
@@ -78,8 +79,48 @@ public class BSPMapGenerator : IMapGenerator
 
         GenerateRooms(ref mapAux);
         GenerateMonsters(mapAux);
+        GenerateLoot(mapAux);
 
         GeneratorUtils.ConvertGrid(mapAux, out map);
+    }
+
+    private void GenerateLoot(TileType[,] map)
+    {
+        _context.LootSpawns = new List<LootSpawn>();
+        int lootCount = 0;
+
+        Predicate<Vector2Int> validLootPos = (pos) =>
+        {
+            return _context.PlayerStart != pos && map[pos.x, pos.y] == _bspGenData.GroundTile;
+        };
+
+        foreach (var r in _rooms)
+        {
+            float lootRoll = URandom.value;
+            if (lootRoll <= _bspGenData.BombSpawnChancePerRoom)
+            {
+                int lootLeft = _bspGenData.MaxLootItems - lootCount;
+                int numItems = URandom.Range(_bspGenData.MinLootPerRoom, _bspGenData.MaxLootPerRoom);
+
+                for (int i = 0; i < numItems; ++i)
+                {
+                    BombData itemType = _bspGenData.BombPool[URandom.Range(0, _bspGenData.BombPool.Count)];
+                    Vector2Int lootCoords = GetRandomCoordsInRoom(r, validLootPos, 10);
+                    if (lootCoords.x >= 0 && lootCoords.y >= 0)
+                    {
+                        LootSpawn spawn = new LootSpawn();
+                        spawn.item = itemType;
+                        spawn.coords = lootCoords;
+                        spawn.amount = 1;
+                        _context.LootSpawns.Add(spawn);
+                        lootCount++;
+                    }
+                }
+            }
+
+            if (lootCount >= _bspGenData.MaxLootItems) ;
+                break;
+        }
     }
 
     void GenerateMonsters(TileType[,] map)

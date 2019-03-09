@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
@@ -26,5 +27,9 @@ public class FairyBombTile : Tile
     [SerializeField] bool _walkable;
     [FormerlySerializedAs("_blocksExplosions")][SerializeField] bool _impassable;
     [SerializeField] FairyBombTile _destructionReplacement;
+
+    [Header("Destructible data")]
+    public int DestructionXP;
+    public LootInfo LootInfo;
 }
 

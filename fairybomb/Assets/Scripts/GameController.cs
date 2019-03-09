@@ -29,6 +29,7 @@ public class GameController : MonoBehaviour
     IEntityController _entityController;
     MonsterCreator _monsterCreator;
     AIController _aiController;
+    LootController _lootController;
     GameEventLog _eventLog;
     HUD _hud;
     List<GameObject> _explosionItems;
@@ -63,7 +64,7 @@ public class GameController : MonoBehaviour
         _input = new GameInput();
 
         _entityController = new EntityController();
-
+        _lootController = new LootController();
         _eventLog = new GameEventLog();
         _aiController = new AIController();
         _monsterCreator = new MonsterCreator();
@@ -198,6 +199,8 @@ public class GameController : MonoBehaviour
         _paintMap = Instantiate<PaintMap>(_paintMapPrefab);
         _scheduledEntities.Add(_paintMap);
 
+        _lootController.Init(_lootItemData, _map, _entityController, _eventLog);
+
         _entityController.Init(_map, _paintMap, _gameData.EntityCreationData);
         _entityController.OnEntitiesAdded += RegisterScheduledEntities;
         _entityController.OnEntitiesRemoved += UnregisterScheduledEntities;
@@ -229,6 +232,8 @@ public class GameController : MonoBehaviour
         // populate the level
         _monsterCreator.Init(_entityController, _aiController, _map, _eventLog);
         _monsterCreator.AddInitialMonsters(_map.MonsterSpawns);
+
+        _lootController.LoadLootSpawns(_map.LootSpawns);
 
         _entityController.AddNewEntities();
 

@@ -24,7 +24,8 @@ MonoBehaviour:
       type: 3}
     MonsterPrefab: {fileID: 2984502519240736652, guid: 46859fa966afc4d41adfc2787b62814a,
       type: 3}
-    LootItemPrefab: {fileID: 0}
+    LootItemPrefab: {fileID: 7395448051956472665, guid: 4e112015be4437c49bc2bc5e7bf0065f,
+      type: 3}
   MonsterDataList:
   - {fileID: 11400000, guid: 57760683599217e40887686e43920af3, type: 2}
   - {fileID: 11400000, guid: a60da4a8cc6d4f94682a3f18a54e9f37, type: 2}

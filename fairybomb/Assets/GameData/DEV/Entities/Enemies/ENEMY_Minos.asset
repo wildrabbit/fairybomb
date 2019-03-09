@@ -16,8 +16,8 @@ MonoBehaviour:
     type: 3}
   ThinkingDelay: 2
   HPData:
-    MaxHP: 12
-    StartHP: 12
+    MaxHP: 4
+    StartHP: 4
     Regen: 0
     RegenRate: 0
     RegenAmount: 0
@@ -45,3 +45,13 @@ MonoBehaviour:
   EscapeHPRatio: 0.25
   EscapeSafeDistance: 5
   PathUpdateDelay: 4
+  LootInfoOnDeath:
+    LootChance: 0.2
+    Items:
+    - {fileID: 11400000, guid: 42e0db8f87f097f40b266ac1fc3280ac, type: 2}
+    - {fileID: 11400000, guid: 801a9423a7bda9844baf8635ecbfc965, type: 2}
+    MinItems: 1
+    MaxItems: 1
+    MinRolls: 1
+    MaxRolls: 1
+  XPOnDeath: 2

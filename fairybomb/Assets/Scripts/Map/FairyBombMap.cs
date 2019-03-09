@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
+public delegate void TileDestroyedDelegate(TileType destroyedType, Vector2Int coords);
+
+
 public class FairyBombMap : MonoBehaviour
 {
     public Vector2Int PlayerStart => _playerStart;
@@ -10,6 +13,9 @@ public class FairyBombMap : MonoBehaviour
     [SerializeField] Tilemap _map;
 
     public List<MonsterSpawn> MonsterSpawns => _monsterSpawns;
+    public List<LootSpawn> LootSpawns => _lootSpawns;
+
+    public event TileDestroyedDelegate OnTileDestroyed;
 
     FairyBombMapData _mapData;
 
@@ -21,6 +27,7 @@ public class FairyBombMap : MonoBehaviour
     Vector2Int _playerStart;
 
     List<MonsterSpawn> _monsterSpawns;
+    List<LootSpawn> _lootSpawns;
     
     Vector3Int[] cubeOffsets = new Vector3Int[]
     {
@@ -101,6 +108,7 @@ public class FairyBombMap : MonoBehaviour
 
             FixedMapGeneratorData genData = ((FixedMapGeneratorData)data.GenerationData);
             _monsterSpawns = genData.MonsterSpawns;
+            _lootSpawns = genData.LootSpawns;
             TileType[] level = genData.LevelData;
             InitFromArray(genData.MapSize, genData.LevelData, genData.PlayerStart, genData.OriginIsTopLeft);
         }
@@ -114,6 +122,7 @@ public class FairyBombMap : MonoBehaviour
             generator.GenerateMap(ref level, context);
 
             _monsterSpawns = context.MonsterSpawns;
+            _lootSpawns = context.LootSpawns;
             InitFromArray(context.GeneratorData.MapSize, level, context.PlayerStart, data.GenerationData.OriginIsTopLeft);
         }
     }
