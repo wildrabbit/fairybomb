@@ -28,6 +28,7 @@ public interface IEntityController
     Player CreatePlayer(PlayerData data, Vector2Int coords);
     Bomb CreateBomb(BombData data, Vector2Int coords, IBomberEntity Owner);
     Monster CreateMonster(MonsterData data, Vector2Int coords, AIController aiController);
+    BombPickableItem CreatePickable(LootItemData lootData, BombData data, Vector2Int coords, int amount, bool unlimited);
 
     T Create<T>(T prefab, BaseEntityData data, BaseEntityDependencies deps) where T : BaseEntity;
 

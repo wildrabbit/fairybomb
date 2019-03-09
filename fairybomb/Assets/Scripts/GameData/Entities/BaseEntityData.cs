@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Serialization;
 
 [System.Serializable]
 public class HPTraitData
@@ -10,12 +12,15 @@ public class HPTraitData
     public int RegenAmount; // amount or percent??
 }
 
+
 [System.Serializable]
 public class BomberData
 {
-    public int DeployedBombLimit;
-    public BombData DefaultBombData;
-    // TODO: Infinite bomb count?
+    [FormerlySerializedAs("DeployedBombLimit")] public int DefaultDeployLimit;
+    public BombInventoryEntry[] InventoryEntry;
+    public int DefaultSelection;
+    public int InventorySize;
+    public bool IsFirstItemFixed;
 }
 
 [System.Serializable]

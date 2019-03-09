@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65bfc785293fbdd45b962c1fec32505a, type: 3}
+  m_Name: ENEMY_Minos
+  m_EditorClassIdentifier: 
+  DefaultViewPrefab: {fileID: 588421280417342936, guid: 0c2334e3ae34ea84fac06f35a32ef10d,
+    type: 3}
+  ThinkingDelay: 2
+  HPData:
+    MaxHP: 12
+    StartHP: 12
+    Regen: 0
+    RegenRate: 0
+    RegenAmount: 0
+  MovingData:
+    BombWalkability: 0
+    BombImmunity: 1
+  InitialState: 1
+  WanderToIdleMinTurns: 10
+  WanderToIdleMaxTurns: 20
+  MinIdleTurns: 1
+  MaxIdleTurns: 3
+  IsMelee: 0
+  MeleeDamage: 0
+  IsBomber: 1
+  BomberData:
+    DefaultDeployLimit: 2
+    InventoryEntry:
+    - Bomb: {fileID: 11400000, guid: 42e0db8f87f097f40b266ac1fc3280ac, type: 2}
+      Amount: 1
+      Unlimited: 1
+    DefaultSelection: 0
+    InventorySize: 1
+    IsFirstItemFixed: 0
+  VisibilityRange: 8
+  EscapeHPRatio: 0.25
+  EscapeSafeDistance: 5
+  PathUpdateDelay: 4

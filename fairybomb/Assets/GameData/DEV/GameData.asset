@@ -15,7 +15,7 @@ MonoBehaviour:
   InputDelay: 0.25
   DefaultTimescale: 1
   BumpingWallsWillSpendTurn: 0
-  PlayerData: {fileID: 11400000, guid: 048cd09c14d518b4aaa99066d0e825ea, type: 2}
+  PlayerData: {fileID: 11400000, guid: 502c6c3c27164bd4ea1fe9b2998f28cb, type: 2}
   MapData: {fileID: 11400000, guid: 1e8ae5a4991358847a173a5e5cb75392, type: 2}
   EntityCreationData:
     PlayerPrefab: {fileID: 5073076910135972578, guid: a87ab9ea031c5ad44b5ae21dfd0f4aa9,
@@ -24,12 +24,17 @@ MonoBehaviour:
       type: 3}
     MonsterPrefab: {fileID: 2984502519240736652, guid: 46859fa966afc4d41adfc2787b62814a,
       type: 3}
+    LootItemPrefab: {fileID: 0}
   MonsterDataList:
-  - {fileID: 11400000, guid: 002835a5d25060c47bc079eceb83a8cc, type: 2}
-  - {fileID: 11400000, guid: d547d0589895ef04a9382bd55e860a6b, type: 2}
+  - {fileID: 11400000, guid: 57760683599217e40887686e43920af3, type: 2}
+  - {fileID: 11400000, guid: a60da4a8cc6d4f94682a3f18a54e9f37, type: 2}
   BombDataList:
-  - {fileID: 11400000, guid: c6d3d460afdbf994e83357bff7fb844f, type: 2}
+  - {fileID: 11400000, guid: c5a9d1e1a86032343bfd4c25a81f16a0, type: 2}
+  - {fileID: 11400000, guid: 801a9423a7bda9844baf8635ecbfc965, type: 2}
+  - {fileID: 11400000, guid: 42e0db8f87f097f40b266ac1fc3280ac, type: 2}
+  - {fileID: 11400000, guid: 55379eac24551b64f903d99415918581, type: 2}
   PaintingDataList:
   - {fileID: 11400000, guid: 78968f55d9b7e7d41a0ef8679f782f90, type: 2}
   - {fileID: 11400000, guid: d9589e4d39f669447ae85a88e9d65bc7, type: 2}
   - {fileID: 11400000, guid: a42776606552dc8449e79431f62756e7, type: 2}
+  - {fileID: 11400000, guid: 148cd47c060c8b9499bfe91f861e12d4, type: 2}

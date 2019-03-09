@@ -11,4 +11,5 @@ public class BombData: BaseEntityData
     public float TickUnits;
     public PaintData PaintData;
     public bool Piercing;
+    public Transform LootViewPrefab;
 }

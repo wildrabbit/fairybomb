@@ -57,6 +57,7 @@ public class ActionPhaseContext : IPlayContext
             if (map.IsWalkableTile(playerCoords))
             {
                 List<BaseEntity> otherEntities = entityController.GetEntitiesAt(playerCoords);
+                List<BombPickableItem> itemsToPick = new List<BombPickableItem>();
                 bool canMove = true;
                 foreach(var other in otherEntities)
                 {
@@ -70,7 +71,15 @@ public class ActionPhaseContext : IPlayContext
                     {
                         canMove = false; // TODO: Can we suicide? Can we melee?                       
                     }
-
+                    else if (other is BombPickableItem)
+                    {
+                        BombPickableItem ground = ((BombPickableItem)other);
+                        if(player.BomberTrait.HasItem(ground) || player.BomberTrait.HasFreeSlot(itemsToPick))
+                        {
+                            itemsToPick.Add(ground);
+                        }
+                    }
+                    
                     if(!canMove)
                     {
                         break;
@@ -81,6 +90,13 @@ public class ActionPhaseContext : IPlayContext
                 {
                     player.Coords = playerCoords;
                     player.PaintableTrait.OwnerChangedPos(playerCoords);
+
+                    foreach(var item in itemsToPick)
+                    {
+                        entityController.DestroyEntity(item);
+                        player.BomberTrait.AddToInventory(item);
+                    }
+
                     PlayerActionEvent evt = new PlayerActionEvent(actionData.Turns, actionData.TimeUnits);
                     evt.SetMovement(moveDir, player.Coords);
                     log.AddEvent(evt);
@@ -91,8 +107,31 @@ public class ActionPhaseContext : IPlayContext
             {
                 timeWillPass = actionData.BumpingWallsWillSpendTurn;
             }
-        }    
-        
+        }
+
+        // Inventory actions:
+        int inventoryIdx = System.Array.FindIndex(input.NumbersPressed, x => x);
+        if(inventoryIdx != -1)
+        {
+            bool dropModifier = input.ShiftPressed;
+
+            if(player.BomberTrait.HasItemAt(inventoryIdx))
+            {
+                if (dropModifier)
+                {
+                    if((inventoryIdx > 0 || !player.BomberTrait.FirstItemFixed)  && player.BomberTrait.HasItemAt(inventoryIdx))
+                    {
+                        BombInventoryEntry dropItem = player.BomberTrait.RemoveInventory(inventoryIdx);
+                        entityController.CreatePickable(actionData.LootData, dropItem.Bomb, player.Coords, dropItem.Amount, dropItem.Unlimited);
+                    }
+                    
+                }
+                else
+                {
+                    player.BomberTrait.SelectBomb(inventoryIdx);
+                }
+            }            
+        }
 
         return PlayContext.Action;
     }

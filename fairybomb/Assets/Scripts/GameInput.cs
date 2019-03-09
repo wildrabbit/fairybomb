@@ -55,7 +55,10 @@ public class GameInput
 
     public MoveDirection MoveDir;
 
-   public bool[] numbersPressed;
+    public bool ShiftPressed => Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+
+    public bool[] NumbersPressed;
+    public KeyCode StartKeyCode;
 
     InputEntry dirNW;
     InputEntry dirN;
@@ -67,8 +70,6 @@ public class GameInput
     InputEntry idle;
     InputEntry placeBomb;
     InputEntry detonateBomb;
-
-    InputEntry[] numInputs;
 
     public GameInput()
     {
@@ -88,6 +89,10 @@ public class GameInput
         idle = new InputEntry("idle", _moveInputDelay);
         placeBomb = new InputEntry("place", _moveInputDelay);
         detonateBomb = new InputEntry("detonate", _moveInputDelay);
+
+        NumbersPressed = new bool[kNumInputs];
+        NumbersPressed.Fill<bool>(false);
+        StartKeyCode = KeyCode.Alpha1;
     }
 
     public void Read()
@@ -120,6 +125,11 @@ public class GameInput
         else if(dirSE.Read())
         {
             MoveDir = MoveDirection.SE;
+        }
+
+        for(int i = 0; i < kNumInputs; ++i)
+        {
+            NumbersPressed[i] = Input.GetKeyUp(i + StartKeyCode);
         }
     }
 }

@@ -21,6 +21,7 @@ public class ActionPhaseData: BaseContextData
     public GameEventLog Log;
     public int Turns;
     public float TimeUnits;
+    public LootItemData LootData;
 
     public override void Refresh(GameController gameController)
     {

@@ -19,8 +19,8 @@ MonoBehaviour:
   PatternRoomsChance: 0.64
   PatternsFile: {fileID: 4900000, guid: 5a319297daca7d340b886d632c06d124, type: 3}
   MonsterPool:
-  - {fileID: 11400000, guid: 002835a5d25060c47bc079eceb83a8cc, type: 2}
-  - {fileID: 11400000, guid: d547d0589895ef04a9382bd55e860a6b, type: 2}
+  - {fileID: 11400000, guid: 57760683599217e40887686e43920af3, type: 2}
+  - {fileID: 11400000, guid: a60da4a8cc6d4f94682a3f18a54e9f37, type: 2}
   MonsterSpawnChance: 0.35
   MinMonstersPerRoom: 1
   MaxMonstersPerRoom: 2
@@ -32,5 +32,5 @@ MonoBehaviour:
   MinAreaSize: {x: 8, y: 8}
   MinRoomSize: {x: 2, y: 2}
   MaxRoomSize: {x: 6, y: 6}
-  IsSeeded: 0
-  Seed: '{"s0":-715653160,"s1":1428624258,"s2":1683834057,"s3":-1986486253}'
+  IsSeeded: 1
+  Seed: ' {"s0":668755977,"s1":1633586968,"s2":902330446,"s3":-336219900}'

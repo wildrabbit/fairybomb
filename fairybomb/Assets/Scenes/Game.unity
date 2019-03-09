@@ -237,6 +237,7 @@ MonoBehaviour:
     type: 3}
   _paintMapPrefab: {fileID: 3475085126793304362, guid: d49c805211944954a89762478ba31071,
     type: 3}
+  _lootItemData: {fileID: 0}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0

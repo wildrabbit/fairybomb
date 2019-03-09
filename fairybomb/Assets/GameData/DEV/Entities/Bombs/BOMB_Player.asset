@@ -9,17 +9,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4f79d10cd2cf7940962012bffe77093, type: 3}
-  m_Name: Bomb
+  m_Script: {fileID: 11500000, guid: 7030c0ef59b6ca8498c35d5b88c383dd, type: 3}
+  m_Name: BOMB_Player
   m_EditorClassIdentifier: 
   DefaultViewPrefab: {fileID: 8249384925306986835, guid: 568d09ddc376cde4ba1a6ae86b4fd9f2,
     type: 3}
   Radius: 2
   BaseDamage: 1
-  Timeout: 4
+  Timeout: 3
   IgnoreBlocks: 0
   VFXExplosion: {fileID: 1521728278425283051, guid: f207ff42955156c428af44f545ccb847,
     type: 3}
   TickUnits: 1
-  PaintData: {fileID: 11400000, guid: 78968f55d9b7e7d41a0ef8679f782f90, type: 2}
+  PaintData: {fileID: 11400000, guid: a42776606552dc8449e79431f62756e7, type: 2}
   Piercing: 0
+  LootViewPrefab: {fileID: 0}

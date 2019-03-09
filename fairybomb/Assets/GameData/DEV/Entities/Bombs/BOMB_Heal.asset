@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7030c0ef59b6ca8498c35d5b88c383dd, type: 3}
+  m_Name: BOMB_Heal
+  m_EditorClassIdentifier: 
+  DefaultViewPrefab: {fileID: 8249384925306986835, guid: 568d09ddc376cde4ba1a6ae86b4fd9f2,
+    type: 3}
+  Radius: 2
+  BaseDamage: 1
+  Timeout: 3
+  IgnoreBlocks: 0
+  VFXExplosion: {fileID: 1521728278425283051, guid: f207ff42955156c428af44f545ccb847,
+    type: 3}
+  TickUnits: 1
+  PaintData: {fileID: 11400000, guid: 148cd47c060c8b9499bfe91f861e12d4, type: 2}
+  Piercing: 0
+  LootViewPrefab: {fileID: 8249384925306986835, guid: 51e73e9c4a1516648bbeaf0f07a5cfdb,
+    type: 3}

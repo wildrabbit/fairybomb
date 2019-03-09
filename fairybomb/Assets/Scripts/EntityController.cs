@@ -90,8 +90,25 @@ public class EntityController: IEntityController
         };
         var monster = Create<Monster>(_entityCreationData.MonsterPrefab, data, deps);
         return monster;
-
     }
+
+    public BombPickableItem CreatePickable(LootItemData lootItemData, BombData bombData, Vector2Int coords, int amount, bool unlimited)
+    {
+        BombPickableDependencies deps = new BombPickableDependencies()
+        {
+            ParentNode = null,
+            EntityController = this,
+            Map = _map,
+            PaintMap = _paintMap,
+            Coords = coords,
+            Bomb = bombData,
+            Amount = amount,
+            Unlimited = unlimited
+        };
+        var pickable = Create<BombPickableItem>(_entityCreationData.LootItemPrefab, lootItemData, deps);
+        return pickable;
+    }
+
 
     public T Create<T>(T prefab, BaseEntityData data, BaseEntityDependencies deps) where T : BaseEntity
     {

@@ -9,20 +9,39 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ee717ab3f2fbe114da3c63d0e1a1588a, type: 3}
+  m_Script: {fileID: 11500000, guid: 75bc2b31d5e57dc468ec9e150ccee7d1, type: 3}
   m_Name: Player
   m_EditorClassIdentifier: 
   DefaultViewPrefab: {fileID: 2798364246931441843, guid: 8eb2a6adf8496274c9159a5ba81e532f,
     type: 3}
   HPData:
-    MaxHP: 3
-    StartHP: 3
+    MaxHP: 10
+    StartHP: 10
     Regen: 0
     RegenRate: 0
+    RegenAmount: 0
   MobilityData:
-    BombWalkability: 1
+    BombWalkability: 0
     BombImmunity: 2
   BomberData:
-    DeployedBombLimit: 3
-    DefaultBombData: {fileID: 11400000, guid: c6d3d460afdbf994e83357bff7fb844f, type: 2}
+    DefaultDeployLimit: 1
+    InventoryEntry:
+    - Bomb: {fileID: 11400000, guid: c5a9d1e1a86032343bfd4c25a81f16a0, type: 2}
+      Amount: 1
+      Unlimited: 1
+    - Bomb: {fileID: 0}
+      Amount: 0
+      Unlimited: 0
+    - Bomb: {fileID: 0}
+      Amount: 0
+      Unlimited: 0
+    - Bomb: {fileID: 0}
+      Amount: 0
+      Unlimited: 0
+    - Bomb: {fileID: 0}
+      Amount: 0
+      Unlimited: 0
+    DefaultSelection: 0
+    InventorySize: 5
+    IsFirstItemFixed: 1
   Speed: 1

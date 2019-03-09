@@ -86,7 +86,7 @@ public class Monster : BaseEntity, IBattleEntity, IBomberEntity, IHealthTracking
 
     public BombData SelectedBomb
     {
-        get => _monsterData.BomberData.DefaultBombData;
+        get => _bomberTrait.SelectedBomb;
         set { }
     }
 

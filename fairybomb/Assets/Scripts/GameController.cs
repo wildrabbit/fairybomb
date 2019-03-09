@@ -21,6 +21,8 @@ public class GameController : MonoBehaviour
     [SerializeField] FairyBombMap _mapPrefab;
     [SerializeField] PaintMap _paintMapPrefab;
 
+    [SerializeField] LootItemData _lootItemData;
+
     public int Turns => _turns;
     public float TimeUnits => _elapsedUnits;
 
@@ -218,6 +220,7 @@ public class GameController : MonoBehaviour
         contextData.EntityController = _entityController;
         contextData.Player = _entityController.Player;
         contextData.Map = _map;
+        contextData.LootData = _lootItemData;
 
         // le hud
         _hud = Instantiate<HUD>(_hudPrefab);

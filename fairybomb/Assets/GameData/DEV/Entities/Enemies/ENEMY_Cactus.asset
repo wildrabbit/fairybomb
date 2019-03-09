@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65bfc785293fbdd45b962c1fec32505a, type: 3}
+  m_Name: ENEMY_Cactus
+  m_EditorClassIdentifier: 
+  DefaultViewPrefab: {fileID: 2368961619232815764, guid: 52047bae66418284db7b8025434ad2ad,
+    type: 3}
+  ThinkingDelay: 4
+  HPData:
+    MaxHP: 8
+    StartHP: 8
+    Regen: 0
+    RegenRate: 10
+    RegenAmount: 1
+  MovingData:
+    BombWalkability: 0
+    BombImmunity: 2
+  InitialState: 0
+  WanderToIdleMinTurns: 5
+  WanderToIdleMaxTurns: 7
+  MinIdleTurns: 5
+  MaxIdleTurns: 7
+  IsMelee: 0
+  MeleeDamage: 0
+  IsBomber: 1
+  BomberData:
+    DefaultDeployLimit: 1
+    InventoryEntry:
+    - Bomb: {fileID: 11400000, guid: 55379eac24551b64f903d99415918581, type: 2}
+      Amount: 1
+      Unlimited: 1
+    DefaultSelection: 0
+    InventorySize: 1
+    IsFirstItemFixed: 1
+  VisibilityRange: 5
+  EscapeHPRatio: 0.3
+  EscapeSafeDistance: 6
+  PathUpdateDelay: 3
