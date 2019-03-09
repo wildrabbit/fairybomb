@@ -45,6 +45,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Frozen: 0
+  _amountLabel: {fileID: 1950536616746409631}
 --- !u!1 &2369851334081471111
 GameObject:
   m_ObjectHideFlags: 0

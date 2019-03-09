@@ -21,6 +21,7 @@ public class EntityController: IEntityController
     public event BombDelegate OnBombSpawned;
     public event BombDestroyedDelegate OnBombExploded;
     public event PlayerDestroyedDelegate OnPlayerKilled;
+    public event MonsterDestroyedDelegate OnMonsterKilled;
 
     public void Init(FairyBombMap map, PaintMap paintMap, EntityCreationData entityCreationData)
     {
@@ -262,5 +263,10 @@ public class EntityController: IEntityController
     public List<Bomb> GetBombs()
     {
         return _allEntities.FindAll(x => x is Bomb && x.Active).ConvertAll(x => ((Bomb)x));
+    }
+
+    public void NotifyMonsterKilled(Monster monster)
+    {
+        OnMonsterKilled?.Invoke(monster);
     }
 }

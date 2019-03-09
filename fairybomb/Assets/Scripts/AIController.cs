@@ -70,7 +70,7 @@ public class AIController
 
                 if (leMonster.IsBomber)
                 {
-                    return SetupBomberState(leMonster, units, out actionData);
+                    return SetupBomberState(leMonster, units, false, out actionData);
                 }
                 else
                 {
@@ -121,9 +121,6 @@ public class AIController
     }
     MonsterState SetupChaseState(Monster leMonster, float timeUnits, out BaseMonsterAction leAction)
     {
-        // TODO: Alternate results for special cases: 
-        // - no path available: revert to wander
-        // - etc, etc, etc
         List<Vector2Int> currentPath = leMonster.Path ?? new List<Vector2Int>();
         bool willRefreshPath = false;
         int pathIdx = leMonster.CurrentPathIdx;
@@ -134,6 +131,18 @@ public class AIController
             willRefreshPath = true;
             pathIdx = 0;
             elapsed = 0.0f;
+
+            if(currentPath.Count < 2)
+            {
+                if(_map.GetDestructibleNeighbours(leMonster.Coords).Count > 0)
+                {
+                    return SetupBomberState(leMonster, timeUnits, true, out leAction);                    
+                }
+                else
+                {
+                    return SetupWanderState(leMonster, out leAction);                    
+                }
+            }
         }
         else
         {
@@ -255,11 +264,11 @@ public class AIController
            
     }
 
-    private MonsterState SetupBomberState(Monster leMonster, float units, out BaseMonsterAction actionData)
+    private MonsterState SetupBomberState(Monster leMonster, float units, bool ignoreEntities, out BaseMonsterAction actionData)
     {
         BaseEntity[] blackList = new BaseEntity[] { leMonster };
         Vector2Int coords = leMonster.Coords;
-        if (_map.TileAt(coords).Walkable && !_entityController.ExistsEntitiesAt(coords, blackList) && leMonster.BomberTrait.HasBombAvailable())
+        if (_map.TileAt(coords).Walkable && (ignoreEntities || !_entityController.ExistsEntitiesAt(coords, blackList)) && leMonster.BomberTrait.HasBombAvailable())
         {
             actionData = new PlaceBombAction()
             {

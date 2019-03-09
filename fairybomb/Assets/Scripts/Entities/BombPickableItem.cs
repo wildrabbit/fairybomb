@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using TMPro;
 using System.Collections;
 
 public class BombPickableDependencies: BaseEntityDependencies
@@ -10,6 +11,8 @@ public class BombPickableDependencies: BaseEntityDependencies
 
 public class BombPickableItem : BaseEntity
 {
+    [SerializeField] TextMeshPro _amountLabel;
+
     BombData _data;
     int _amount;
     bool _unlimited;
@@ -27,6 +30,7 @@ public class BombPickableItem : BaseEntity
         _data = bombDeps.Bomb;
         _amount = bombDeps.Amount;
         _unlimited = bombDeps.Unlimited;
+        _amountLabel.text = _unlimited ? "INF" : _amount.ToString();
     }
 
     public override void CreateView()

@@ -16,8 +16,8 @@ MonoBehaviour:
     type: 3}
   ThinkingDelay: 2
   HPData:
-    MaxHP: 4
-    StartHP: 4
+    MaxHP: 6
+    StartHP: 6
     Regen: 0
     RegenRate: 0
     RegenAmount: 0
@@ -44,6 +44,7 @@ MonoBehaviour:
   VisibilityRange: 8
   EscapeHPRatio: 0.25
   EscapeSafeDistance: 5
+  PlayerCollisionDmg: 1
   PathUpdateDelay: 4
   LootInfoOnDeath:
     LootChance: 0.2

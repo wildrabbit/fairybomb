@@ -37,6 +37,7 @@ public class ActionPhaseContext : IPlayContext
                 if (map.TileAt(playerCoords).Walkable && !entityController.ExistsEntitiesAt(playerCoords, blackList) && player.BomberTrait.HasBombAvailable())
                 {
                     Bomb bomb = entityController.CreateBomb(player.BomberTrait.SelectedBomb, playerCoords, player);
+                    player.BomberTrait.UseInventoryItem(player.BomberTrait.SelectedIdx);
                     PlayerActionEvent evt = new PlayerActionEvent(actionData.Turns, actionData.TimeUnits);
                     evt.SetBomb(bomb.Coords);
                     log.AddEvent(evt);
@@ -58,6 +59,7 @@ public class ActionPhaseContext : IPlayContext
             {
                 List<BaseEntity> otherEntities = entityController.GetEntitiesAt(playerCoords);
                 List<BombPickableItem> itemsToPick = new List<BombPickableItem>();
+                Monster collidingMonster = null;
                 bool canMove = true;
                 foreach(var other in otherEntities)
                 {
@@ -69,7 +71,8 @@ public class ActionPhaseContext : IPlayContext
                     }
                     else if (other is Monster)
                     {
-                        canMove = false; // TODO: Can we suicide? Can we melee?                       
+                        collidingMonster = ((Monster)other);
+                        canMove = player.CanMoveIntoMonsterCoords;
                     }
                     else if (other is BombPickableItem)
                     {
@@ -95,6 +98,12 @@ public class ActionPhaseContext : IPlayContext
                     {
                         entityController.DestroyEntity(item);
                         player.BomberTrait.AddToInventory(item);
+                    }
+
+                    if(collidingMonster != null && player.DmgFromMonsterCollision > 0)
+                    {
+                        Debug.Log("Player bumps into monster and takes 1 dmg");
+                        player.TakeDamage(player.DmgFromMonsterCollision);
                     }
 
                     PlayerActionEvent evt = new PlayerActionEvent(actionData.Turns, actionData.TimeUnits);

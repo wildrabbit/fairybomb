@@ -14,7 +14,7 @@ public class FixedMapGeneratorData : BaseMapGeneratorData
     {
         get
         {
-            if (_levelTiles == null)
+            //if (_levelTiles == null)
             {
                 BuildLevelData();                
             }
@@ -31,7 +31,7 @@ public class FixedMapGeneratorData : BaseMapGeneratorData
     {
         get
         {
-            if (_levelSize == Vector2Int.zero)
+            //if (_levelSize == Vector2Int.zero)
             {
                 BuildLevelData();
             }

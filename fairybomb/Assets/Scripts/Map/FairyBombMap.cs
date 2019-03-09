@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public delegate void TileDestroyedDelegate(TileType destroyedType, Vector2Int coords);
+public delegate void TileDestroyedDelegate(FairyBombTile destroyedType, Vector2Int coords);
 
 
 public class FairyBombMap : MonoBehaviour
@@ -148,6 +148,22 @@ public class FairyBombMap : MonoBehaviour
             }
         }
         _map.CompressBounds();
+    }
+
+    public List<Vector2Int> GetDestructibleNeighbours(Vector2Int coords)
+    {
+        List<Vector2Int> neighbours = new List<Vector2Int>();
+        Vector2Int[] offsets = _neighbourOffsets[coords.y & 1];
+        for (int i = 1; i < offsets.Length; ++i)
+        {
+            Vector2Int neighbourCoords = coords + offsets[i];
+            var tile = TileAt(neighbourCoords);
+            if (tile != null && tile.Destructible)
+            {
+                neighbours.Add(neighbourCoords);
+            }
+        }
+        return neighbours;
     }
 
     public List<Vector2Int> GetWalkableNeighbours(Vector2Int coords)
@@ -313,9 +329,11 @@ public class FairyBombMap : MonoBehaviour
         int i = 0;
         foreach(var coord in coords)
         {
+            var original = (FairyBombTile)(_map.GetTile((Vector3Int)coord));
+            OnTileDestroyed?.Invoke(original, coord);
             tiles[i] = TileAt(coord).ReplacementTile;
             coords3D[i] = (Vector3Int)coord;
-            i++;
+            i++;            
         }
 
         _map.SetTiles(coords3D, tiles);

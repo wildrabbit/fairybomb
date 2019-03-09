@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+[System.Serializable]
 public class LootSpawn
 {
     public BombData item;
@@ -34,6 +36,19 @@ public class LootController
         _map = map;
         _entityController = entityController;
         _eventLog = eventLog;
+
+        _entityController.OnMonsterKilled += OnMonsterKilled;
+        _map.OnTileDestroyed += OnTileDestroyed;
+    }
+
+    private void OnTileDestroyed(FairyBombTile destroyedTile, Vector2Int coords)
+    {
+        GenerateLootAt(destroyedTile.LootInfo, coords);
+    }
+
+    private void OnMonsterKilled(Monster monster)
+    {
+        GenerateLootAt(monster.LootInfo, monster.Coords);
     }
 
     public void LoadLootSpawns(List<LootSpawn> lootSpawns)
@@ -63,5 +78,11 @@ public class LootController
     internal void LoadLootSpawns(object lootSpawns)
     {
         throw new NotImplementedException();
+    }
+
+    public void Cleanup()
+    {
+        _entityController.OnMonsterKilled -= OnMonsterKilled;
+        _map.OnTileDestroyed -= OnTileDestroyed;
     }
 }

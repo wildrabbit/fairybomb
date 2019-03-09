@@ -41,3 +41,12 @@ MonoBehaviour:
   _impassable: 0
   _destructionReplacement: {fileID: 11400000, guid: 6551d8a0e663e4b40b9da0bfa53a2a9c,
     type: 2}
+  DestructionXP: 1
+  LootInfo:
+    LootChance: 0.3
+    Items:
+    - {fileID: 11400000, guid: 801a9423a7bda9844baf8635ecbfc965, type: 2}
+    MinItems: 1
+    MaxItems: 1
+    MinRolls: 1
+    MaxRolls: 1

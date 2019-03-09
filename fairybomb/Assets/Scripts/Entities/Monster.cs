@@ -57,6 +57,7 @@ public class Monster : BaseEntity, IBattleEntity, IBomberEntity, IHealthTracking
     public MonsterState CurrentState => _currentState;
     public BomberTrait BomberTrait => _bomberTrait;
     public BombWalkabilityType BombWalkability => _walkOverBombs;
+    public LootInfo LootInfo => _monsterData.LootInfoOnDeath;
 
     public bool IsMelee => _monsterData.IsMelee;
 
@@ -177,6 +178,10 @@ public class Monster : BaseEntity, IBattleEntity, IBomberEntity, IHealthTracking
                 {
                     Coords = action.NextCoords;
                     PaintableTrait.OwnerChangedPos(action.NextCoords);
+                    if(_entityController.Player.Coords == Coords && _monsterData.PlayerCollisionDmg > 0)
+                    {
+                        TakeDamage(_monsterData.PlayerCollisionDmg);
+                    }
                 }
                 
                 if(action is ChaseMonsterAction)
@@ -273,6 +278,7 @@ public class Monster : BaseEntity, IBattleEntity, IBomberEntity, IHealthTracking
     public override void OnDestroyed()
     {
         _entityController.OnBombExploded -= OnBombExploded;
+        _entityController.NotifyMonsterKilled(this);
     }
 
     public override void Cleanup()

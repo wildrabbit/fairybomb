@@ -25,6 +25,9 @@ public class Player : BaseEntity, IBattleEntity, IBomberEntity, IPaintableEntity
 
     public BombWalkabilityType BombWalkability => _walkOverBombs;
 
+    public bool CanMoveIntoMonsterCoords => _playerData.CanMoveIntoMonsterCoords;
+    public int DmgFromMonsterCollision => _playerData.MonsterCollisionDmg;
+
     int IBattleEntity.HP => HP;
     int IBattleEntity.Damage => 0;
     string IBattleEntity.Name => name;

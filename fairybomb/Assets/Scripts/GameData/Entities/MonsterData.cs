@@ -36,6 +36,8 @@ public class MonsterData: BaseEntityData
     public float EscapeHPRatio;
     public int EscapeSafeDistance;
 
+    public int PlayerCollisionDmg;
+
     public float PathUpdateDelay;
     // TODO: Distances, visibility
 

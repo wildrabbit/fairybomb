@@ -22,7 +22,7 @@ public class BSPGeneratorData: BaseMapGeneratorData
     {
         get
         {
-            if(_patternsList == null)
+            //if(_patternsList == null)
             {
                 BuildPatternsList();
             }

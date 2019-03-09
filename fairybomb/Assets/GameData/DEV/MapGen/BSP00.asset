@@ -25,6 +25,14 @@ MonoBehaviour:
   MinMonstersPerRoom: 1
   MaxMonstersPerRoom: 2
   MaxTotalMonsters: 15
+  BombPool:
+  - {fileID: 11400000, guid: 55379eac24551b64f903d99415918581, type: 2}
+  - {fileID: 11400000, guid: 801a9423a7bda9844baf8635ecbfc965, type: 2}
+  - {fileID: 11400000, guid: 42e0db8f87f097f40b266ac1fc3280ac, type: 2}
+  BombSpawnChancePerRoom: 0.2
+  MaxLootItems: 8
+  MinLootPerRoom: 1
+  MaxLootPerRoom: 2
   HorizontalSplitChance: 0.5
   HorizontalSplitRatio: 0.3
   VerticalSplitRatio: 0.5
@@ -32,5 +40,5 @@ MonoBehaviour:
   MinAreaSize: {x: 8, y: 8}
   MinRoomSize: {x: 2, y: 2}
   MaxRoomSize: {x: 6, y: 6}
-  IsSeeded: 1
+  IsSeeded: 0
   Seed: ' {"s0":668755977,"s1":1633586968,"s2":902330446,"s3":-336219900}'

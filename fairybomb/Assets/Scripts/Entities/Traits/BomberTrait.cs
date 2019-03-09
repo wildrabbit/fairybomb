@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 [System.Serializable]
 public class BombInventoryEntry
@@ -17,6 +18,8 @@ public class BomberTrait
         get => _selectedBomb;
         set { }
     }
+
+    public int SelectedIdx => _selectedInventoryIdx;
 
     public bool FirstItemFixed => _firstItemFixed;
 
@@ -95,10 +98,39 @@ public class BomberTrait
 
     public void AddToInventory(BombPickableItem item)
     {
-        BombInventoryEntry entry = new BombInventoryEntry();
-        entry.Bomb = item.Bomb;
-        entry.Amount = item.Amount;
-        entry.Unlimited = item.Unlimited;
+        var itemEntry = GetInventoryEntry(item);
+        if(itemEntry == null)
+        {
+            BombInventoryEntry entry = new BombInventoryEntry();
+            entry.Bomb = item.Bomb;
+            entry.Amount = item.Amount;
+            entry.Unlimited = item.Unlimited;
+            int idx = GetFreeSlot();
+            if (idx >= 0)
+            {
+                Debug.Log($"Added {entry.Bomb.name}  at slot {idx}");
+                _inventory[idx] = entry;
+            }
+        }
+        else
+        {
+            int idx = System.Array.IndexOf(_inventory, itemEntry);
+
+            Debug.Log($"Increased slot {idx} ({itemEntry.Bomb.name})  by {item.Amount} units");
+            itemEntry.Amount += item.Amount;
+        }
+    }
+
+    public int GetFreeSlot()
+    {
+        for(int i = 0; i < _inventory.Length; ++i)
+        {
+            if(_inventory[i] == null)
+            {
+                return i;
+            }
+        }
+        return -1;
     }
 
     public bool HasItemAt(int inventoryIdx)
@@ -118,6 +150,18 @@ public class BomberTrait
         return false;
     }
 
+    public BombInventoryEntry GetInventoryEntry(BombPickableItem item)
+    {
+        foreach (var itemEntry in _inventory)
+        {
+            if (itemEntry != null && itemEntry.Bomb == item.Bomb)
+            {
+                return itemEntry;
+            }
+        }
+        return null;
+    }
+
     public bool HasFreeSlot(List<BombPickableItem> itemsToPick)
     {
         int numItems = itemsToPick.FindAll(x => !HasItem(x)).Count;
@@ -129,7 +173,20 @@ public class BomberTrait
     {
         // TODO: Notify deletion
         BombInventoryEntry entry = _inventory[inventoryIdx];
+        Debug.Log($"Removed item [{inventoryIdx}] - {entry.Bomb.name} x{entry.Amount}");
         _inventory[inventoryIdx] = null;
+
+        if(inventoryIdx == _selectedInventoryIdx)
+        {
+            for(int i = 0; i < _inventory.Length; ++i)
+            {
+                if(_inventory[i] != null)
+                {
+                    SelectBomb(i);
+                    break;
+                }
+            }
+        }
         return entry;
     }
 
@@ -137,19 +194,22 @@ public class BomberTrait
     {
         if(_inventory[inventoryIdx] != null)
         {
+            Debug.Log($"Selected item [{inventoryIdx}] - {_inventory[inventoryIdx].Bomb.name} x{_inventory[inventoryIdx].Amount}");
             _selectedInventoryIdx = inventoryIdx;
+            _selectedBomb = _inventory[_selectedInventoryIdx].Bomb;
         }
     }
 
-    public void UseInventoryItem(int idx)
+    public void UseInventoryItem(int inventoryIdx)
     {
-        if(!_inventory[idx].Unlimited)
+        if(!_inventory[inventoryIdx].Unlimited)
         {
-            _inventory[idx].Amount--;
+            _inventory[inventoryIdx].Amount--;
+            Debug.Log($"Consumed item [{inventoryIdx}] - {_inventory[inventoryIdx].Bomb.name} x{_inventory[inventoryIdx].Amount}");
             // TODO: Notify amount change
-            if (_inventory[idx].Amount == 0)
+            if (_inventory[inventoryIdx].Amount == 0)
             {
-                RemoveInventory(idx);
+                RemoveInventory(inventoryIdx);
             }
         }
     }

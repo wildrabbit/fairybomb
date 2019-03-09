@@ -133,6 +133,8 @@ public class GameController : MonoBehaviour
 
         _entityController.Cleanup();
 
+        _lootController.Cleanup();
+
         _scheduledEntities.Clear();
         _scheduledToAdd.Clear();
     }
