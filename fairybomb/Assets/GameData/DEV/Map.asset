@@ -19,9 +19,4 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 6551d8a0e663e4b40b9da0bfa53a2a9c, type: 2}
   - {fileID: 11400000, guid: 67c09b9a5230d98428c44935baeae51d, type: 2}
   - {fileID: 11400000, guid: fe9ffc623419f254f9fdb58585b9cf59, type: 2}
-  PlayerStart: {x: 2, y: 2}
-  MonsterPool:
-  - {fileID: 11400000, guid: 002835a5d25060c47bc079eceb83a8cc, type: 2}
-  - {fileID: 11400000, guid: d547d0589895ef04a9382bd55e860a6b, type: 2}
-  MapInfo: {fileID: 4900000, guid: 01b9cd69951eb0847a5e61fb694a4b2d, type: 3}
-  OriginIsTopLeft: 1
+  GenerationData: {fileID: 11400000, guid: 7801bcbd3c8412449b79a7e91b5526d0, type: 2}

@@ -84,6 +84,7 @@ public class EntityController: IEntityController
             ParentNode = null,
             EntityController = this,
             Map = _map,
+            PaintMap = _paintMap,
             Coords = coords,
             AIController = aiController
         };

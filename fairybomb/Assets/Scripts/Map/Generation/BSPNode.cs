@@ -86,14 +86,15 @@ public class BSPNode
     public bool Split()
     {
         float hsplitRoll = URandom.value;
-        bool horizontalSplit = hsplitRoll < context.horzSplitChance;
+        BSPGeneratorData bspData = context.BSPData;
+        bool horizontalSplit = hsplitRoll < bspData.HorizontalSplitChance;
         float hRatio = area.Width / (float)area.Height;
         float vRatio = 1 / hRatio;
-        if(hRatio >= 1.0f + context.vertSplitRatio)
+        if(hRatio >= 1.0f + bspData.VerticalSplitRatio)
         {
             horizontalSplit = false;
         }
-        else if(vRatio > 1.0f + context.horzSplitRatio)
+        else if(vRatio > 1.0f + bspData.HorizontalSplitRatio)
         {
             horizontalSplit = true;
         }
@@ -103,13 +104,13 @@ public class BSPNode
 
         if(horizontalSplit)
         {
-            maxSize = area.Height - context.MinAreaSize.x;
-            minSize = context.MinAreaSize.x;
+            maxSize = area.Height - bspData.MinAreaSize.x;
+            minSize = bspData.MinAreaSize.x;
         }
         else
         {
-            maxSize = area.Width - context.MinAreaSize.y;
-            minSize = context.MinAreaSize.x;
+            maxSize = area.Width - bspData.MinAreaSize.y;
+            minSize = bspData.MinAreaSize.x;
         }
 
         if(maxSize <= minSize)

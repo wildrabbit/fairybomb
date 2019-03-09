@@ -176,6 +176,7 @@ public class Monster : BaseEntity, IBattleEntity, IBomberEntity, IHealthTracking
                 if(action.NextCoords != Coords)
                 {
                     Coords = action.NextCoords;
+                    PaintableTrait.OwnerChangedPos(action.NextCoords);
                 }
                 
                 if(action is ChaseMonsterAction)

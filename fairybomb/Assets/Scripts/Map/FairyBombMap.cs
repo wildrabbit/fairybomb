@@ -94,130 +94,30 @@ public class FairyBombMap : MonoBehaviour
         _goalTile = data.GoalTile;
         _noTile = data.NoTile;
 
-        BSPContext context = new BSPContext();
-        context.emptyRoomChance = 0.05f;
-        context.GroundTile = TileType.Grass;
-        context.WallTile = TileType.Block;
-        context.horzSplitChance = 0.5f;
-        context.horzSplitRatio = 0.3f;
-        context.vertSplitRatio = 0.5f;
-        context.Size = new Vector2Int(20, 40);
-        context.MinAreaSize = new Vector2Int(8, 8);
-        context.MinRoomSize = new Vector2Int(3, 3);
-        context.MaxRoomSize = new Vector2Int(context.MinAreaSize.x - 2, context.MinAreaSize.y - 2);
-        context.Seeded = false;
-        context.Seed = 1;
-
-        context.PlayerStart = Vector2Int.zero;
-
-        context.monsterSpawnChance = 0.3f;
-        context.maxMonstersPerRoom = 5;
-        context.minMonstersPerRoom = 1;
-        context.MonsterPool = data.MonsterPool;
-
-        context.patternRoomsChance = 0.4f;
-        context.WoodPatterns = new List<TileType[,]>
+        if(data.GenerationData.GeneratorType == GeneratorType.Fixed)
         {
-            new TileType[,]
-            {
-                {TileType.None, TileType.Wood, TileType.None },
-                {TileType.Wood, TileType.Wood, TileType.Wood },
-                {TileType.None, TileType.Wood, TileType.None }
-            },
-            new TileType[,]
-            {
-                {TileType.None, TileType.Wood, },
-                {TileType.Wood, TileType.None, },
-            },
+            BaseMapContext mapContext = new BaseMapContext();
+            mapContext.GeneratorData = data.GenerationData;
 
-            new TileType[,]
-            {
-                {TileType.Wood, TileType.None, TileType.None, TileType.Wood },
-                { TileType.Wood, TileType.Wood, TileType.Wood, TileType.Wood},
-                { TileType.Wood, TileType.Wood, TileType.Wood, TileType.Wood},
-                {TileType.Wood, TileType.None, TileType.None, TileType.Wood }
-            },
-            new TileType[,]
-            {
-                {TileType.None, TileType.None, TileType.None },
-                {TileType.Wood, TileType.Wood, TileType.Wood },
-                {TileType.None, TileType.None, TileType.None }
-            },
-
-            new TileType[,]
-            {
-                {TileType.Wood, TileType.None, TileType.None, TileType.None},
-                {TileType.None, TileType.Wood, TileType.None, TileType.None},
-                {TileType.None, TileType.None, TileType.Wood, TileType.None},
-                {TileType.None, TileType.None, TileType.None, TileType.Wood }
-            },
-
-            new TileType[,]
-            {
-                {TileType.Wood, TileType.Wood, },
-                {TileType.Wood, TileType.Wood, },
-            }
-        };
-
-        //int[] level;
-        TileType[] level = null;
-        IMapGenerator generator = new BSPMapGenerator();
-        generator.GenerateMap(ref level, context);
-
-        _monsterSpawns = context.MonsterSpawns;
-
-        //if(GetLevelData(data, out size, out level))
-        {
-
-            
-            //TileType[] levelTiles = System.Array.ConvertAll(level, intValue => (TileType)intValue);
-            InitFromArray(context.Size, level, context.PlayerStart, false);
+            FixedMapGeneratorData genData = ((FixedMapGeneratorData)data.GenerationData);
+            _monsterSpawns = genData.MonsterSpawns;
+            TileType[] level = genData.LevelData;
+            InitFromArray(genData.MapSize, genData.LevelData, genData.PlayerStart, genData.OriginIsTopLeft);
         }
-        // TODO: MAP GENERATION
+        else if (data.GenerationData.GeneratorType == GeneratorType.BSP)
+        {
+            BSPContext context = new BSPContext();
+            context.GeneratorData = data.GenerationData;
+            context.PlayerStart = Vector2Int.zero;
+            TileType[] level = null;
+            IMapGenerator generator = new BSPMapGenerator();
+            generator.GenerateMap(ref level, context);
+
+            _monsterSpawns = context.MonsterSpawns;
+            InitFromArray(context.GeneratorData.MapSize, level, context.PlayerStart, data.GenerationData.OriginIsTopLeft);
+        }
     }
-
-    bool GetLevelData(FairyBombMapData data, out Vector2Int size, out int[] tiles)
-    {
-        size = Vector2Int.zero;
-        tiles = new int[0];
-
-        string[] lines = data.MapInfo.text.Split('\n');
-        if (lines.Length == 0)
-        {
-            Debug.LogError("Invalid length");
-            return false;
-        }
-        string[] dims = lines[0].Split(',');
-        if (dims.Length != 2)
-        {
-            Debug.LogError("Invalid dims");
-            return false;
-        }
-
-        size = new Vector2Int(Int32.Parse(dims[0]), Int32.Parse(dims[1]));
-        tiles = new int[size.x * size.y];
-        if (lines.Length != (size.x + 1))
-        {
-            Debug.LogError("Invalid row count");
-            return false;
-        }
-
-        for (int i = 1; i < lines.Length; ++i)
-        {
-            string[] tilesRow = lines[i].Trim().TrimEnd(',').Split(',');
-            if (tilesRow.Length != size.y)
-            {
-                Debug.LogError($"Invalid col count @ row {i - 1}");
-                return false;
-            }
-            for (int j = 0; j < tilesRow.Length; ++j)
-            {
-                tiles[(i - 1) * size.y + j] = Int32.Parse(tilesRow[j]);
-            }
-        }
-        return true;
-    }
-
+   
     public void InitFromArray(Vector2Int dimensions, TileType[] typeArray, Vector2Int playerStart, bool arrayOriginTopLeft)
     {
         _map.ClearAllTiles();

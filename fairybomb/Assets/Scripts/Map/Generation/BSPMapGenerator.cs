@@ -29,34 +29,9 @@ public class PatternSelection: IComparable<PatternSelection>
 
 public class BSPContext: BaseMapContext
 {
-    public int MaxDivisions = -1;
-    public float horzSplitRatio = 0.3f;
-    public float vertSplitRatio = 0.5f;
-
-    public float horzSplitChance = 0.5f;
-    public float emptyRoomChance = 0.04f;
-
-    public Vector2Int MinAreaSize;
-    public Vector2Int MinRoomSize;
-    public Vector2Int MaxRoomSize;
-
-    public bool Seeded;
-    public int Seed;
-
-    public Vector2Int MapSize;
-
-    public List<MonsterData> MonsterPool;
-    public float monsterSpawnChance = 0.4f;
-    public int minMonstersPerRoom = 1;
-    public int maxMonstersPerRoom = 3;
-    public int maxTotalMonsters = 15;
-
+    public BSPGeneratorData BSPData => ((BSPGeneratorData)GeneratorData);
     public Vector2Int PlayerStart;
     public List<MonsterSpawn> MonsterSpawns;
-
-    public List<TileType[,]> WoodPatterns;
-    public float patternRoomsChance = 0.1f;
-    public int minWood = 1;
 }
 
 
@@ -64,6 +39,8 @@ public class BSPMapGenerator : IMapGenerator
 {
     BSPNode _tree;
     BSPContext _context;
+
+    BSPGeneratorData _bspGenData;
 
     List<BSPRect> _rooms = new List<BSPRect>();
 
@@ -78,23 +55,30 @@ public class BSPMapGenerator : IMapGenerator
     public void GenerateMap(ref TileType[] map, BaseMapContext mapGenContext)
     {
         _context = (BSPContext)mapGenContext;
+        _bspGenData = (BSPGeneratorData)_context.GeneratorData;
 
-        if(_context.Seeded)
-            URandom.InitState(_context.Seed);
-  
-        TileType[,] mapAux = new TileType[_context.Size.x, _context.Size.y];
+        
+        if(_bspGenData.IsSeeded)
+        {
+            URandom.state = JsonUtility.FromJson<URandom.State>(_bspGenData.Seed);
+        }
+        else
+        {
+            Debug.Log("Current state: " + JsonUtility.ToJson(URandom.state));
+        }
+
+
+        TileType[,] mapAux = new TileType[_bspGenData.MapSize.x, _bspGenData.MapSize.y];
         mapAux.Fill<TileType>(TileType.None);
 
         _tree = new BSPNode();
         _tree.context = _context;
         _tree.left = _tree.right = null;
-        _tree.area = new BSPRect(1, 1, _context.Size.x - 2, _context.Size.y - 2);
+        _tree.area = new BSPRect(1, 1, _bspGenData.MapSize.x - 2, _bspGenData.MapSize.y - 2);
 
         GenerateRooms(ref mapAux);
         GenerateMonsters(mapAux);
-        Connect(_tree, ref mapAux);
 
-        GeneratorUtils.PlaceWalls(_context.WallTile, _context.GroundTile, ref mapAux);
         GeneratorUtils.ConvertGrid(mapAux, out map);
     }
 
@@ -105,20 +89,20 @@ public class BSPMapGenerator : IMapGenerator
 
         Predicate<Vector2Int> validMonsterPos = (pos) =>
         {
-            return _context.PlayerStart != pos && map[pos.x, pos.y] == _context.GroundTile;
+            return _context.PlayerStart != pos && map[pos.x, pos.y] == _bspGenData.GroundTile;
         };
 
         foreach (var r in _rooms)
         {
             float monsterRoll = URandom.value;
-            if(monsterRoll <= _context.monsterSpawnChance)
+            if(monsterRoll <= _bspGenData.MonsterSpawnChance)
             {
-                int monstersLeft = _context.maxTotalMonsters - monsterCount;
-                int numMonsters = Mathf.Min(monstersLeft, URandom.Range(_context.minMonstersPerRoom, _context.maxMonstersPerRoom + 1));
+                int monstersLeft = _bspGenData.MaxTotalMonsters - monsterCount;
+                int numMonsters = Mathf.Min(monstersLeft, URandom.Range(_bspGenData.MinMonstersPerRoom, _bspGenData.MaxMonstersPerRoom + 1));
                 for(int i = 0; i < numMonsters; ++i)
                 {
                     
-                    MonsterData monsterType = _context.MonsterPool[URandom.Range(0, _context.MonsterPool.Count)];
+                    MonsterData monsterType = _bspGenData.MonsterPool[URandom.Range(0, _bspGenData.MonsterPool.Count)];
                     Vector2Int monsterCoords = GetRandomCoordsInRoom(r, validMonsterPos, 10);
                     if(monsterCoords.x >= 0 && monsterCoords.y >= 0)
                     {
@@ -131,7 +115,7 @@ public class BSPMapGenerator : IMapGenerator
                 }
             }
 
-            if (monsterCount >= _context.maxTotalMonsters)
+            if (monsterCount >= _bspGenData.MaxTotalMonsters)
                 break;
         }
     }
@@ -144,7 +128,7 @@ public class BSPMapGenerator : IMapGenerator
     public List<TileType[,]> GetPatternCandidates(BSPRect rect)
     {
         List<PatternSelection> selection = new List<PatternSelection>();
-        foreach(var pattern in _context.WoodPatterns)
+        foreach(var pattern in _bspGenData.PatternsList)
         {
             var match = PatternFitsInRoom(pattern, rect);
             if (match == PatternMatchType.None)
@@ -201,19 +185,21 @@ public class BSPMapGenerator : IMapGenerator
         _tree.GetLeaves(ref leaves);
         foreach (var leaf in leaves)
         {
-            bool skipRoom = URandom.value < _context.emptyRoomChance;
+            bool skipRoom = URandom.value < _bspGenData.EmptyRoomChance;
             if (skipRoom) continue;
 
-            int height = URandom.Range(_context.MinRoomSize.x, Mathf.Min(leaf.area.Height, _context.MaxRoomSize.x) + 1);
-            int width = URandom.Range(_context.MinRoomSize.y, Mathf.Min(leaf.area.Width, _context.MaxRoomSize.y) + 1);
+            int height = URandom.Range(_bspGenData.MinRoomSize.x, Mathf.Min(leaf.area.Height, _bspGenData.MaxRoomSize.x) + 1);
+            int width = URandom.Range(_bspGenData.MinRoomSize.y, Mathf.Min(leaf.area.Width, _bspGenData.MaxRoomSize.y) + 1);
 
             int row = leaf.area.Row + URandom.Range(1, leaf.area.Height - height);
             int col = leaf.area.Col + URandom.Range(1, leaf.area.Width - width);
 
             leaf.roomRect = new BSPRect(row, col, height, width);
             _rooms.Add(leaf.roomRect);
-            GeneratorUtils.DrawRoom(new Vector2Int(row, col), new Vector2Int(height, width), _context.GroundTile, ref mapAux);
+            GeneratorUtils.DrawRoom(new Vector2Int(row, col), new Vector2Int(height, width), _bspGenData.GroundTile, ref mapAux);
         }
+        Connect(_tree, ref mapAux);
+        GeneratorUtils.PlaceWalls(_bspGenData.WallTile, _bspGenData.GroundTile, ref mapAux);
 
         // Player start
         int randomPlayerStart = URandom.Range(0, _rooms.Count);
@@ -225,7 +211,7 @@ public class BSPMapGenerator : IMapGenerator
         do
         {
             goalIdx = URandom.Range(0, _rooms.Count);
-        } while (goalIdx != randomPlayerStart);
+        } while (goalIdx == randomPlayerStart);
 
         // TODO: Locate goal somewhere better
         BSPRect goalRoom = _rooms[goalIdx];
@@ -235,10 +221,11 @@ public class BSPMapGenerator : IMapGenerator
 
 
         // Place patterns:
+        var patternsList = _bspGenData.PatternsList;
         foreach (var r in _rooms)
         {
-            bool tryApplyPattern = URandom.value < _context.patternRoomsChance; 
-            if(tryApplyPattern && _context.WoodPatterns != null && _context.WoodPatterns.Count > 0)
+            bool tryApplyPattern = URandom.value < _bspGenData.PatternRoomsChance; 
+            if(tryApplyPattern && patternsList != null && patternsList.Count > 0)
             {
                 var candidates = GetPatternCandidates(r);
                 if(candidates != null && candidates.Count > 0)
@@ -318,18 +305,18 @@ public class BSPMapGenerator : IMapGenerator
                 bool isCornerUp = URandom.value < 0.5f;
                 if(isCornerUp)
                 {
-                    GeneratorUtils.DrawCorridor(new Vector2Int(row1, column1), new Vector2Int(row1, column2), _context.GroundTile, ref mapAux);
-                    GeneratorUtils.DrawCorridor(new Vector2Int(row1, column2), new Vector2Int(row2, column2), _context.GroundTile, ref mapAux);
+                    GeneratorUtils.DrawCorridor(new Vector2Int(row1, column1), new Vector2Int(row1, column2), _bspGenData.GroundTile, ref mapAux);
+                    GeneratorUtils.DrawCorridor(new Vector2Int(row1, column2), new Vector2Int(row2, column2), _bspGenData.GroundTile, ref mapAux);
                 }
                 else
                 {
-                    GeneratorUtils.DrawCorridor(new Vector2Int(row1, column1), new Vector2Int(row2, column1), _context.GroundTile, ref mapAux);
-                    GeneratorUtils.DrawCorridor(new Vector2Int(row1, column1), new Vector2Int(row2, column2), _context.GroundTile, ref mapAux);
+                    GeneratorUtils.DrawCorridor(new Vector2Int(row1, column1), new Vector2Int(row2, column1), _bspGenData.GroundTile, ref mapAux);
+                    GeneratorUtils.DrawCorridor(new Vector2Int(row2, column1), new Vector2Int(row2, column2), _bspGenData.GroundTile, ref mapAux);
                 }
             }
             else
             {
-                GeneratorUtils.DrawCorridor(new Vector2Int(row1, column1), new Vector2Int(row2, column2), _context.GroundTile, ref mapAux);
+                GeneratorUtils.DrawCorridor(new Vector2Int(row1, column1), new Vector2Int(row2, column2), _bspGenData.GroundTile, ref mapAux);
             }
         }
         else if (deltaRows > 0) // up
@@ -339,23 +326,23 @@ public class BSPMapGenerator : IMapGenerator
                 bool isCornerUp = URandom.value < 0.5f;
                 if (isCornerUp)
                 {
-                    GeneratorUtils.DrawCorridor(new Vector2Int(row1, column1), new Vector2Int(row2, column1), _context.GroundTile, ref mapAux);
-                    GeneratorUtils.DrawCorridor(new Vector2Int(row2, column1), new Vector2Int(row2, column2), _context.GroundTile, ref mapAux);
+                    GeneratorUtils.DrawCorridor(new Vector2Int(row1, column1), new Vector2Int(row2, column1), _bspGenData.GroundTile, ref mapAux);
+                    GeneratorUtils.DrawCorridor(new Vector2Int(row2, column1), new Vector2Int(row2, column2), _bspGenData.GroundTile, ref mapAux);
                 }
                 else
                 {
-                    GeneratorUtils.DrawCorridor(new Vector2Int(row1, column1), new Vector2Int(row1, column2), _context.GroundTile, ref mapAux);
-                    GeneratorUtils.DrawCorridor(new Vector2Int(row1, column2), new Vector2Int(row2, column2), _context.GroundTile, ref mapAux);
+                    GeneratorUtils.DrawCorridor(new Vector2Int(row1, column1), new Vector2Int(row1, column2), _bspGenData.GroundTile, ref mapAux);
+                    GeneratorUtils.DrawCorridor(new Vector2Int(row1, column2), new Vector2Int(row2, column2), _bspGenData.GroundTile, ref mapAux);
                 }
             }
             else
             {
-                GeneratorUtils.DrawCorridor(new Vector2Int(row1, column1), new Vector2Int(row2, column2), _context.GroundTile, ref mapAux);
+                GeneratorUtils.DrawCorridor(new Vector2Int(row1, column1), new Vector2Int(row2, column2), _bspGenData.GroundTile, ref mapAux);
             }
         }
         else
         {
-            GeneratorUtils.DrawCorridor(new Vector2Int(row1, column1), new Vector2Int(row2, column2), _context.GroundTile, ref mapAux);
+            GeneratorUtils.DrawCorridor(new Vector2Int(row1, column1), new Vector2Int(row2, column2), _bspGenData.GroundTile, ref mapAux);
         }
     }
 

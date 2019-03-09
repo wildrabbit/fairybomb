@@ -4,9 +4,7 @@ using UnityEngine;
 
 public class BaseMapContext
 {
-    public TileType WallTile;
-    public TileType GroundTile;
-    public Vector2Int Size;
+    public BaseMapGeneratorData GeneratorData;
 }
 
 public interface IMapGenerator
