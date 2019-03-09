@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
@@ -48,8 +49,7 @@ public class GameSetupEvent: BaseEvent
     }
     public override string Message()
     {
-        StringBuilder b = new StringBuilder("===== GAME STARTS =====\n");
-        b.Append(PrintTime()).Append("Player starts at ").Append(PlayerCoords).Append(", HP: ").Append(HP).Append("/").AppendLine(MaxHP.ToString());
+        StringBuilder b = new StringBuilder("=====Welcome to the Dungeon Garden, Berry. Find the exit!\n");
         return b.ToString();
     }
 }
@@ -67,8 +67,15 @@ public class GameFinishedEvent : BaseEvent
     public override string Message()
     {
         StringBuilder builder = new StringBuilder(PrintTime());
-        builder.AppendLine($"Game finished! Result: {Result}");
-        builder.AppendLine("===== GAME FINISHES =====");
+        if(Result == GameResult.Won)
+        {
+            builder.Append("Congratulations, you managed to escape from the Dungeon Garden!");
+        }
+        else if (Result == GameResult.Lost)
+        {
+            builder.Append("You've died.");
+        }
+        builder.AppendLine("Tap any key to restart");
         return builder.ToString();
     }
 }
@@ -256,5 +263,16 @@ public class GameEventLog
             builder.Append(evt.Message());
         }
         return builder.ToString();
+    }
+
+    public List<string> GetLastItemMessages(int lastMessagesToDisplay)
+    {
+        List<string> messages = new List<string>();
+        int positionIdx = Mathf.Max(0, _events.Count - lastMessagesToDisplay);
+        for(int i = positionIdx; i < _events.Count; ++i)
+        {
+            messages.Add(_events[i].Message());
+        }
+        return messages;
     }
 }

@@ -215,8 +215,7 @@ public class EntityController: IEntityController
 
     public void PlayerDestroyed()
     {
-        _player = null;
-        OnPlayerKilled?.Invoke();
+        _player = null;        
     }
 
     public void Cleanup()
@@ -268,5 +267,10 @@ public class EntityController: IEntityController
     public void NotifyMonsterKilled(Monster monster)
     {
         OnMonsterKilled?.Invoke(monster);
+    }
+
+    public void PlayerKilled()
+    {
+        OnPlayerKilled?.Invoke();
     }
 }

@@ -180,7 +180,8 @@ public class Monster : BaseEntity, IBattleEntity, IBomberEntity, IHealthTracking
                     PaintableTrait.OwnerChangedPos(action.NextCoords);
                     if(_entityController.Player.Coords == Coords && _monsterData.PlayerCollisionDmg > 0)
                     {
-                        TakeDamage(_monsterData.PlayerCollisionDmg);
+                        PlayerCollided(_entityController.Player);
+                        _entityController.Player.MonsterCollided(this);
                     }
                 }
                 
@@ -320,5 +321,13 @@ public class Monster : BaseEntity, IBattleEntity, IBomberEntity, IHealthTracking
     {
         _decisionDelay = _monsterData.ThinkingDelay;
         Debug.Log($"Monster speed rate restored to {_decisionDelay}");
+    }
+
+    public void PlayerCollided(Player p)
+    {
+        if(_monsterData.PlayerCollisionDmg > 0)
+        {
+            TakeDamage(_monsterData.PlayerCollisionDmg);
+        }
     }
 }

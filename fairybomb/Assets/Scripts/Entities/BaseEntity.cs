@@ -17,6 +17,8 @@ public class TileBasedEffect
     public int Duration;
 }
 
+public delegate void EntityMovedDelegate(Vector2Int nextCoords, Vector2 worldPos, BaseEntity entity);
+
 public abstract class BaseEntity : MonoBehaviour, IScheduledEntity
 {
     public Vector2Int Coords
@@ -27,8 +29,9 @@ public abstract class BaseEntity : MonoBehaviour, IScheduledEntity
             _coords = value;
             _map.ConstrainCoords(ref _coords);
             EvaluatePaintMap();
-            Vector2 playerTargetPos = _map.WorldFromCoords(_coords);
-            transform.localPosition = playerTargetPos;
+            Vector2 targetPos = _map.WorldFromCoords(_coords);
+            transform.position = targetPos;
+            OnEntityMoved?.Invoke(_coords, targetPos, this);
         }
     }
 
@@ -49,6 +52,8 @@ public abstract class BaseEntity : MonoBehaviour, IScheduledEntity
     public bool Frozen;
 
     protected TileBasedEffect _tileEffect = null;
+
+    public event EntityMovedDelegate OnEntityMoved;
 
     public void Init(BaseEntityData entityData, BaseEntityDependencies deps)
     {

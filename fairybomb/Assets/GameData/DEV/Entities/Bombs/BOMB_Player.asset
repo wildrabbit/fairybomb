@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DefaultViewPrefab: {fileID: 8249384925306986835, guid: 568d09ddc376cde4ba1a6ae86b4fd9f2,
     type: 3}
+  DisplayName: Basic Bomb
   Radius: 2
   BaseDamage: 1
   Timeout: 3
@@ -24,3 +25,4 @@ MonoBehaviour:
   PaintData: {fileID: 11400000, guid: a42776606552dc8449e79431f62756e7, type: 2}
   Piercing: 0
   LootViewPrefab: {fileID: 0}
+  UIIcon: {fileID: 21300000, guid: ecbec143d0c9b7a4c811d68b9c61de62, type: 3}

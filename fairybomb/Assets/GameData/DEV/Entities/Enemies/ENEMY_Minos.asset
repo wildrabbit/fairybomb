@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DefaultViewPrefab: {fileID: 588421280417342936, guid: 0c2334e3ae34ea84fac06f35a32ef10d,
     type: 3}
+  DisplayName: Minos
   ThinkingDelay: 2
   HPData:
     MaxHP: 6

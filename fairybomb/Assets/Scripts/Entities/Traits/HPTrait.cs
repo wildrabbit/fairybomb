@@ -2,10 +2,12 @@
 using UnityEngine;
 
 public delegate void ExhaustedHP(BaseEntity owner);
+public delegate void HPChangedDelegate(int newHP, BaseEntity Owner);
 
 public class HPTrait
 {
     public event ExhaustedHP OnExhaustedHP;
+    public event HPChangedDelegate OnPlayerHPChanged;
 
     public HPTraitData _data;
 
@@ -40,6 +42,7 @@ public class HPTrait
         if(refillCurrent)
         {
             _hp = _maxHP;
+            OnPlayerHPChanged?.Invoke(_hp, _owner);
         }
     }
 
@@ -69,14 +72,14 @@ public class HPTrait
     public void Add(int delta)
     {
         _hp = Mathf.Clamp(_hp + delta, 0, _maxHP);
-        // Notify max HP??
+        OnPlayerHPChanged?.Invoke(_hp, _owner);
         Debug.Log($"{_owner.name} gains {delta} HP to a total of {_hp}");
     }
 
     public void Decrease(int delta)
     {
         _hp = Mathf.Clamp(_hp - delta, 0, _maxHP);
-        Debug.Log($"{_owner.name} loses {delta} HP to a total of {_hp}");
+        OnPlayerHPChanged?.Invoke(_hp, _owner);
         if (_hp == 0)
         {
             OnExhaustedHP?.Invoke(this.Owner);

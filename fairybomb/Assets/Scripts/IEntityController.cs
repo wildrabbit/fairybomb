@@ -52,4 +52,5 @@ public interface IEntityController
 
     List<Bomb> GetBombs();
     void NotifyMonsterKilled(Monster monster);
+    void PlayerKilled();
 }

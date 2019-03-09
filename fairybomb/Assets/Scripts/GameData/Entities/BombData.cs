@@ -12,4 +12,5 @@ public class BombData: BaseEntityData
     public PaintData PaintData;
     public bool Piercing;
     public Transform LootViewPrefab;
+    public Sprite UIIcon;
 }

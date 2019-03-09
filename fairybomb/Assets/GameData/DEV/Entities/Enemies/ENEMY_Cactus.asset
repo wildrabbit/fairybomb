@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DefaultViewPrefab: {fileID: 2368961619232815764, guid: 52047bae66418284db7b8025434ad2ad,
     type: 3}
+  DisplayName: Cactus
   ThinkingDelay: 4
   HPData:
     MaxHP: 3
@@ -44,6 +45,7 @@ MonoBehaviour:
   VisibilityRange: 5
   EscapeHPRatio: 0.3
   EscapeSafeDistance: 6
+  PlayerCollisionDmg: 0
   PathUpdateDelay: 3
   LootInfoOnDeath:
     LootChance: 0.3

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public enum CameraType
 {
@@ -11,14 +12,14 @@ public class CameraController : MonoBehaviour
 {
     public Camera Camera => _camera;
     public AnimationCurve EaseCurve;
-    public CameraType _type;
+    [FormerlySerializedAs("_type")] public CameraType CameraType;
     Camera _camera;
     Transform _target;
     Rect _worldSize;
     
     void Awake()
     {
-        _type = CameraType.Fixed;
+        CameraType = CameraType.Fixed;
         _camera = GetComponent<Camera>();
     }
 
@@ -40,7 +41,7 @@ public class CameraController : MonoBehaviour
 
     public void SetTarget(Transform target)
     {
-        _type = CameraType.Tracking;
+        CameraType = CameraType.Tracking;
         _target = target;
         SetCamPos2D(_target.position);
     }
@@ -66,23 +67,18 @@ public class CameraController : MonoBehaviour
 
     public void SetFixed(Vector2 cameraCenter)
     {
-        _type = CameraType.Fixed;
+        CameraType = CameraType.Fixed;
         SetCamPos2D(cameraCenter);
         _target = null;
     }
 
     public void Update()
     {
-        if(_type == CameraType.Tracking && _target != null)
-        {
-            if(!Mathf.Approximately(Vector2.Distance(_camera.transform.position, _target.position), 0.0f))
-            {
-                StartCoroutine(MoveCamera(0.25f));
-            }
+    }
 
-            //_camera.transform.position = new Vector3(_target.position.x, _target.position.y, _camera.transform.position.z);
-            //FitToBounds();
-        }
+    public void PlayerMoved(Vector2Int newCoords, Vector2 worldPos, BaseEntity whoMoved)
+    {
+        SetCamPos2D(worldPos);
     }
 
     internal void Cleanup()

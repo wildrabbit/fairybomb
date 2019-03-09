@@ -152,7 +152,7 @@ public class AIController
 
         leAction = new ChaseMonsterAction()
         {
-            NextCoords = currentPath[pathIdx],
+            NextCoords = currentPath.Count > 0 && pathIdx >= 0 && pathIdx < currentPath.Count ? currentPath[pathIdx] : leMonster.Coords,
             Path = currentPath,
             PathIdx = pathIdx,
             RefreshPath = willRefreshPath,

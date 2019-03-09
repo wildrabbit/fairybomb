@@ -177,6 +177,7 @@ public class GameController : MonoBehaviour
 
     private void PlayerKilled()
     {
+        UnRegisterEntityEvents();
         _result = GameResult.Lost;
         GameFinishedEvent evt = new GameFinishedEvent(_turns, _elapsedUnits, GameResult.Lost);
         _eventLog.EndSession(evt);
@@ -256,6 +257,34 @@ public class GameController : MonoBehaviour
         _eventLog.StartSession(setupEvt);
         _paintMap.MapLoaded();
 
+        RegisterEntityEvents();
+    }
+
+    void RegisterEntityEvents()
+    {
+        // Camera, event log?
+        Player player = _entityController.Player;
+        if(_cameraController.CameraType == CameraType.Tracking)
+            player.OnEntityMoved += _cameraController.PlayerMoved;
+
+        player.BomberTrait.OnAddedToInventory += _hud.AddedToInventory;
+        player.BomberTrait.OnDroppedItem += _hud.DroppedItem;
+        player.BomberTrait.OnItemDepleted += _hud.DepletedItem;
+        player.BomberTrait.OnSelectedItem += _hud.SelectedItem;
+        player.BomberTrait.OnUsedItem += _hud.UsedItem;
+    }
+
+    void UnRegisterEntityEvents()
+    {
+        Player player = _entityController.Player;
+
+        _entityController.Player.OnEntityMoved -= _cameraController.PlayerMoved;
+
+        player.BomberTrait.OnAddedToInventory -= _hud.AddedToInventory;
+        player.BomberTrait.OnDroppedItem -= _hud.DroppedItem;
+        player.BomberTrait.OnItemDepleted -= _hud.DepletedItem;
+        player.BomberTrait.OnSelectedItem -= _hud.SelectedItem;
+        player.BomberTrait.OnUsedItem -= _hud.UsedItem;
     }
 
     void RegisterScheduledEntities(List<BaseEntity> entities)

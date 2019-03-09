@@ -100,10 +100,10 @@ public class ActionPhaseContext : IPlayContext
                         player.BomberTrait.AddToInventory(item);
                     }
 
-                    if(collidingMonster != null && player.DmgFromMonsterCollision > 0)
+                    if(collidingMonster != null)
                     {
-                        Debug.Log("Player bumps into monster and takes 1 dmg");
-                        player.TakeDamage(player.DmgFromMonsterCollision);
+                        player.MonsterCollided(collidingMonster);
+                        collidingMonster.PlayerCollided(player);
                     }
 
                     PlayerActionEvent evt = new PlayerActionEvent(actionData.Turns, actionData.TimeUnits);
@@ -130,7 +130,7 @@ public class ActionPhaseContext : IPlayContext
                 {
                     if((inventoryIdx > 0 || !player.BomberTrait.FirstItemFixed)  && player.BomberTrait.HasItemAt(inventoryIdx))
                     {
-                        BombInventoryEntry dropItem = player.BomberTrait.RemoveInventory(inventoryIdx);
+                        BombInventoryEntry dropItem = player.BomberTrait.DropFromInventory(inventoryIdx);
                         entityController.CreatePickable(actionData.LootData, dropItem.Bomb, player.Coords, dropItem.Amount, dropItem.Unlimited);
                     }
                     

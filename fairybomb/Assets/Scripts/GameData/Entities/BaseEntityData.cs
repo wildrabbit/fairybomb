@@ -33,4 +33,5 @@ public class MovingEntityData
 public class BaseEntityData: ScriptableObject
 {
     public Transform DefaultViewPrefab;
+    public string DisplayName;
 }

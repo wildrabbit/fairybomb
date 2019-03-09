@@ -11,6 +11,13 @@ public class BombInventoryEntry
     public bool Unlimited;
 }
 
+public delegate void SelectedItemDelegate(int idx, BombInventoryEntry entry, IBomberEntity entity);
+public delegate void AddedToInventoryDelegate(int idx, BombInventoryEntry entry, IBomberEntity entity);
+public delegate void UsedFromInventoryDelegate(int idx, BombInventoryEntry entry, IBomberEntity entity);
+public delegate void DepletedInventoryDelegate(int idx, BombInventoryEntry entry, IBomberEntity entity);
+public delegate void DroppedDelegate(int idx, BombInventoryEntry entry, IBomberEntity entity);
+public delegate void InitialisedInventoryDelegate(BombInventoryEntry[] inventory, int selected);
+
 public class BomberTrait
 {
     public BombData SelectedBomb
@@ -29,11 +36,20 @@ public class BomberTrait
     bool _firstItemFixed;
     // Total bombs placed (for naming, stuff)
     public int TotalBombCount { get; set; }
+    public BombInventoryEntry[] Inventory => _inventory;
+
     BombData _selectedBomb;
 
     IBomberEntity _owner;
     int _deployedBombLimit;
     int _deployedBombs;
+
+    public event AddedToInventoryDelegate OnAddedToInventory;
+    public event DepletedInventoryDelegate OnItemDepleted;
+    public event SelectedItemDelegate OnSelectedItem;
+    public event UsedFromInventoryDelegate OnUsedItem;
+    public event DroppedDelegate OnDroppedItem;
+    public event InitialisedInventoryDelegate OnInventoryInitialised;
 
     public void Init(IBomberEntity entity, BomberData bomberData)
     {
@@ -68,7 +84,7 @@ public class BomberTrait
 
         _selectedInventoryIdx = data.DefaultSelection;
         _selectedBomb = _inventory[_selectedInventoryIdx].Bomb;
-        // TODO: Notify inventory update?
+        OnInventoryInitialised?.Invoke(_inventory, _selectedInventoryIdx);
     }
 
     public void Cleanup()
@@ -98,27 +114,26 @@ public class BomberTrait
 
     public void AddToInventory(BombPickableItem item)
     {
+        int idx = 0;
         var itemEntry = GetInventoryEntry(item);
         if(itemEntry == null)
         {
-            BombInventoryEntry entry = new BombInventoryEntry();
-            entry.Bomb = item.Bomb;
-            entry.Amount = item.Amount;
-            entry.Unlimited = item.Unlimited;
-            int idx = GetFreeSlot();
+            itemEntry = new BombInventoryEntry();
+            itemEntry.Bomb = item.Bomb;
+            itemEntry.Amount = item.Amount;
+            itemEntry.Unlimited = item.Unlimited;
+            idx = GetFreeSlot();
             if (idx >= 0)
             {
-                Debug.Log($"Added {entry.Bomb.name}  at slot {idx}");
-                _inventory[idx] = entry;
+                _inventory[idx] = itemEntry;
             }
         }
         else
         {
-            int idx = System.Array.IndexOf(_inventory, itemEntry);
-
-            Debug.Log($"Increased slot {idx} ({itemEntry.Bomb.name})  by {item.Amount} units");
+            idx = System.Array.IndexOf(_inventory, itemEntry);
             itemEntry.Amount += item.Amount;
         }
+        OnAddedToInventory?.Invoke(idx, itemEntry, _owner);
     }
 
     public int GetFreeSlot()
@@ -169,34 +184,44 @@ public class BomberTrait
         return freeSlots > numItems;
     }
 
+    public BombInventoryEntry DropFromInventory(int inventoryIdx)
+    {
+        var item = RemoveInventory(inventoryIdx);
+        OnDroppedItem?.Invoke(inventoryIdx, item, _owner);
+        return item;
+    }
+
     public BombInventoryEntry RemoveInventory(int inventoryIdx)
     {
-        // TODO: Notify deletion
         BombInventoryEntry entry = _inventory[inventoryIdx];
-        Debug.Log($"Removed item [{inventoryIdx}] - {entry.Bomb.name} x{entry.Amount}");
         _inventory[inventoryIdx] = null;
 
-        if(inventoryIdx == _selectedInventoryIdx)
+        if (inventoryIdx == _selectedInventoryIdx)
         {
-            for(int i = 0; i < _inventory.Length; ++i)
-            {
-                if(_inventory[i] != null)
-                {
-                    SelectBomb(i);
-                    break;
-                }
-            }
+            RefreshSelection();
         }
         return entry;
+    }
+
+    void RefreshSelection()
+    {
+        for (int i = 0; i < _inventory.Length; ++i)
+        {
+            if (_inventory[i] != null)
+            {
+                SelectBomb(i);
+                break;
+            }
+        }
     }
 
     public void SelectBomb(int inventoryIdx)
     {
         if(_inventory[inventoryIdx] != null)
-        {
-            Debug.Log($"Selected item [{inventoryIdx}] - {_inventory[inventoryIdx].Bomb.name} x{_inventory[inventoryIdx].Amount}");
+        {            
             _selectedInventoryIdx = inventoryIdx;
             _selectedBomb = _inventory[_selectedInventoryIdx].Bomb;
+            OnSelectedItem?.Invoke(inventoryIdx, _inventory[inventoryIdx], _owner);
         }
     }
 
@@ -205,11 +230,11 @@ public class BomberTrait
         if(!_inventory[inventoryIdx].Unlimited)
         {
             _inventory[inventoryIdx].Amount--;
-            Debug.Log($"Consumed item [{inventoryIdx}] - {_inventory[inventoryIdx].Bomb.name} x{_inventory[inventoryIdx].Amount}");
-            // TODO: Notify amount change
+            OnUsedItem?.Invoke(inventoryIdx, _inventory[inventoryIdx], _owner);
             if (_inventory[inventoryIdx].Amount == 0)
             {
-                RemoveInventory(inventoryIdx);
+                OnItemDepleted?.Invoke(inventoryIdx, _inventory[inventoryIdx], _owner);
+                RemoveInventory(inventoryIdx);                
             }
         }
     }

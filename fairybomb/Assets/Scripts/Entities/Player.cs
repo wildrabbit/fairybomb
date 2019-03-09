@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System;
 
 public enum BombWalkabilityType
 {
@@ -14,6 +15,7 @@ public enum BombImmunityType
     OwnBombs,
     NoBombs
 }
+
 
 public class Player : BaseEntity, IBattleEntity, IBomberEntity, IPaintableEntity, IHealthTrackingEntity
 {
@@ -107,6 +109,7 @@ public class Player : BaseEntity, IBattleEntity, IBomberEntity, IPaintableEntity
         Debug.Log($"Player took {damage} damage!. Current HP: {HP}");
         if (HP == 0)
         {
+            _entityController.PlayerKilled();
             _entityController.DestroyEntity(this);
             return true;
         }
@@ -152,5 +155,13 @@ public class Player : BaseEntity, IBattleEntity, IBomberEntity, IPaintableEntity
     public override void ResetSpeedRate()
     {
         _speed = _oldSpeed;
+    }
+
+    public void MonsterCollided(Monster monster)
+    {
+        if (_playerData.MonsterCollisionDmg > 0)
+        {
+            TakeDamage(_playerData.MonsterCollisionDmg);
+        }
     }
 }

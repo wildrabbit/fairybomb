@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DefaultViewPrefab: {fileID: 8249384925306986835, guid: 92a51f581c5097046ba60cb973571d44,
     type: 3}
+  DisplayName: Poison
   Radius: 1
   BaseDamage: 1
   Timeout: 3
@@ -21,7 +22,8 @@ MonoBehaviour:
   VFXExplosion: {fileID: 1521728278425283051, guid: f207ff42955156c428af44f545ccb847,
     type: 3}
   TickUnits: 1
-  PaintData: {fileID: 11400000, guid: 78968f55d9b7e7d41a0ef8679f782f90, type: 2}
+  PaintData: {fileID: 11400000, guid: d9589e4d39f669447ae85a88e9d65bc7, type: 2}
   Piercing: 0
   LootViewPrefab: {fileID: 8249384925306986835, guid: 51e73e9c4a1516648bbeaf0f07a5cfdb,
     type: 3}
+  UIIcon: {fileID: 21300000, guid: ecbec143d0c9b7a4c811d68b9c61de62, type: 3}
