@@ -11,6 +11,10 @@ public delegate void BombDestroyedDelegate(Bomb bomb, List<Vector2Int> coords, B
 public delegate void PlayerDestroyedDelegate();
 public delegate void MonsterDestroyedDelegate(Monster monster);
 
+public delegate void PlayerMonsterCollision(Player p, Monster m, int playerDmg, int monsterDmg);
+public delegate void EntityHealthDelegate(BaseEntity e, int dmg, bool explosion, bool poison, bool heal, bool collision);
+
+
 
 public interface IEntityController
 {
@@ -20,8 +24,12 @@ public interface IEntityController
     event PlayerDestroyedDelegate OnPlayerKilled;
     event MonsterDestroyedDelegate OnMonsterKilled;
 
+    event PlayerMonsterCollision OnPlayerMonsterCollision;
+
     event BombDelegate OnBombSpawned;
     event BombDestroyedDelegate OnBombExploded;
+
+    event EntityHealthDelegate OnEntityHealth;
 
     Player Player { get; }
 
@@ -53,4 +61,8 @@ public interface IEntityController
     List<Bomb> GetBombs();
     void NotifyMonsterKilled(Monster monster);
     void PlayerKilled();
+
+    void CollisionMonsterPlayer(Player p, Monster m, int playerDmg, int monsterDmg);
+
+    void EntityHealthEvent(BaseEntity entity, int healthDelta, bool isExplosion, bool isHeal, bool isPoison, bool isCollision);
 }

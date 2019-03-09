@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EntityController: IEntityController
+public class EntityController : IEntityController
 {
     EntityCreationData _entityCreationData;
 
@@ -22,6 +22,8 @@ public class EntityController: IEntityController
     public event BombDestroyedDelegate OnBombExploded;
     public event PlayerDestroyedDelegate OnPlayerKilled;
     public event MonsterDestroyedDelegate OnMonsterKilled;
+    public event PlayerMonsterCollision OnPlayerMonsterCollision;
+    public event EntityHealthDelegate OnEntityHealth;
 
     public void Init(FairyBombMap map, PaintMap paintMap, EntityCreationData entityCreationData)
     {
@@ -37,10 +39,10 @@ public class EntityController: IEntityController
 
     private void OnTilePaintUpdated(List<InGameTile> tiles)
     {
-        foreach(var t in tiles)
+        foreach (var t in tiles)
         {
             var entities = GetEntitiesAt(t.Coords).FindAll(x => x.Active && x is IPaintableEntity);
-            foreach(var e in entities)
+            foreach (var e in entities)
             {
                 ((IPaintableEntity)e).PaintableTrait.PaintTileUpdated(t);
             };
@@ -122,9 +124,9 @@ public class EntityController: IEntityController
     public bool ExistsNearbyEntity(Vector2Int coords, int radius, BaseEntity[] excluded = null)
     {
         var filteredEntities = excluded != null ? GetFilteredEntities(excluded) : _allEntities;
-        foreach(var e in filteredEntities)
+        foreach (var e in filteredEntities)
         {
-            if(_map.Distance(e.Coords, coords) <= radius)
+            if (_map.Distance(e.Coords, coords) <= radius)
             {
                 return true;
             }
@@ -139,7 +141,7 @@ public class EntityController: IEntityController
 
         foreach (BaseEntity entity in candidates)
         {
-            if(entity.Coords == actionTargetCoords)
+            if (entity.Coords == actionTargetCoords)
             {
                 resultEntities.Add(entity);
             }
@@ -151,7 +153,7 @@ public class EntityController: IEntityController
     public List<BaseEntity> GetFilteredEntities(BaseEntity[] excluded)
     {
         List<BaseEntity> filtered = new List<BaseEntity>(_allEntities);
-        foreach(var excludedEntity in excluded)
+        foreach (var excludedEntity in excluded)
         {
             filtered.Remove(excludedEntity);
         }
@@ -166,7 +168,7 @@ public class EntityController: IEntityController
 
     public void AddNewEntities()
     {
-        foreach(var e in _entitiesToAdd)
+        foreach (var e in _entitiesToAdd)
         {
             e.OnAdded();
             _allEntities.Add(e);
@@ -178,7 +180,7 @@ public class EntityController: IEntityController
 
     public void PurgeEntities()
     {
-        foreach(var e in _entitiesToAdd)
+        foreach (var e in _entitiesToAdd)
         {
             e.OnDestroyed();
             GameObject.Destroy(e.gameObject);
@@ -196,7 +198,7 @@ public class EntityController: IEntityController
 
     public void RemovePendingEntities()
     {
-        if(_entitiesToRemove.Count == 0)
+        if (_entitiesToRemove.Count == 0)
         {
             return;
         }
@@ -215,7 +217,7 @@ public class EntityController: IEntityController
 
     public void PlayerDestroyed()
     {
-        _player = null;        
+        _player = null;
     }
 
     public void Cleanup()
@@ -272,5 +274,35 @@ public class EntityController: IEntityController
     public void PlayerKilled()
     {
         OnPlayerKilled?.Invoke();
+    }
+
+    public void CollisionMonsterPlayer(Player p, Monster m, int playerDmg, int monsterDmg)
+    {
+        OnPlayerMonsterCollision(p, m, playerDmg, monsterDmg);
+    }
+
+    public void PlayerDamaged(int dmg, bool isExplosion, bool isPoison, bool isCollision)
+    {
+        EntityHealthEvent(_player, dmg, isExplosion, false, isPoison, isCollision);
+    }
+
+    public void PlayerHealed(int restoredhp)
+    {
+        EntityHealthEvent(_player, restoredhp, false, true, false, false);
+    }
+
+    public void MonsterDamaged(Monster m, int dmg, bool isExplosion, bool isPoison, bool isCollision)
+    {
+        EntityHealthEvent(m, dmg, isExplosion, false, isPoison, isCollision);
+    }
+
+    public void MonsterHealed(Monster m, int restoredhp)
+    {
+        EntityHealthEvent(m, restoredhp, false, true, false, false);
+    }
+
+    public void EntityHealthEvent(BaseEntity entity, int healthDelta, bool isExplosion, bool isHeal, bool isPoison, bool isCollision)
+    {
+        OnEntityHealth?.Invoke(entity, healthDelta, isExplosion, isPoison, isHeal, isCollision);
     }
 }

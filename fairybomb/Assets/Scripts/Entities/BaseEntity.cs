@@ -21,6 +21,7 @@ public delegate void EntityMovedDelegate(Vector2Int nextCoords, Vector2 worldPos
 
 public abstract class BaseEntity : MonoBehaviour, IScheduledEntity
 {
+    public string Name => _entityData.DisplayName;
     public Vector2Int Coords
     {
         get => _coords;

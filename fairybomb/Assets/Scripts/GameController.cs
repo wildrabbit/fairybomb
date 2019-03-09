@@ -141,23 +141,23 @@ public class GameController : MonoBehaviour
 
     private void BombSpawned(Bomb bomb)
     {
-        BombActionEvent bombEvt = new BombActionEvent(_turns, _elapsedUnits);
-        bombEvt.SetSpawned(bomb);
-        _eventLog.AddEvent(bombEvt);
+        //BombActionEvent bombEvt = new BombActionEvent(_turns, _elapsedUnits);
+        //bombEvt.SetSpawned(bomb);
+        //_eventLog.AddEvent(bombEvt);
     }
 
     private void BombExploded(Bomb bomb, List<Vector2Int> coords, BaseEntity triggerEntity)
     {
-        BombActionEvent bombEvt = new BombActionEvent(_turns, _elapsedUnits);
-        if (triggerEntity == null)
-        {
-            bombEvt.SetTimedOut(bomb);
-        }
-        else if (triggerEntity is Bomb)
-        {
-            bombEvt.SetChainExplosion(bomb, ((Bomb)triggerEntity));
-        }
-        _eventLog.AddEvent(bombEvt);
+        //BombActionEvent bombEvt = new BombActionEvent(_turns, _elapsedUnits);
+        //if (triggerEntity == null)
+        //{
+        //    bombEvt.SetTimedOut(bomb);
+        //}
+        //else if (triggerEntity is Bomb)
+        //{
+        //    bombEvt.SetChainExplosion(bomb, ((Bomb)triggerEntity));
+        //}
+        //_eventLog.AddEvent(bombEvt);
 
         foreach (var coord in coords)
         {
@@ -267,11 +267,15 @@ public class GameController : MonoBehaviour
         if(_cameraController.CameraType == CameraType.Tracking)
             player.OnEntityMoved += _cameraController.PlayerMoved;
 
-        player.BomberTrait.OnAddedToInventory += _hud.AddedToInventory;
-        player.BomberTrait.OnDroppedItem += _hud.DroppedItem;
-        player.BomberTrait.OnItemDepleted += _hud.DepletedItem;
-        player.BomberTrait.OnSelectedItem += _hud.SelectedItem;
+        _entityController.OnPlayerMonsterCollision += OnPlayerMonsterCollision;
+        _entityController.OnEntityHealth += OnEntityHealth;
+
         player.BomberTrait.OnUsedItem += _hud.UsedItem;
+
+        player.BomberTrait.OnAddedToInventory += AddedToInventory;
+        player.BomberTrait.OnDroppedItem += DroppedItem;
+        player.BomberTrait.OnItemDepleted += DepletedItem;
+        player.BomberTrait.OnSelectedItem += SelectedItem;
 
         player.PaintableTrait.OnAppliedPaint += _hud.AppliedPaint;
         player.PaintableTrait.OnRemovedPaint += _hud.RemovedPaint;
@@ -279,17 +283,95 @@ public class GameController : MonoBehaviour
         _input.OnLayoutChanged += _hud.OnInputLayoutChanged;
     }
 
+    private void OnEntityHealth(BaseEntity e, int dmg, bool explosion, bool poison, bool heal, bool collision)
+    {
+        EntityHealthEvent evt = new EntityHealthEvent(_turns, _elapsedUnits);
+        evt.name = e.Name;
+        evt.isPlayer = e is Player;
+        evt.isCollision = collision;
+        evt.isExplosion = explosion;
+        evt.isPoison = poison;
+        evt.isHeal = heal;
+        evt.dmg = dmg;
+        _eventLog.AddEvent(evt);
+    }
+
+    private void SelectedItem(int idx, BombInventoryEntry entry, IBomberEntity entity)
+    {
+        PlayerItemEvent evt = new PlayerItemEvent(_turns, _elapsedUnits);
+        evt.isAdded = false;
+        evt.isDepleted = false;
+        evt.isSelected = true;
+        evt.isDropped = false;
+        evt.item = entry.Bomb;
+        _eventLog.AddEvent(evt);
+
+        _hud.SelectedItem(idx, entry, entity);
+    }
+
+    private void DepletedItem(int idx, BombInventoryEntry entry, IBomberEntity entity)
+    {
+        PlayerItemEvent evt = new PlayerItemEvent(_turns, _elapsedUnits);
+        evt.isAdded = false;
+        evt.isDepleted = true;
+        evt.isSelected = false;
+        evt.isDropped = false;
+        evt.item = entry.Bomb;
+        _eventLog.AddEvent(evt);
+
+        _hud.DepletedItem(idx, entry, entity);
+    }
+
+    private void DroppedItem(int idx, BombInventoryEntry entry, IBomberEntity entity)
+    {
+        PlayerItemEvent evt = new PlayerItemEvent(_turns, _elapsedUnits);
+        evt.isAdded = false;
+        evt.isDepleted = false;
+        evt.isSelected = false;
+        evt.isDropped = true;
+        evt.item = entry.Bomb;
+        _eventLog.AddEvent(evt);
+
+        _hud.DroppedItem(idx, entry, entity);
+    }
+
+    private void AddedToInventory(int idx, BombInventoryEntry entry, IBomberEntity entity)
+    {
+        PlayerItemEvent evt = new PlayerItemEvent(_turns, _elapsedUnits);
+        evt.isAdded = true;
+        evt.isDepleted = false;
+        evt.isSelected = false;
+        evt.isDropped = false;
+        evt.item = entry.Bomb;
+        _eventLog.AddEvent(evt);
+
+        _hud.AddedToInventory(idx, entry, entity);
+    }
+
+    private void OnPlayerMonsterCollision(Player p, Monster m, int playerDmg, int monsterDmg)
+    {
+        PlayerMonsterCollisionEvent evt = new PlayerMonsterCollisionEvent(_turns, _elapsedUnits);
+        evt.PlayerName = p.name;
+        evt.MonsterName = m.name;
+        evt.PlayerDamageReceived = playerDmg;
+        evt.MonsterDamageReceived = monsterDmg;
+        _eventLog.AddEvent(evt);
+    }
+
     void UnRegisterEntityEvents()
     {
         Player player = _entityController.Player;
 
         _entityController.Player.OnEntityMoved -= _cameraController.PlayerMoved;
+        _entityController.OnPlayerMonsterCollision -= OnPlayerMonsterCollision;
+        _entityController.OnEntityHealth -= OnEntityHealth;
 
-        player.BomberTrait.OnAddedToInventory -= _hud.AddedToInventory;
-        player.BomberTrait.OnDroppedItem -= _hud.DroppedItem;
-        player.BomberTrait.OnItemDepleted -= _hud.DepletedItem;
-        player.BomberTrait.OnSelectedItem -= _hud.SelectedItem;
         player.BomberTrait.OnUsedItem -= _hud.UsedItem;
+
+        player.BomberTrait.OnAddedToInventory -= AddedToInventory;
+        player.BomberTrait.OnDroppedItem -= DroppedItem;
+        player.BomberTrait.OnItemDepleted -= DepletedItem;
+        player.BomberTrait.OnSelectedItem -= SelectedItem;
 
         player.PaintableTrait.OnAppliedPaint -= _hud.AppliedPaint;
         player.PaintableTrait.OnRemovedPaint -= _hud.RemovedPaint;

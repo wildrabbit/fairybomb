@@ -180,8 +180,9 @@ public class Monster : BaseEntity, IBattleEntity, IBomberEntity, IHealthTracking
                     PaintableTrait.OwnerChangedPos(action.NextCoords);
                     if(_entityController.Player.Coords == Coords && _monsterData.PlayerCollisionDmg > 0)
                     {
-                        PlayerCollided(_entityController.Player);
-                        _entityController.Player.MonsterCollided(this);
+                        int monsterDmg = PlayerCollided(_entityController.Player);
+                        int playerDmg = _entityController.Player.MonsterCollided(this);
+                        _entityController.CollisionMonsterPlayer(_entityController.Player, this, playerDmg, monsterDmg);
                     }
                 }
                 
@@ -265,7 +266,8 @@ public class Monster : BaseEntity, IBattleEntity, IBomberEntity, IHealthTracking
 
         if(!IsImmuneTo(bomb) && coords.Contains(Coords))
         {
-            TakeDamage(bomb.Damage);
+            _entityController.EntityHealthEvent(this, bomb.Damage, true, false, false, false);
+            TakeDamage(bomb.Damage);           
         }
     }
 
@@ -323,12 +325,13 @@ public class Monster : BaseEntity, IBattleEntity, IBomberEntity, IHealthTracking
         Debug.Log($"Monster speed rate restored to {_decisionDelay}");
     }
 
-    public void PlayerCollided(Player p)
+    public int PlayerCollided(Player p)
     {
         if(_monsterData.PlayerCollisionDmg > 0)
         {
             TakeDamage(_monsterData.PlayerCollisionDmg);
         }
+        return _monsterData.PlayerCollisionDmg;
     }
 
     public void AppliedPaint(PaintData data)
@@ -384,6 +387,7 @@ public class Monster : BaseEntity, IBattleEntity, IBomberEntity, IHealthTracking
                     {
                         ticks -= paintData.TicksForHPChange;
                         HPTrait.Add(paintData.HPDelta);
+                        _entityController.EntityHealthEvent(this, paintData.HPDelta, false, true, false, false);
                     }
                     break;
                 }
@@ -392,6 +396,7 @@ public class Monster : BaseEntity, IBattleEntity, IBomberEntity, IHealthTracking
                     while (ticks >= paintData.TicksForHPChange)
                     {
                         ticks -= paintData.TicksForHPChange;
+                        _entityController.EntityHealthEvent(this, paintData.HPDelta, false, false, true, false);
                         TakeDamage(paintData.HPDelta);
                     }
                     break;

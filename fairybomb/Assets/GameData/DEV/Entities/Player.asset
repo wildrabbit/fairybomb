@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DefaultViewPrefab: {fileID: 2798364246931441843, guid: 8eb2a6adf8496274c9159a5ba81e532f,
     type: 3}
-  DisplayName: Berry
+  DisplayName: You
   CanMoveIntoMonsterCoords: 1
   MonsterCollisionDmg: 1
   HPData:

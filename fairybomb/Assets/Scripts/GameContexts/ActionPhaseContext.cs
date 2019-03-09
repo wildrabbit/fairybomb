@@ -38,9 +38,9 @@ public class ActionPhaseContext : IPlayContext
                 {
                     Bomb bomb = entityController.CreateBomb(player.BomberTrait.SelectedBomb, playerCoords, player);
                     player.BomberTrait.UseInventoryItem(player.BomberTrait.SelectedIdx);
-                    PlayerActionEvent evt = new PlayerActionEvent(actionData.Turns, actionData.TimeUnits);
-                    evt.SetBomb(bomb.Coords);
-                    log.AddEvent(evt);
+                    //PlayerActionEvent evt = new PlayerActionEvent(actionData.Turns, actionData.TimeUnits);
+                    //evt.SetBomb(bomb.Coords);
+                    //log.AddEvent(evt);
                 }
 
             }
@@ -102,13 +102,14 @@ public class ActionPhaseContext : IPlayContext
 
                     if(collidingMonster != null)
                     {
-                        player.MonsterCollided(collidingMonster);
-                        collidingMonster.PlayerCollided(player);
+                        int playerDmg = player.MonsterCollided(collidingMonster);
+                        int monsterDmg = collidingMonster.PlayerCollided(player);
+                        entityController.CollisionMonsterPlayer(player, collidingMonster, playerDmg, monsterDmg);
                     }
 
-                    PlayerActionEvent evt = new PlayerActionEvent(actionData.Turns, actionData.TimeUnits);
-                    evt.SetMovement(moveDir, player.Coords);
-                    log.AddEvent(evt);
+                    //PlayerActionEvent evt = new PlayerActionEvent(actionData.Turns, actionData.TimeUnits);
+                    //evt.SetMovement(moveDir, player.Coords);
+                    //log.AddEvent(evt);
                     timeWillPass = true;
                 }                
             }

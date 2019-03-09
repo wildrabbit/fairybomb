@@ -27,9 +27,94 @@ public abstract class BaseEvent
 
     public string PrintTime()
     {
-        return $"<color=blue>[T:{Turns}, TU: {Time}]</color> ";
+        return string.Empty;// $"<color=blue>[T:{Turns}, TU: {Time}]</color> ";
     }
 
+}
+
+public class PlayerItemEvent: BaseEvent
+{
+    public BombData item;
+    public bool isAdded;
+    public bool isSelected;
+    public bool isDropped;
+    public bool isDepleted;
+    public PlayerItemEvent(int Turns, float Units)
+        :base(Turns, Units)
+    {
+
+    }
+
+    public override EventCategory Category => EventCategory.Information;
+
+    public override string Message()
+    {
+        if(isAdded)
+        {
+            return $"You've picked up a <b>{item.DisplayName}</b>\n";
+        }
+        else if(isDropped)
+        {
+            return $"You've dropped a <b>{item.DisplayName}</b>\n";
+        }
+        else if (isSelected)
+        {
+            return $"SELECTED: <b>{item.DisplayName}</b>\n";
+        }
+        else if(isDepleted)
+        {
+            return $"You've run out of <b>{item.DisplayName}</b>\n";
+        }
+        return string.Empty;
+    }
+}
+
+public class EntityHealthEvent: BaseEvent
+{
+    public string name;
+    public int dmg;
+    public bool isPlayer;
+    public bool isHeal;
+    public bool isExplosion;
+    public bool isCollision;
+    public bool isPoison;
+    public EntityHealthEvent(int Turns, float Units)
+        : base(Turns, Units)
+    {
+
+    }
+
+    public override EventCategory Category => EventCategory.Information;
+
+    public override string Message()
+    {
+        if(isExplosion) return $"{name} got hit by Explosion! Received {dmg} damage\n";
+        if(isHeal) return $"{name} restored {dmg} HP\n";
+        if(isPoison) return $"{name} took {dmg} poison damage\n";
+        return string.Empty;
+    }
+}
+
+public class PlayerMonsterCollisionEvent: BaseEvent
+{
+    public string PlayerName;
+    public string MonsterName;
+    public int PlayerDamageReceived;
+    public int MonsterDamageReceived;
+
+    public PlayerMonsterCollisionEvent(int Turns, float Units)
+        :base(Turns, Units)
+    {
+
+    }
+
+    public override EventCategory Category => EventCategory.Information;
+
+    public override string Message()
+    {
+        StringBuilder b = new StringBuilder($"{MonsterName} and you have clashed! You've received {PlayerDamageReceived} damage!");
+        return b.ToString();
+    }
 }
 
 public class GameSetupEvent: BaseEvent

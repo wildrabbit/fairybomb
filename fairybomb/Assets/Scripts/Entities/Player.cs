@@ -92,6 +92,7 @@ public class Player : BaseEntity, IBattleEntity, IBomberEntity, IPaintableEntity
         {
             if (!IsImmuneTo(bomb) && coords.Contains(Coords))
             {
+                _entityController.EntityHealthEvent(this, bomb.Damage, true, false, false, false);
                 TakeDamage(bomb.Damage);
             }
         }
@@ -157,12 +158,13 @@ public class Player : BaseEntity, IBattleEntity, IBomberEntity, IPaintableEntity
         _speed = _oldSpeed;
     }
 
-    public void MonsterCollided(Monster monster)
+    public int MonsterCollided(Monster monster)
     {
         if (_playerData.MonsterCollisionDmg > 0)
         {
             TakeDamage(_playerData.MonsterCollisionDmg);
         }
+        return _playerData.MonsterCollisionDmg;
     }
 
     public void AppliedPaint(PaintData paint)
@@ -185,12 +187,15 @@ public class Player : BaseEntity, IBattleEntity, IBomberEntity, IPaintableEntity
             case PaintingEffect.Heal:
             {
                 int initialRecover = paint.HPDelta;
+                _entityController.EntityHealthEvent(this, paint.HPDelta, false, true, false, false);
                 HPTrait.Add(initialRecover);
                 break;
             }
             case PaintingEffect.Poison:
             {
                 int poisonDmg = paint.HPDelta;
+                _entityController.EntityHealthEvent(this, paint.HPDelta, false, false, true, false);
+
                 TakeDamage(poisonDmg);
                 break;
             }

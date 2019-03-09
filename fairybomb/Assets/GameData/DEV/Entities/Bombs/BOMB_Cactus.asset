@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7030c0ef59b6ca8498c35d5b88c383dd, type: 3}
   m_Name: BOMB_Cactus
   m_EditorClassIdentifier: 
-  DefaultViewPrefab: {fileID: 8249384925306986835, guid: 92a51f581c5097046ba60cb973571d44,
+  DefaultViewPrefab: {fileID: 8249384925306986835, guid: f4513802e5028944d887bc043bbb9433,
     type: 3}
   DisplayName: Poison
   Radius: 1
@@ -26,4 +26,4 @@ MonoBehaviour:
   Piercing: 0
   LootViewPrefab: {fileID: 8249384925306986835, guid: 51e73e9c4a1516648bbeaf0f07a5cfdb,
     type: 3}
-  UIIcon: {fileID: 21300000, guid: ecbec143d0c9b7a4c811d68b9c61de62, type: 3}
+  UIIcon: {fileID: 21300000, guid: 6043fcd1b016c48488ab2dadee2dc6bd, type: 3}
